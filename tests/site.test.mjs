@@ -15,11 +15,13 @@ const termsHtml = readFileSync('terms/index.html', 'utf8');
 const notFoundHtml = readFileSync('404.html', 'utf8');
 const renderer = readFileSync('src/scene/renderer.js', 'utf8');
 const phoneScene = readFileSync('src/scene/phone-scene.js', 'utf8');
+const sceneMaterials = readFileSync('src/scene/materials.js', 'utf8');
 const screenTexture = readFileSync('src/scene/screen-texture.js', 'utf8');
 const phoneTimeline = readFileSync('src/scene/phone-timeline.js', 'utf8');
 const capabilityPolicy = readFileSync('src/scene/capability-policy.js', 'utf8');
 const artifactStyles = readFileSync('src/styles/artifact.scss', 'utf8');
 const phoneGenerator = readFileSync('tools/generate_phone_model.py', 'utf8');
+const branding = readFileSync('Branding.md', 'utf8');
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 const scripts = [entryScript, renderer, phoneScene, phoneTimeline, phoneStory, bubbleDemo, transcriptDemo, useCases, waitlist].join('\n');
 
@@ -210,6 +212,13 @@ assert.match(screenTexture, /new THREE\.CanvasTexture/);
 assert.match(screenTexture, /Blabb bubble snoozed/);
 assert.match(phoneScene, /GLTFLoader/);
 assert.match(phoneScene, /blabb-phone\.glb/);
+for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral: 'EF8354', forest: '32533D' })) {
+  assert.match(branding, new RegExp(hex));
+  assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.Color\\("#${hex.toLowerCase()}"\\)`));
+  assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.MeshBasicMaterial\\(\\{ color: palette\\.${name}, toneMapped: false \\}\\)`));
+}
+assert.match(phoneScene, /CylinderGeometry\(0\.32, 0\.32, 0\.16[\s\S]*materials\.aqua/);
+assert.doesNotMatch(phoneScene, /bubble\.body\.material\.emissiveIntensity/);
 assert.match(phoneScene, /double|TouchRings|touchRings/i);
 assert.match(phoneScene, /function rotateBy/);
 assert.match(phoneScene, /phone-interaction-proxy/);

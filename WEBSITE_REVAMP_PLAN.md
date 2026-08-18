@@ -34,8 +34,11 @@ uses:
 - A `CanvasTexture` UI mounted directly on the glass. It therefore shares the
   phone's perspective, occlusion, and motion instead of floating above it as a
   CSS3D layer.
-- A dimensional Three.js Blabb bubble with metal rim, state ring, stop/check/
+- A dimensional Three.js Blabb bubble with plum rim, state ring, stop/check/
   processing badges, touch ripples, and a 3D snooze dock.
+- Brand-critical bubble surfaces use unlit, non-tone-mapped materials so aqua,
+  coral, plum, and forest remain the exact canonical sRGB colors under studio
+  lighting and at every rotation.
 - A PMREM studio environment, ACES tone mapping, key/aqua/coral rim lights,
   soft cast shadows, restrained bloom on capable desktop browsers, and lower-
   cost mobile rendering.

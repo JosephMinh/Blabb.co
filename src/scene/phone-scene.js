@@ -79,23 +79,15 @@ function createBubble(materials) {
 
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(0.32, 0.32, 0.16, 64, 2),
-    new THREE.MeshPhysicalMaterial({
-      color: palette.aqua,
-      roughness: 0.24,
-      metalness: 0.18,
-      clearcoat: 1,
-      clearcoatRoughness: 0.11,
-      emissive: palette.aqua,
-      emissiveIntensity: 0.28
-    })
+    materials.aqua
   );
   body.rotation.x = Math.PI / 2;
   body.castShadow = true;
   group.add(body);
 
-  const metalRim = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 18, 80), materials.rail);
-  metalRim.position.z = 0.092;
-  group.add(metalRim);
+  const plumRim = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 18, 80), materials.plum);
+  plumRim.position.z = 0.092;
+  group.add(plumRim);
   const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.258, 0.023, 16, 80), materials.coral);
   stateRing.position.z = 0.116;
   group.add(stateRing);
@@ -139,7 +131,7 @@ function createBubble(materials) {
   const badgeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.06, 40), materials.coral);
   badgeDisc.rotation.x = Math.PI / 2;
   badge.add(badgeDisc);
-  const stop = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), new THREE.MeshBasicMaterial({ color: palette.paper }));
+  const stop = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), new THREE.MeshBasicMaterial({ color: palette.paper, toneMapped: false }));
   stop.position.z = 0.04;
   badge.add(stop);
   const checkGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -147,12 +139,12 @@ function createBubble(materials) {
     new THREE.Vector3(-0.012, -0.034, 0.045),
     new THREE.Vector3(0.054, 0.045, 0.045)
   ]);
-  const check = new THREE.Line(checkGeometry, new THREE.LineBasicMaterial({ color: palette.paper, linewidth: 3 }));
+  const check = new THREE.Line(checkGeometry, new THREE.LineBasicMaterial({ color: palette.paper, linewidth: 3, toneMapped: false }));
   check.visible = false;
   badge.add(check);
   const dots = new THREE.Group();
   [-0.032, 0, 0.032].forEach((x) => {
-    const dot = new THREE.Mesh(new THREE.CircleGeometry(0.01, 18), new THREE.MeshBasicMaterial({ color: palette.paper }));
+    const dot = new THREE.Mesh(new THREE.CircleGeometry(0.01, 18), new THREE.MeshBasicMaterial({ color: palette.paper, toneMapped: false }));
     dot.position.set(x, 0, 0.045);
     dots.add(dot);
   });
@@ -345,11 +337,10 @@ export async function createPhoneScene(webglScene, camera) {
     bubble.stateRing.visible = listening || success;
     bubble.badge.visible = listening || processing || success;
     bubble.stateRing.material = success ? materials.forest : materials.coral;
-    bubble.badgeDisc.material = success ? materials.forest : processing ? materials.edge : materials.coral;
+    bubble.badgeDisc.material = success ? materials.forest : processing ? materials.plum : materials.coral;
     bubble.check.visible = success;
     bubble.stop.visible = listening;
     bubble.dots.visible = processing;
-    bubble.body.material.emissiveIntensity = listening ? 0.68 : processing ? 0.52 : 0.28;
   }
 
   function setProgress(nextProgress) {
