@@ -241,8 +241,8 @@ assert.doesNotMatch(phoneScene, /handsetDepth|assembly-(?:battery|board|midframe
 assert.match(phoneGenerator, /rounded_box\("PHONE_BODY"/);
 assert.match(phoneGenerator, /continuous-shell/);
 assert.match(phoneGenerator, /PHONE_BODY", \(3\.5, 0\.42, 7\.45\)/);
-assert.match(phoneGenerator, /boolean_recess\(body, display_recess\)/);
 assert.match(phoneGenerator, /rounded_plate\("DISPLAY_GLASS"/);
+assert.doesNotMatch(phoneGenerator, /DISPLAY_RECESS_CUTTER|display_recess/);
 assert.match(phoneGenerator, /boolean_recess\(body, usb_cutter\)/);
 assert.match(phoneGenerator, /SPEAKER_CUTTER_/);
 assert.match(phoneGenerator, /VOLUME_BUTTON", \(0\.045, 0\.16, 0\.64\)[^\n]+plum/);

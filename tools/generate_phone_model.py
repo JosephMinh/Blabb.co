@@ -169,14 +169,6 @@ body = rounded_box("PHONE_BODY", (3.5, 0.42, 7.45), (0, 0, 0), plum_matte, 0.19)
 body["assembly_layer"] = "frame"
 body["surface"] = "continuous-shell"
 
-# The glass is physically seated into the shell instead of floating in front
-# of it. A true shallow recess produces a continuous bezel and a clean side
-# silhouette at glancing angles.
-display_recess = rounded_plate(
-    "DISPLAY_RECESS_CUTTER", 3.42, 0.09, 7.35, 0.23, (0, -0.205, 0), black
-)
-boolean_recess(body, display_recess)
-
 # A nearly flush rear finish adds depth without becoming another phone layer.
 back_accent = rounded_plate("BACK_ACCENT", 3.18, 0.018, 6.86, 0.22, (0, 0.219, -0.06), plum)
 back_accent["assembly_layer"] = "back"
@@ -193,9 +185,10 @@ for index, x in enumerate((-0.92, -0.38)):
 cylinder("CAMERA_FLASH", 0.082, 0.025, (0.84, 0.345, 2.82), paper, vertices=40)
 rounded_box("CAMERA_CORAL_ACCENT", (0.22, 0.022, 0.055), (1.19, 0.329, 2.82), coral, 0.02)
 
-# A single thin glass surface sits flush inside the plum lip. The animated app
-# UI is rendered just above it by the website, so no OLED or display-bed slabs
-# are needed in the asset.
+# A single thin glass surface overlaps into the solid plum face, leaving no
+# cavity that can become visible edge-on. Only 0.006 model units sit above the
+# metal rail; the rest is embedded in the continuous enclosure. The animated
+# app UI is rendered directly on this outer surface by the website.
 glass = rounded_plate("DISPLAY_GLASS", 3.42, 0.024, 7.35, 0.23, (0, -0.204, 0), black)
 glass["assembly_layer"] = "glass"
 
