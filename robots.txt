@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blabb.co/sitemap.xml
+
