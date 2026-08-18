@@ -41,6 +41,11 @@ function text(context, value, x, y, size, weight = 700, color = colors.ink, alig
   context.fillText(value, x, y);
 }
 
+function textWidth(context, value, size, weight = 700) {
+  context.font = `${weight} ${size}px Nunito, system-ui, sans-serif`;
+  return context.measureText(value).width;
+}
+
 function drawKeyboard(context) {
   context.fillStyle = colors.keyboard;
   context.fillRect(0, 1110, 768, 490);
@@ -147,22 +152,36 @@ export function createScreenTexture() {
     context.fillStyle = colors.lilac;
     context.fillRect(0, 940, 768, 2);
     roundedRect(context, 30, 972, 622, 104, 27, colors.white, "#d4c9d6", 3);
-    text(context, "Lunch tomorrow works.", 56, 1024, 23, 750);
 
     const showFirst = ["insert", "continue", "undo", "snooze", "snoozed", "final"].includes(state);
     const showSecond = state === "continue" && phase < 0.68;
+    const composerX = 56;
+    const baseLineY = showFirst ? 1003 : 1024;
+    const insertionLineY = 1047;
+    const baseText = "Lunch tomorrow works.";
+    const firstInsertion = "I can meet at 12:30.";
+    const secondInsertion = "I’ll bring the notes.";
+    text(context, baseText, composerX, baseLineY, 23, 750);
+
+    let cursorX = composerX + textWidth(context, baseText, 23, 750) + 7;
+    let cursorY = baseLineY - 17;
     if (showFirst) {
-      const start = 278;
-      roundedRect(context, start, 1038, 230, 12, 5, "rgba(136,224,217,.64)");
-      text(context, "I can meet at 12:30.", start, 1024, 23, 800);
+      const firstWidth = textWidth(context, firstInsertion, 22, 800);
+      roundedRect(context, composerX - 4, insertionLineY - 16, firstWidth + 8, 30, 6, "rgba(136,224,217,.64)");
+      text(context, firstInsertion, composerX, insertionLineY, 22, 800);
+      cursorX = composerX + firstWidth + 7;
+      cursorY = insertionLineY - 17;
     }
     if (showSecond) {
-      roundedRect(context, 56, 1064, 226, 9, 4, "rgba(239,131,84,.46)");
-      text(context, "I’ll bring the notes.", 56, 1057, 22, 800);
+      const firstWidth = textWidth(context, firstInsertion, 22, 800);
+      const secondX = composerX + firstWidth + 18;
+      const secondWidth = textWidth(context, secondInsertion, 22, 800);
+      roundedRect(context, secondX - 4, insertionLineY - 16, secondWidth + 8, 30, 6, "rgba(239,131,84,.4)");
+      text(context, secondInsertion, secondX, insertionLineY, 22, 800);
+      cursorX = secondX + secondWidth + 7;
     }
-    const cursorX = showSecond ? 287 : showFirst ? 515 : 282;
     if (Math.floor(performance.now() / 520) % 2 === 0 && state !== "snoozed") {
-      roundedRect(context, cursorX, showSecond ? 1042 : 1003, 3, 34, 2, colors.ink);
+      roundedRect(context, cursorX, cursorY, 3, 34, 2, colors.ink);
     }
     roundedRect(context, 674, 990, 66, 66, 33, colors.ink);
     text(context, "↑", 707, 1022, 34, 950, colors.paper, "center");

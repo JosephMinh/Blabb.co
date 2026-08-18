@@ -210,6 +210,9 @@ assert.match(renderer, /softwareRenderer \? 0\.5/);
 assert.match(html, /data-device="android-phone"/);
 assert.match(screenTexture, /new THREE\.CanvasTexture/);
 assert.match(screenTexture, /Blabb bubble snoozed/);
+assert.match(screenTexture, /function textWidth[\s\S]*context\.measureText/);
+assert.match(screenTexture, /baseLineY[\s\S]*insertionLineY[\s\S]*secondX/);
+assert.doesNotMatch(screenTexture, /const start = 278|showSecond \? 287|showFirst \? 515/);
 assert.match(phoneScene, /GLTFLoader/);
 assert.match(phoneScene, /blabb-phone\.glb/);
 for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral: 'EF8354', forest: '32533D' })) {
