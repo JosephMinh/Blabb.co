@@ -204,8 +204,11 @@ cylinder("SELFIE_RING", 0.084, 0.014, (0, -0.224, 3.39), steel, vertices=48)
 cylinder("SELFIE_LENS", 0.057, 0.018, (0, -0.234, 3.39), black, vertices=48)
 rounded_box("EARPIECE", (0.58, 0.014, 0.038), (0, -0.222, 3.57), graphite, 0.014)
 
-rounded_box("VOLUME_BUTTON", (0.065, 0.22, 0.72), (1.77, 0, 1.38), plum, 0.027)
-rounded_box("POWER_BUTTON", (0.07, 0.22, 0.48), (1.772, 0, 0.52), aqua, 0.028)
+# Slim, frame-matched controls read as precision hardware rather than branded
+# badges. Their polished plum finish separates them from the matte rail only
+# when light catches the shallow projection.
+rounded_box("VOLUME_BUTTON", (0.045, 0.16, 0.64), (1.765, 0, 1.38), plum, 0.02)
+rounded_box("POWER_BUTTON", (0.045, 0.16, 0.38), (1.765, 0, 0.52), plum, 0.02)
 
 # Bottom hardware is boolean-cut into the enclosure. Dark interior caps sit
 # well behind the exterior surface, so the speaker, microphone, and USB-C port

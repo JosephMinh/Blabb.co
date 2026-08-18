@@ -245,6 +245,8 @@ assert.match(phoneGenerator, /boolean_recess\(body, display_recess\)/);
 assert.match(phoneGenerator, /rounded_plate\("DISPLAY_GLASS"/);
 assert.match(phoneGenerator, /boolean_recess\(body, usb_cutter\)/);
 assert.match(phoneGenerator, /SPEAKER_CUTTER_/);
+assert.match(phoneGenerator, /VOLUME_BUTTON", \(0\.045, 0\.16, 0\.64\)[^\n]+plum/);
+assert.match(phoneGenerator, /POWER_BUTTON", \(0\.045, 0\.16, 0\.38\)[^\n]+plum/);
 assert.match(phoneScene, /PlaneGeometry\(3\.34, 7\.24\)/);
 assert.match(screenTexture, /context\.roundRect\(0, 0, canvas\.width, canvas\.height, 52\)/);
 assert.doesNotMatch(phoneGenerator, /MAINBOARD|BATTERY_AQUA|MIDFRAME_|DISPLAY_BED|OLED_PANEL|LOCAL_ENGINE|CHARGING_COIL/);
