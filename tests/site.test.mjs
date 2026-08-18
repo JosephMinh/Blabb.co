@@ -192,6 +192,7 @@ assert.match(html, /aria-live="polite"/);
 assert.match(css, /prefers-reduced-motion: reduce/);
 assert.match(css, /\.chapter-state-card/);
 assert.match(css, /\.js\.enhanced \.reveal/);
+assert.match(css, /\.js\.enhanced \.chapter-copy\.reveal\s*\{[^}]*opacity:\s*1[^}]*transform:\s*none/);
 assert.match(entryScript, /classList\.add\("enhanced"\)/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /motionSections[\s\S]*IntersectionObserver/);
 assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/canvas>/);

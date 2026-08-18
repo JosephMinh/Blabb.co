@@ -145,6 +145,8 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
   transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
 }
 .js.enhanced .reveal.visible { opacity: 1; transform: none; }
+/* Product explanations are essential content, never reveal-gated. */
+.js.enhanced .chapter-copy.reveal { opacity: 1; transform: none; }
 
 /* Floating capsule header */
 
