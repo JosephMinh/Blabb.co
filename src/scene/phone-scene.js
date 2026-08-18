@@ -107,34 +107,44 @@ function createBubble(materials) {
   const metalRim = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 18, 80), materials.rail);
   metalRim.position.z = 0.092;
   group.add(metalRim);
-  const facePlate = new THREE.Mesh(
-    new THREE.CircleGeometry(0.275, 64),
-    new THREE.MeshBasicMaterial({ color: palette.aqua, toneMapped: false })
-  );
-  facePlate.position.z = 0.114;
-  group.add(facePlate);
   const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.258, 0.023, 16, 80), materials.coral);
-  stateRing.position.z = 0.121;
+  stateRing.position.z = 0.116;
   group.add(stateRing);
 
   const processingArc = new THREE.Mesh(
     new THREE.TorusGeometry(0.258, 0.026, 16, 80, THREE.MathUtils.degToRad(245)),
     materials.coral
   );
-  processingArc.position.z = 0.123;
+  processingArc.position.z = 0.121;
   processingArc.visible = false;
   group.add(processingArc);
 
-  const logo = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.48, 0.48),
-    new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false })
-  );
-  logo.position.z = 0.127;
-  new THREE.TextureLoader().load(new URL("../../assets/blabb-mark.png", import.meta.url).href, (texture) => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    logo.material.map = texture;
-    logo.material.needsUpdate = true;
-  });
+  const logoCanvas = document.createElement("canvas");
+  logoCanvas.width = 512;
+  logoCanvas.height = 512;
+  const logoContext = logoCanvas.getContext("2d");
+  logoContext.fillStyle = "#170a1c";
+  logoContext.font = "950 300px Nunito, sans-serif";
+  logoContext.textAlign = "center";
+  logoContext.textBaseline = "middle";
+  logoContext.fillText("B", 256, 208);
+  logoContext.lineWidth = 46;
+  logoContext.lineCap = "round";
+  logoContext.beginPath();
+  logoContext.arc(256, 242, 128, Math.PI * 0.17, Math.PI * 0.83);
+  logoContext.stroke();
+  const logoTexture = new THREE.CanvasTexture(logoCanvas);
+  logoTexture.colorSpace = THREE.SRGBColorSpace;
+  const logo = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: logoTexture,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    toneMapped: false
+  }));
+  logo.position.z = 0.2;
+  logo.scale.set(0.5, 0.5, 1);
+  logo.renderOrder = 10;
   group.add(logo);
 
   const badge = new THREE.Group();
