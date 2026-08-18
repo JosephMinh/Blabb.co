@@ -21,11 +21,11 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
 
   await page.mouse.move(820, 500);
   await page.mouse.down();
-  await page.mouse.move(1000, 465, { steps: 8 });
+  await page.mouse.move(1000, 465, { steps: 24 });
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "dragging");
-  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-rotation", /,/);
   await page.mouse.up();
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "ready");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-rotation", /,/);
 
   for (const [step, expectedState] of states) {
     const section = page.locator(`.story-chapter[data-step="${step}"]`);
@@ -78,6 +78,25 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
 });
 
+test("a WebGL reset restores the interactive artifact without a page refresh", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 30_000 });
+
+  const canReset = await page.evaluate(() => {
+    const canvas = document.querySelector("#artifact-webgl");
+    const gl = canvas?.getContext("webgl2") || canvas?.getContext("webgl");
+    window.__blabbContextReset = gl?.getExtension("WEBGL_lose_context") || null;
+    window.__blabbContextReset?.loseContext();
+    return Boolean(window.__blabbContextReset);
+  });
+  expect(canReset).toBe(true);
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-render-state", "recovering");
+  await page.evaluate(() => window.__blabbContextReset.restoreContext());
+  await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 15_000 });
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-render-state", "ready");
+});
+
 test("reduced motion and unavailable WebGL keep the semantic fallback", async ({ browser }) => {
   const reduced = await browser.newContext({ reducedMotion: "reduce", viewport: { width: 390, height: 844 } });
   const reducedPage = await reduced.newPage();
@@ -95,4 +114,16 @@ test("reduced motion and unavailable WebGL keep the semantic fallback", async ({
   await expect(noWebglPage.locator("html")).toHaveClass(/artifact-fallback-active/);
   await expect(noWebglPage.locator(".phone-artifact")).toBeVisible();
   await noWebgl.close();
+
+  const softwareWebgl = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await softwareWebgl.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { configurable: true, get: () => false });
+  });
+  const softwarePage = await softwareWebgl.newPage();
+  await softwarePage.goto("/");
+  await expect(softwarePage.locator("#artifact-stage")).toHaveAttribute("data-renderer-mode", "fallback");
+  await expect(softwarePage.locator("html")).not.toHaveClass(/webgl-ready/);
+  await expect(softwarePage.locator(".phone-artifact")).toBeVisible();
+  await expect(softwarePage.locator(".device-layer").first()).toHaveCSS("display", "none");
+  await softwareWebgl.close();
 });

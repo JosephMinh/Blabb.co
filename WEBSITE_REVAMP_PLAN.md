@@ -45,6 +45,11 @@ uses:
   pitch range, full yaw, real raycast hit testing, and native vertical scrolling.
 - Runtime material calibration to the canonical plum `#170A1C`, aqua `#88E0D9`,
   coral `#EF8354`, lilac `#EDDFEF`, and forest `#32533D` palette.
+- Rotation resilience: a low-poly interaction proxy replaces full-model
+  raycasting, enclosed component groups stay out of the draw list, pointer
+  capture always terminates drags, and WebGL resets restore the scene without a
+  page refresh. Browsers using software WebGL receive the assembled semantic
+  phone rather than an unstable 3D renderer.
 
 The semantic CSS phone remains only as the no-WebGL, reduced-motion, and
 no-JavaScript fallback. Devices reporting 4 GiB are no longer incorrectly

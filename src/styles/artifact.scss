@@ -99,7 +99,7 @@
 .touch-hint { display: none; }
 .webgl-ready body { touch-action: pan-y pinch-zoom; }
 .webgl-ready .artifact-stage.is-hovered { cursor: grab; }
-html.artifact-dragging, html.artifact-dragging * { cursor: grabbing !important; }
+html.artifact-dragging, html.artifact-dragging body { cursor: grabbing !important; }
 
 #artifact-webgl {
   position: absolute;

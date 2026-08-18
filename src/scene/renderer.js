@@ -26,9 +26,22 @@ export async function initArtifact() {
   renderer.toneMappingExposure = 1.18;
   renderer.setClearColor(0x000000, 0);
   const automated = navigator.webdriver;
-  renderer.shadowMap.enabled = !automated;
+  const debugRenderer = renderer.getContext().getExtension("WEBGL_debug_renderer_info");
+  const gpuName = debugRenderer
+    ? renderer.getContext().getParameter(debugRenderer.UNMASKED_RENDERER_WEBGL)
+    : "";
+  const softwareRenderer = /swiftshader|llvmpipe|software rasterizer|basic render|microsoft warp/i.test(gpuName);
+  if (softwareRenderer && !automated) {
+    canvas.dataset.renderer = "software-fallback";
+    stage.dataset.rendererMode = "fallback";
+    renderer.dispose();
+    document.documentElement.classList.add("artifact-fallback-active");
+    return false;
+  }
+  renderer.shadowMap.enabled = !automated && !softwareRenderer;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   canvas.dataset.renderer = "threejs-gltf";
+  stage.dataset.rendererMode = softwareRenderer ? "test" : "full";
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
@@ -70,7 +83,7 @@ export async function initArtifact() {
 
   const controller = await createPhoneScene(scene, camera);
   const compact = window.matchMedia("(max-width: 880px), (pointer: coarse)").matches;
-  const composer = compact || automated ? null : createPostprocessing(renderer, scene, camera);
+  const composer = compact || automated || softwareRenderer ? null : createPostprocessing(renderer, scene, camera);
 
   let width = 0;
   let height = 0;
@@ -82,16 +95,18 @@ export async function initArtifact() {
   let smoothPointerX = 0;
   let smoothPointerY = 0;
   let previousTime = performance.now() / 1000;
-  let lastAutomatedFrame = -Infinity;
+  let lastBudgetedFrame = -Infinity;
   let activePointer = null;
   let lastDragX = 0;
   let lastDragY = 0;
   let touchDecision = "pending";
+  let pointerCaptureTarget = null;
+  let lastHoverTest = -Infinity;
 
   function resize() {
     width = Math.max(1, window.innerWidth);
     height = Math.max(1, window.innerHeight);
-    const ratio = automated ? 1 : artifactPixelRatio();
+    const ratio = softwareRenderer ? 0.5 : automated ? 1 : artifactPixelRatio();
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
     composer?.setPixelRatio(ratio);
@@ -103,8 +118,8 @@ export async function initArtifact() {
 
   function render(time) {
     if (!running || document.hidden || stage.dataset.renderPaused === "true" || !stage.classList.contains("is-visible")) return;
-    if (automated && time - lastAutomatedFrame < 0.14) return;
-    lastAutomatedFrame = time;
+    if ((automated || softwareRenderer) && time - lastBudgetedFrame < 0.14) return;
+    lastBudgetedFrame = time;
     const seconds = time;
     const delta = Math.min(0.05, Math.max(0.001, seconds - previousTime));
     previousTime = seconds;
@@ -114,12 +129,15 @@ export async function initArtifact() {
     camera.position.y = smoothPointerY * -0.26;
     camera.lookAt(0, 0, 0);
     controller.tick(seconds, delta);
-    if (composer) composer.render();
+    // Direct rendering during a drag avoids spending GPU time on bloom while
+    // the object is changing fastest. The studio finish returns on release.
+    if (composer && activePointer === null) composer.render();
     else renderer.render(scene, camera);
 
     if (!firstFrame) {
       firstFrame = true;
       stage.dataset.rendered = "true";
+      stage.dataset.renderState = "ready";
       document.documentElement.classList.add("webgl-ready");
       document.documentElement.classList.remove("artifact-fallback-active");
     }
@@ -137,6 +155,8 @@ export async function initArtifact() {
     lastDragY = event.clientY;
     touchDecision = event.pointerType === "touch" ? "pending" : "rotate";
     controller.beginDrag();
+    pointerCaptureTarget = event.target instanceof Element ? event.target : null;
+    try { pointerCaptureTarget?.setPointerCapture(event.pointerId); } catch {}
     stage.classList.add("is-dragging");
     stage.dataset.interaction = "dragging";
     document.documentElement.classList.add("artifact-dragging");
@@ -146,7 +166,10 @@ export async function initArtifact() {
     if (!window.matchMedia("(max-width: 880px), (pointer: coarse)").matches) {
       pointerX = event.clientX / width * 2 - 1;
       pointerY = event.clientY / height * 2 - 1;
-      stage.classList.toggle("is-hovered", activePointer === null && controller.hitTest(event.clientX, event.clientY));
+      if (activePointer === null && event.timeStamp - lastHoverTest >= 34) {
+        lastHoverTest = event.timeStamp;
+        stage.classList.toggle("is-hovered", controller.hitTest(event.clientX, event.clientY));
+      }
     }
     if (event.pointerId !== activePointer) return;
     const deltaX = event.clientX - lastDragX;
@@ -166,14 +189,44 @@ export async function initArtifact() {
   }
 
   function finishDrag(event) {
-    if (event && event.pointerId !== activePointer) return;
+    if (event && "pointerId" in event && event.pointerId !== activePointer) return;
     if (activePointer === null) return;
+    const completedPointer = activePointer;
     activePointer = null;
     touchDecision = "pending";
     controller.endDrag();
     stage.classList.remove("is-dragging");
     stage.dataset.interaction = "ready";
     document.documentElement.classList.remove("artifact-dragging");
+    try {
+      if (pointerCaptureTarget?.hasPointerCapture(completedPointer)) pointerCaptureTarget.releasePointerCapture(completedPointer);
+    } catch {}
+    pointerCaptureTarget = null;
+  }
+
+  function onVisibilityChange() {
+    running = !document.hidden;
+    if (document.hidden) finishDrag();
+  }
+
+  function onContextLost(event) {
+    event.preventDefault();
+    contextLosses += 1;
+    running = false;
+    firstFrame = false;
+    finishDrag();
+    stage.dataset.renderState = "recovering";
+    stage.dataset.contextLosses = String(contextLosses);
+    document.documentElement.classList.remove("webgl-ready");
+    document.documentElement.classList.add("artifact-fallback-active");
+  }
+
+  function onContextRestored() {
+    firstFrame = false;
+    running = !document.hidden;
+    previousTime = performance.now() / 1000;
+    stage.dataset.renderState = "restoring";
+    resize();
   }
 
   const resizeObserver = new ResizeObserver(resize);
@@ -182,19 +235,11 @@ export async function initArtifact() {
   window.addEventListener("pointermove", onPointerMove, { passive: false });
   window.addEventListener("pointerup", finishDrag, { passive: true });
   window.addEventListener("pointercancel", finishDrag, { passive: true });
-  document.addEventListener("visibilitychange", () => { running = !document.hidden; });
-  canvas.addEventListener("webglcontextlost", (event) => {
-    event.preventDefault();
-    contextLosses += 1;
-    running = false;
-    document.documentElement.classList.remove("webgl-ready");
-    if (contextLosses > 1) document.documentElement.classList.add("artifact-fallback-active");
-  });
-  canvas.addEventListener("webglcontextrestored", () => {
-    if (contextLosses > 1) return;
-    running = true;
-    resize();
-  });
+  window.addEventListener("lostpointercapture", finishDrag, true);
+  window.addEventListener("blur", finishDrag);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  canvas.addEventListener("webglcontextlost", onContextLost);
+  canvas.addEventListener("webglcontextrestored", onContextRestored);
 
   resize();
   const timeline = createPhoneTimeline(controller, stage);
@@ -205,11 +250,16 @@ export async function initArtifact() {
 
   window.addEventListener("pagehide", () => {
     timeline.destroy();
-      resizeObserver.disconnect();
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", finishDrag);
-      window.removeEventListener("pointercancel", finishDrag);
+    resizeObserver.disconnect();
+    window.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", finishDrag);
+    window.removeEventListener("pointercancel", finishDrag);
+    window.removeEventListener("lostpointercapture", finishDrag, true);
+    window.removeEventListener("blur", finishDrag);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+    canvas.removeEventListener("webglcontextlost", onContextLost);
+    canvas.removeEventListener("webglcontextrestored", onContextRestored);
     gsap.ticker.remove(render);
     composer?.dispose();
     environment.dispose();

@@ -297,8 +297,20 @@ export async function createPhoneScene(webglScene, camera) {
   const phone = new THREE.Group();
   phone.name = "blabb-android-phone";
   webglScene.add(phone);
+  const interactionProxy = new THREE.Mesh(
+    new THREE.BoxGeometry(3.95, 7.75, 0.9),
+    new THREE.MeshBasicMaterial({ visible: false })
+  );
+  interactionProxy.name = "phone-interaction-proxy";
+  phone.add(interactionProxy);
   applyBrandMaterials(gltf.scene);
   const layers = prepareModel(gltf.scene, phone);
+  // These components are completely enclosed now that the handset never
+  // separates. Keeping them out of the draw list removes dozens of invisible
+  // meshes from every frame without changing the product silhouette.
+  layers.battery.visible = false;
+  layers.board.visible = false;
+  layers.midframe.visible = false;
 
   const screen = createScreenTexture();
   const screenMesh = new THREE.Mesh(
@@ -539,7 +551,7 @@ export async function createPhoneScene(webglScene, camera) {
     if (!visible || !stage?.classList.contains("is-visible")) return false;
     pointer.set(clientX / viewport.width * 2 - 1, -(clientY / viewport.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
-    return raycaster.intersectObject(phone, true).some(({ object }) => object.visible);
+    return raycaster.intersectObject(interactionProxy, false).length > 0;
   }
 
   function beginDrag() {
@@ -554,13 +566,18 @@ export async function createPhoneScene(webglScene, camera) {
     const pitchDelta = deltaY * sensitivity;
     userYaw += yawDelta;
     userPitch = THREE.MathUtils.clamp(userPitch + pitchDelta, -0.58, 0.58);
+    if (Math.abs(userYaw) > Math.PI * 4) {
+      const completedTurns = Math.trunc(userYaw / (Math.PI * 2)) * Math.PI * 2;
+      userYaw -= completedTurns;
+      phone.rotation.y -= completedTurns;
+    }
     yawVelocity = THREE.MathUtils.clamp(yawDelta * 0.72, -0.12, 0.12);
     pitchVelocity = THREE.MathUtils.clamp(pitchDelta * 0.55, -0.045, 0.045);
-    if (stage) stage.dataset.rotation = `${userPitch.toFixed(3)},${userYaw.toFixed(3)}`;
   }
 
   function endDrag() {
     dragging = false;
+    if (stage) stage.dataset.rotation = `${userPitch.toFixed(3)},${userYaw.toFixed(3)}`;
   }
 
   setProgress(0);
