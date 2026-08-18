@@ -19,6 +19,14 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
   await expect(page.locator("#artifact-webgl")).toHaveAttribute("data-renderer", "threejs-gltf");
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
 
+  await page.mouse.move(820, 500);
+  await page.mouse.down();
+  await page.mouse.move(1000, 465, { steps: 8 });
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "dragging");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-rotation", /,/);
+  await page.mouse.up();
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "ready");
+
   for (const [step, expectedState] of states) {
     const section = page.locator(`.story-chapter[data-step="${step}"]`);
     await section.evaluate((element) => {

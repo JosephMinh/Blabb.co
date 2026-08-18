@@ -27,7 +27,7 @@ export async function initArtifact() {
   renderer.setClearColor(0x000000, 0);
   const automated = navigator.webdriver;
   renderer.shadowMap.enabled = !automated;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   canvas.dataset.renderer = "threejs-gltf";
 
   const scene = new THREE.Scene();
@@ -83,6 +83,10 @@ export async function initArtifact() {
   let smoothPointerY = 0;
   let previousTime = performance.now() / 1000;
   let lastAutomatedFrame = -Infinity;
+  let activePointer = null;
+  let lastDragX = 0;
+  let lastDragY = 0;
+  let touchDecision = "pending";
 
   function resize() {
     width = Math.max(1, window.innerWidth);
@@ -121,15 +125,63 @@ export async function initArtifact() {
     }
   }
 
+  function isPageControl(target) {
+    return target instanceof Element && Boolean(target.closest("a, button, input, textarea, select, summary, label"));
+  }
+
+  function onPointerDown(event) {
+    if (activePointer !== null || isPageControl(event.target) || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if (!controller.hitTest(event.clientX, event.clientY)) return;
+    activePointer = event.pointerId;
+    lastDragX = event.clientX;
+    lastDragY = event.clientY;
+    touchDecision = event.pointerType === "touch" ? "pending" : "rotate";
+    controller.beginDrag();
+    stage.classList.add("is-dragging");
+    stage.dataset.interaction = "dragging";
+    document.documentElement.classList.add("artifact-dragging");
+  }
+
   function onPointerMove(event) {
-    if (window.matchMedia("(max-width: 880px), (pointer: coarse)").matches) return;
-    pointerX = event.clientX / width * 2 - 1;
-    pointerY = event.clientY / height * 2 - 1;
+    if (!window.matchMedia("(max-width: 880px), (pointer: coarse)").matches) {
+      pointerX = event.clientX / width * 2 - 1;
+      pointerY = event.clientY / height * 2 - 1;
+      stage.classList.toggle("is-hovered", activePointer === null && controller.hitTest(event.clientX, event.clientY));
+    }
+    if (event.pointerId !== activePointer) return;
+    const deltaX = event.clientX - lastDragX;
+    const deltaY = event.clientY - lastDragY;
+    if (touchDecision === "pending" && Math.hypot(deltaX, deltaY) >= 7) {
+      touchDecision = Math.abs(deltaX) > Math.abs(deltaY) * 1.12 ? "rotate" : "scroll";
+      if (touchDecision === "scroll") {
+        finishDrag();
+        return;
+      }
+    }
+    if (touchDecision !== "rotate") return;
+    event.preventDefault();
+    controller.rotateBy(deltaX, deltaY, event.pointerType);
+    lastDragX = event.clientX;
+    lastDragY = event.clientY;
+  }
+
+  function finishDrag(event) {
+    if (event && event.pointerId !== activePointer) return;
+    if (activePointer === null) return;
+    activePointer = null;
+    touchDecision = "pending";
+    controller.endDrag();
+    stage.classList.remove("is-dragging");
+    stage.dataset.interaction = "ready";
+    document.documentElement.classList.remove("artifact-dragging");
   }
 
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(document.documentElement);
-  window.addEventListener("pointermove", onPointerMove, { passive: true });
+  window.addEventListener("pointerdown", onPointerDown, { passive: true });
+  window.addEventListener("pointermove", onPointerMove, { passive: false });
+  window.addEventListener("pointerup", finishDrag, { passive: true });
+  window.addEventListener("pointercancel", finishDrag, { passive: true });
   document.addEventListener("visibilitychange", () => { running = !document.hidden; });
   canvas.addEventListener("webglcontextlost", (event) => {
     event.preventDefault();
@@ -153,7 +205,11 @@ export async function initArtifact() {
 
   window.addEventListener("pagehide", () => {
     timeline.destroy();
-    resizeObserver.disconnect();
+      resizeObserver.disconnect();
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", finishDrag);
+      window.removeEventListener("pointercancel", finishDrag);
     gsap.ticker.remove(render);
     composer?.dispose();
     environment.dispose();

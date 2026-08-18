@@ -5,7 +5,7 @@ import { createMaterials, palette } from "./materials.js";
 import { createScreenTexture } from "./screen-texture.js";
 
 const chapters = [
-  ["00", "EXPLODED VIEW", "hero"],
+  ["00", "INTERACTIVE MODEL", "hero"],
   ["01", "READY", "focus"],
   ["02", "LISTENING", "dictate"],
   ["03", "PROCESSING LOCALLY", "process"],
@@ -14,15 +14,9 @@ const chapters = [
   ["06", "MOVE + SNOOZE", "snooze"]
 ];
 
-const layerSpecs = {
-  back: { offset: [-1.55, 0.72, -2.35], rotation: [-0.08, -0.18, -0.15], delay: 0 },
-  battery: { offset: [1.35, -0.18, -1.25], rotation: [0.05, 0.19, 0.12], delay: 0.08 },
-  board: { offset: [-1.32, 1.42, 0.15], rotation: [-0.08, -0.14, 0.12], delay: 0.16 },
-  midframe: { offset: [1.46, 0.58, 0.82], rotation: [0.08, 0.17, -0.1], delay: 0.24 },
-  frame: { offset: [-0.78, -0.72, 1.42], rotation: [-0.09, -0.12, -0.08], delay: 0.32 },
-  display: { offset: [1.08, -0.5, 2.2], rotation: [0.07, 0.15, 0.08], delay: 0.4 },
-  glass: { offset: [0.08, 0.1, 3.08], rotation: [-0.04, -0.08, 0.03], delay: 0.48 }
-};
+// These groups preserve the model's logical organization, but the handset is
+// always presented as one fully assembled object.
+const layerNames = ["back", "battery", "board", "midframe", "frame", "display", "glass"];
 
 const chapterRotations = {
   hero: [-0.14, -0.48, 0.08],
@@ -135,15 +129,13 @@ function createBubble(materials) {
   logoContext.stroke();
   const logoTexture = new THREE.CanvasTexture(logoCanvas);
   logoTexture.colorSpace = THREE.SRGBColorSpace;
-  const logo = new THREE.Sprite(new THREE.SpriteMaterial({
+  const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.MeshBasicMaterial({
     map: logoTexture,
     transparent: true,
-    depthTest: false,
     depthWrite: false,
     toneMapped: false
   }));
   logo.position.z = 0.2;
-  logo.scale.set(0.5, 0.5, 1);
   logo.renderOrder = 10;
   group.add(logo);
 
@@ -241,7 +233,7 @@ function createSnoozeTarget(materials) {
 
 function prepareModel(model, phone) {
   const layerGroups = {};
-  Object.keys(layerSpecs).forEach((name) => {
+  layerNames.forEach((name) => {
     const group = new THREE.Group();
     group.name = `assembly-${name}`;
     group.userData.targetPosition = new THREE.Vector3();
@@ -263,6 +255,41 @@ function prepareModel(model, phone) {
   return layerGroups;
 }
 
+function applyBrandMaterials(model) {
+  const tuned = new Set();
+  model.traverse((object) => {
+    if (!object.isMesh || !object.material) return;
+    const modelMaterials = Array.isArray(object.material) ? object.material : [object.material];
+    modelMaterials.forEach((material) => {
+      if (tuned.has(material)) return;
+      tuned.add(material);
+      const name = material.name.toUpperCase();
+      if (name.startsWith("BLABB_PLUM")) {
+        material.color.copy(palette.plum);
+        material.metalness = name.includes("MATTE") ? 0.14 : 0.58;
+        material.roughness = name.includes("MATTE") ? 0.46 : 0.22;
+      } else if (name.startsWith("BLABB_AQUA")) {
+        material.color.copy(palette.aqua);
+        material.emissive?.copy(palette.aqua);
+        material.emissiveIntensity = 0.34;
+      } else if (name.startsWith("BLABB_CORAL")) {
+        material.color.copy(palette.coral);
+        material.emissive?.copy(palette.coral);
+        material.emissiveIntensity = 0.22;
+      } else if (name.startsWith("POLISHED_STEEL")) {
+        material.color.copy(palette.plum);
+        material.metalness = 0.9;
+        material.roughness = 0.17;
+      } else if (name.startsWith("SOFT_SILVER") || name.startsWith("PAPER")) {
+        material.color.copy(palette.lilac);
+      } else if (name.startsWith("BOARD")) {
+        material.color.copy(palette.forest);
+      }
+      material.needsUpdate = true;
+    });
+  });
+}
+
 export async function createPhoneScene(webglScene, camera) {
   const materials = createMaterials();
   const loader = new GLTFLoader();
@@ -270,6 +297,7 @@ export async function createPhoneScene(webglScene, camera) {
   const phone = new THREE.Group();
   phone.name = "blabb-android-phone";
   webglScene.add(phone);
+  applyBrandMaterials(gltf.scene);
   const layers = prepareModel(gltf.scene, phone);
 
   const screen = createScreenTexture();
@@ -296,6 +324,13 @@ export async function createPhoneScene(webglScene, camera) {
   const touchRings = createTouchRings();
   phone.add(touchRings);
 
+  // Compress the model's authoring-depth axis so the assembled object has a
+  // believable modern-handset profile from every draggable angle.
+  const handsetDepth = 0.3;
+  Object.values(layers).forEach((layer) => { layer.scale.z = handsetDepth; });
+  snoozeTarget.scale.z = handsetDepth;
+  touchRings.scale.z = handsetDepth;
+
   const engineCore = phone.getObjectByName("LOCAL_ENGINE_CORE");
   if (engineCore?.material) {
     engineCore.material = engineCore.material.clone();
@@ -314,8 +349,11 @@ export async function createPhoneScene(webglScene, camera) {
   let state = "hero";
   let phase = 0;
   let visible = true;
-  let introElapsed = 0;
-  let explosionTarget = 1;
+  let userYaw = 0;
+  let userPitch = 0;
+  let yawVelocity = 0;
+  let pitchVelocity = 0;
+  let dragging = false;
   let lastScreenKey = "";
   let lastCursorBeat = -1;
   const targetPosition = new THREE.Vector3();
@@ -341,25 +379,6 @@ export async function createPhoneScene(webglScene, camera) {
     if (stage) stage.dataset.screenState = textureState;
   }
 
-  function updateLayerTargets(amount) {
-    Object.entries(layers).forEach(([name, layer]) => {
-      const spec = layerSpecs[name];
-      const staggered = THREE.MathUtils.clamp((amount - spec.delay * 0.2) / (1 - spec.delay * 0.2), 0, 1);
-      layer.userData.targetPosition.set(...spec.offset).multiplyScalar(staggered);
-      layer.userData.targetRotation.set(
-        spec.rotation[0] * staggered,
-        spec.rotation[1] * staggered,
-        spec.rotation[2] * staggered
-      );
-    });
-    if (state === "process") {
-      layers.board.userData.targetPosition.x -= 1.55;
-      layers.board.userData.targetPosition.y += 0.32;
-      layers.board.userData.targetPosition.z += 1.05;
-      layers.battery.userData.targetPosition.x += 0.72;
-    }
-  }
-
   function applyBubbleState(nextState, localPhase) {
     const listening = nextState === "dictate" || (nextState === "continue" && localPhase > 0.18 && localPhase < 0.39);
     const processing = nextState === "process" || (nextState === "continue" && localPhase >= 0.39 && localPhase < 0.56);
@@ -376,6 +395,7 @@ export async function createPhoneScene(webglScene, camera) {
   }
 
   function setProgress(nextProgress) {
+    visible = true;
     progress = THREE.MathUtils.clamp(nextProgress, 0, 0.9999);
     const chapterValue = progress * chapters.length;
     const index = Math.min(chapters.length - 1, Math.floor(chapterValue));
@@ -402,8 +422,6 @@ export async function createPhoneScene(webglScene, camera) {
     if (state === "hero") targetScale.multiplyScalar(compact ? 0.45 : 0.78);
     targetRotation.set(...chapterRotations[state]);
 
-    explosionTarget = state === "hero" ? THREE.MathUtils.lerp(1, 0.28, phase) : state === "process" ? 0.32 : 0;
-    updateLayerTargets(explosionTarget);
     bubbleTarget.set(1.5, -1.18, 1.08);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
@@ -423,7 +441,7 @@ export async function createPhoneScene(webglScene, camera) {
       }
     }
 
-    flow.visible = state === "process" || (state === "continue" && phase >= 0.39 && phase < 0.56);
+    flow.visible = false;
     applyBubbleState(state, phase);
   }
 
@@ -438,8 +456,6 @@ export async function createPhoneScene(webglScene, camera) {
     targetRotation.set(-0.14, -0.45, -0.055);
     targetScale.setScalar(compact ? 0.58 : 0.9);
     updateScreen("final", 1);
-    explosionTarget = 0.52;
-    updateLayerTargets(explosionTarget);
     bubble.group.visible = true;
     bubbleTarget.set(compact ? 1.1 : 1.46, compact ? -2.85 : -1.14, 0.98);
     applyBubbleState("insert", 1);
@@ -460,26 +476,22 @@ export async function createPhoneScene(webglScene, camera) {
   }
 
   function tick(time, delta) {
-    introElapsed += delta;
     const ease = 1 - Math.pow(0.001, Math.min(delta, 0.05));
-    const introAssembly = state === "hero" ? 1 - THREE.MathUtils.smoothstep(introElapsed, 0.45, 4.2) : 0;
-    const effectiveExplosion = Math.max(explosionTarget, introAssembly);
-    updateLayerTargets(effectiveExplosion);
+
+    if (!dragging) {
+      userYaw += yawVelocity;
+      userPitch = THREE.MathUtils.clamp(userPitch + pitchVelocity, -0.58, 0.58);
+      const inertia = Math.pow(0.00035, delta);
+      yawVelocity *= inertia;
+      pitchVelocity *= inertia;
+    }
 
     phone.position.lerp(targetPosition, ease);
     phone.scale.lerp(targetScale, ease);
-    phone.rotation.x = THREE.MathUtils.lerp(phone.rotation.x, targetRotation.x, ease);
-    phone.rotation.y = THREE.MathUtils.lerp(phone.rotation.y, targetRotation.y, ease);
+    phone.rotation.x = THREE.MathUtils.lerp(phone.rotation.x, targetRotation.x + userPitch, ease);
+    phone.rotation.y = THREE.MathUtils.lerp(phone.rotation.y, targetRotation.y + userYaw, ease);
     phone.rotation.z = THREE.MathUtils.lerp(phone.rotation.z, targetRotation.z, ease);
     bubble.group.position.lerp(bubbleTarget, ease);
-
-    Object.values(layers).forEach((layer) => {
-      layer.position.lerp(layer.userData.targetPosition, ease * 0.82);
-      const rotation = layer.userData.targetRotation;
-      layer.rotation.x = THREE.MathUtils.lerp(layer.rotation.x, rotation.x, ease * 0.82);
-      layer.rotation.y = THREE.MathUtils.lerp(layer.rotation.y, rotation.y, ease * 0.82);
-      layer.rotation.z = THREE.MathUtils.lerp(layer.rotation.z, rotation.z, ease * 0.82);
-    });
 
     const float = Math.sin(time * 0.82) * 0.035;
     phone.position.y += float;
@@ -520,6 +532,37 @@ export async function createPhoneScene(webglScene, camera) {
     setProgress(progress);
   }
 
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  function hitTest(clientX, clientY) {
+    if (!visible || !stage?.classList.contains("is-visible")) return false;
+    pointer.set(clientX / viewport.width * 2 - 1, -(clientY / viewport.height) * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    return raycaster.intersectObject(phone, true).some(({ object }) => object.visible);
+  }
+
+  function beginDrag() {
+    dragging = true;
+    yawVelocity = 0;
+    pitchVelocity = 0;
+  }
+
+  function rotateBy(deltaX, deltaY, pointerType = "mouse") {
+    const sensitivity = pointerType === "touch" ? 0.009 : 0.0075;
+    const yawDelta = deltaX * sensitivity;
+    const pitchDelta = deltaY * sensitivity;
+    userYaw += yawDelta;
+    userPitch = THREE.MathUtils.clamp(userPitch + pitchDelta, -0.58, 0.58);
+    yawVelocity = THREE.MathUtils.clamp(yawDelta * 0.72, -0.12, 0.12);
+    pitchVelocity = THREE.MathUtils.clamp(pitchDelta * 0.55, -0.045, 0.045);
+    if (stage) stage.dataset.rotation = `${userPitch.toFixed(3)},${userYaw.toFixed(3)}`;
+  }
+
+  function endDrag() {
+    dragging = false;
+  }
+
   setProgress(0);
   Object.values(layers).forEach((layer) => {
     layer.position.copy(layer.userData.targetPosition);
@@ -529,5 +572,17 @@ export async function createPhoneScene(webglScene, camera) {
   phone.scale.copy(targetScale);
   phone.rotation.copy(targetRotation);
   if (stage) stage.dataset.modelReady = "true";
-  return { phone, screen, setProgress, setFinal, tick, resize, get visible() { return visible; } };
+  return {
+    phone,
+    screen,
+    setProgress,
+    setFinal,
+    tick,
+    resize,
+    hitTest,
+    beginDrag,
+    rotateBy,
+    endDrag,
+    get visible() { return visible; }
+  };
 }

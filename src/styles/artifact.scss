@@ -50,6 +50,57 @@
   opacity: 1;
 }
 
+.artifact-drag-hint {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--artifact-x) + min(13vw, 188px));
+  top: calc(var(--artifact-y) + min(36vh, 330px));
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  opacity: 0;
+  color: #eddfef;
+  font: 900 0.68rem/1 "Nunito", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.35s, transform 0.35s;
+}
+
+.artifact-drag-hint::before {
+  content: "";
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(136, 224, 217, 0.66);
+  border-radius: 50%;
+  background: rgba(23, 10, 28, 0.68);
+}
+
+.artifact-drag-hint::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 16px;
+  height: 16px;
+  background: #88e0d9;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.webgl-ready .artifact-stage.is-visible .artifact-drag-hint { opacity: 0.76; }
+.artifact-stage.is-hovered .artifact-drag-hint,
+.artifact-stage.is-dragging .artifact-drag-hint { opacity: 1; transform: translate(-50%, -50%) scale(1.035); }
+.artifact-stage.is-dragging .artifact-drag-hint::before { color: #170a1c; background: #88e0d9; }
+.artifact-stage.is-dragging .artifact-drag-hint::after { background: #170a1c; }
+.artifact-stage.is-final .artifact-drag-hint { display: none; }
+.touch-hint { display: none; }
+.webgl-ready body { touch-action: pan-y pinch-zoom; }
+.webgl-ready .artifact-stage.is-hovered { cursor: grab; }
+html.artifact-dragging, html.artifact-dragging * { cursor: grabbing !important; }
+
 #artifact-webgl {
   position: absolute;
   inset: 0;
@@ -285,9 +336,9 @@
 @keyframes ui-cursor { 50% { opacity: 0; } }
 @keyframes ui-listening-ring { from { transform: scale(.985); } to { transform: scale(1.015); } }
 
-.webgl-ready .journey .chapter-copy,
+.webgl-ready .journey .chapter-copy { position: relative; z-index: 8; }
 .webgl-ready .journey .story-index,
-.webgl-ready .journey .state-readout { position: relative; z-index: 8; }
+.webgl-ready .journey .state-readout { z-index: 8; }
 .webgl-ready .journey { isolation: auto; }
 .webgl-ready .hero-copy,
 .webgl-ready .hero-notes,
@@ -298,6 +349,16 @@
   .artifact-stage::before { width: 112vw; }
   .artifact-stage::after { width: 130vw; }
   .artifact-poster { width: min(50vw, 280px); }
+  .artifact-drag-hint {
+    left: 71%;
+    top: auto;
+    bottom: 15vh;
+    width: 132px;
+    font-size: 0.61rem;
+  }
+  .desktop-hint { display: none; }
+  .touch-hint { display: inline; }
+  html:not([data-artifact-chapter="hero"]) .artifact-drag-hint { visibility: hidden; opacity: 0; }
   .webgl-ready .hero { min-height: auto; align-items: start; padding-bottom: 70px; }
   .webgl-ready .hero-notes { margin-top: 500px; }
   .webgl-ready .phone-rail {

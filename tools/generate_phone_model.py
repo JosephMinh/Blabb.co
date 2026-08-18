@@ -4,8 +4,8 @@ Run from the repository root:
     blender --background --python tools/generate_phone_model.py
 
 The model is intentionally generic rather than a copy of a commercial handset.
-Each major physical layer is a named mesh so the website can choreograph the
-assembly and privacy story independently.
+Each major physical component remains a named mesh for maintainability, while
+the website presents them as one cohesive, assembled product.
 """
 
 from math import pi
