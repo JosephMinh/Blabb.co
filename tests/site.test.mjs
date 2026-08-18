@@ -238,6 +238,8 @@ assert.doesNotMatch(phoneScene, /explosionTarget|updateLayerTargets/);
 assert.match(renderer, /controller\.hitTest/);
 assert.match(renderer, /touchDecision/);
 assert.match(renderer, /setPointerCapture/);
+assert.match(renderer, /selectstart[\s\S]*dragstart[\s\S]*suppressNativeDrag/);
+assert.match(renderer, /pointerdown", onPointerDown, \{ passive: false \}/);
 assert.match(renderer, /firstFrame = false/);
 assert.doesNotMatch(phoneScene, /cameraIsland/);
 assert.match(phoneTimeline, /ScrollTrigger\.create/);

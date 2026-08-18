@@ -21,6 +21,15 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
 
   await page.mouse.move(820, 500);
   await page.mouse.down();
+  const nativeDrag = await page.evaluate(() => {
+    const target = document.elementFromPoint(820, 500);
+    return {
+      selectionAllowed: target.dispatchEvent(new Event("selectstart", { bubbles: true, cancelable: true })),
+      dragAllowed: target.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true })),
+      userSelect: getComputedStyle(document.body).userSelect
+    };
+  });
+  expect(nativeDrag).toEqual({ selectionAllowed: false, dragAllowed: false, userSelect: "none" });
   await page.mouse.move(1000, 465, { steps: 24 });
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "dragging");
   await page.mouse.up();

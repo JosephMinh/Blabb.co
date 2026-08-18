@@ -150,6 +150,10 @@ export async function initArtifact() {
   function onPointerDown(event) {
     if (activePointer !== null || isPageControl(event.target) || (event.pointerType === "mouse" && event.button !== 0)) return;
     if (!controller.hitTest(event.clientX, event.clientY)) return;
+    // The WebGL layer deliberately lets the semantic page receive pointer
+    // events. Cancel the underlying page's mouse/pen default once the raycast
+    // confirms a phone hit, otherwise browsers can start a text/image drag.
+    if (event.pointerType !== "touch") event.preventDefault();
     activePointer = event.pointerId;
     lastDragX = event.clientX;
     lastDragY = event.clientY;
@@ -160,6 +164,10 @@ export async function initArtifact() {
     stage.classList.add("is-dragging");
     stage.dataset.interaction = "dragging";
     document.documentElement.classList.add("artifact-dragging");
+  }
+
+  function suppressNativeDrag(event) {
+    if (activePointer !== null) event.preventDefault();
   }
 
   function onPointerMove(event) {
@@ -231,12 +239,14 @@ export async function initArtifact() {
 
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(document.documentElement);
-  window.addEventListener("pointerdown", onPointerDown, { passive: true });
+  window.addEventListener("pointerdown", onPointerDown, { passive: false });
   window.addEventListener("pointermove", onPointerMove, { passive: false });
   window.addEventListener("pointerup", finishDrag, { passive: true });
   window.addEventListener("pointercancel", finishDrag, { passive: true });
   window.addEventListener("lostpointercapture", finishDrag, true);
   window.addEventListener("blur", finishDrag);
+  document.addEventListener("selectstart", suppressNativeDrag, true);
+  document.addEventListener("dragstart", suppressNativeDrag, true);
   document.addEventListener("visibilitychange", onVisibilityChange);
   canvas.addEventListener("webglcontextlost", onContextLost);
   canvas.addEventListener("webglcontextrestored", onContextRestored);
@@ -257,6 +267,8 @@ export async function initArtifact() {
     window.removeEventListener("pointercancel", finishDrag);
     window.removeEventListener("lostpointercapture", finishDrag, true);
     window.removeEventListener("blur", finishDrag);
+    document.removeEventListener("selectstart", suppressNativeDrag, true);
+    document.removeEventListener("dragstart", suppressNativeDrag, true);
     document.removeEventListener("visibilitychange", onVisibilityChange);
     canvas.removeEventListener("webglcontextlost", onContextLost);
     canvas.removeEventListener("webglcontextrestored", onContextRestored);

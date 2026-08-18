@@ -51,6 +51,8 @@ uses:
   and actions, then expands into the same persistent phone for the six chapters.
 - Direct mouse and horizontal touch rotation with damped inertia, a restrained
   pitch range, full yaw, real raycast hit testing, and native vertical scrolling.
+- Confirmed phone drags suppress native selection and image-drag previews, so
+  underlying semantic copy never follows the pointer during rotation.
 - Runtime material calibration to the canonical plum `#170A1C`, aqua `#88E0D9`,
   coral `#EF8354`, lilac `#EDDFEF`, and forest `#32533D` palette.
 - Rotation resilience: a low-poly interaction proxy replaces full-model

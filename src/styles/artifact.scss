@@ -99,7 +99,12 @@
 .touch-hint { display: none; }
 .webgl-ready body { touch-action: pan-y pinch-zoom; }
 .webgl-ready .artifact-stage.is-hovered { cursor: grab; }
-html.artifact-dragging, html.artifact-dragging body { cursor: grabbing !important; }
+html.artifact-dragging,
+html.artifact-dragging body {
+  cursor: grabbing !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 #artifact-webgl {
   position: absolute;
@@ -175,7 +180,7 @@ html.artifact-dragging, html.artifact-dragging body { cursor: grabbing !importan
 .poster-bubble img { width: 100%; height: 100%; object-fit: contain; }
 
 .webgl-ready .artifact-poster { opacity: 0; }
-.webgl-ready .phone-artifact { opacity: 0; }
+.webgl-ready .phone-artifact { pointer-events: none; opacity: 0; user-select: none; }
 .webgl-ready .cta-art { opacity: 0; }
 
 .phone-ui-3d {
