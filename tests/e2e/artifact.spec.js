@@ -85,6 +85,12 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
+  await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy')).toHaveCount(2);
+  await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy').first()).toHaveCSS("opacity", "1");
+
+  await page.setViewportSize({ width: 320, height: 568 });
+  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");
+  await expect(page.locator('.story-chapter[data-step="02"] .chapter-state-card')).toBeVisible();
 });
 
 test("a WebGL reset restores the interactive artifact without a page refresh", async ({ page }) => {

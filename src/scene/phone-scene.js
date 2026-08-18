@@ -358,10 +358,10 @@ export async function createPhoneScene(webglScene, camera) {
     const viewWidth = viewHeight * camera.aspect;
     const xRatio = compact ? 0.5 : tablet ? 0.5 : 0.59;
     targetPosition.x = (xRatio * 2 - 1) * viewWidth * 0.5;
-    targetPosition.y = compact ? (state === "hero" ? -3.12 : 0.68) : -0.04;
+    targetPosition.y = compact ? (state === "hero" ? -3.12 : 2.1) : -0.04;
     targetPosition.z = 0;
     targetScale.setScalar(compact
-      ? Math.min(0.72, viewport.height / 1120)
+      ? Math.min(0.44, viewport.height / 1800)
       : tablet
         ? Math.min(0.74, viewport.height / 1080)
         : Math.min(0.82, viewport.height / 1120));

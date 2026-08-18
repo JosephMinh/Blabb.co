@@ -51,6 +51,9 @@ uses:
   cost mobile rendering.
 - Full mobile camera blocking. The hero artifact rises below the readable copy
   and actions, then expands into the same persistent phone for the six chapters.
+- Compact walkthroughs park a smaller phone in the upper demonstration area;
+  all six chapter explanations remain foreground-readable without relying on a
+  reveal observer.
 - Direct mouse and horizontal touch rotation with damped inertia, a restrained
   pitch range, full yaw, real raycast hit testing, and native vertical scrolling.
 - Confirmed phone drags suppress native selection and image-drag previews, so

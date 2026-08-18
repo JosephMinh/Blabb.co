@@ -219,6 +219,8 @@ assert.match(phoneScene, /TextureLoader[\s\S]*blabb-mark\.png/);
 assert.match(phoneScene, /createBubble\(materials, logoTexture\)/);
 assert.match(phoneScene, /profile\.name = "thin-bubble-profile"/);
 assert.match(phoneScene, /profile\.scale\.set\(1, 1, 0\.24\)/);
+assert.match(phoneScene, /state === "hero" \? -3\.12 : 2\.1/);
+assert.match(phoneScene, /Math\.min\(0\.44, viewport\.height \/ 1800\)/);
 assert.doesNotMatch(phoneScene, /logoCanvas|logoContext|fillText\("B"/);
 for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral: 'EF8354', forest: '32533D' })) {
   assert.match(branding, new RegExp(hex));

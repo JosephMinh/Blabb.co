@@ -341,7 +341,12 @@ html.artifact-dragging body {
 @keyframes ui-cursor { 50% { opacity: 0; } }
 @keyframes ui-listening-ring { from { transform: scale(.985); } to { transform: scale(1.015); } }
 
-.webgl-ready .journey .chapter-copy { position: relative; z-index: 8; }
+.webgl-ready .journey .chapter-copy {
+  position: relative;
+  z-index: 8;
+  opacity: 1;
+  transform: none;
+}
 .webgl-ready .journey .story-index,
 .webgl-ready .journey .state-readout { z-index: 8; }
 .webgl-ready .journey { isolation: auto; }
@@ -382,7 +387,7 @@ html.artifact-dragging body {
   .webgl-ready .story-chapter {
     min-height: 100svh;
     align-content: end;
-    padding-top: 54vh;
+    padding-top: 62vh;
     padding-bottom: 9vh;
     background: linear-gradient(180deg, transparent 0 46%, rgba(17, 7, 21, .92) 60% 100%);
   }
@@ -393,7 +398,22 @@ html.artifact-dragging body {
 @media (max-width: 590px) {
   .webgl-ready .hero h1 { font-size: clamp(4rem, 19vw, 6.2rem); }
   .webgl-ready .hero-notes { margin-top: 520px; }
-  .webgl-ready .story-chapter { padding-top: 56vh; }
+  .webgl-ready .story-chapter { padding-top: 64vh; }
+}
+
+// On very short phone screens there is not enough vertical room to show the
+// fixed handset and a complete chapter at once. Keep the rich hero, then hand
+// the walkthrough to its semantic state cards so no explanation is occluded.
+@media (max-width: 880px) and (max-height: 700px) {
+  html.webgl-ready:not([data-artifact-chapter="hero"]) .artifact-stage {
+    visibility: hidden;
+    opacity: 0;
+  }
+  .webgl-ready .story-chapter {
+    min-height: auto;
+    padding-top: 96px;
+  }
+  .webgl-ready .chapter-state-card { display: flex; }
 }
 
 @media (prefers-reduced-motion: reduce) {
