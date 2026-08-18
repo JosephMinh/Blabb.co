@@ -8,7 +8,7 @@ It has one continuous enclosure with flush front glass and exterior details;
 there are deliberately no interior component meshes or exploded layers.
 """
 
-from math import pi
+from math import cos, pi, sin
 from pathlib import Path
 
 import bpy
@@ -69,6 +69,58 @@ def rounded_box(name, size, location, mat, bevel=0.06, parent=None):
     return obj
 
 
+def rounded_plate(name, width, depth, height, radius, location, mat, parent=None, corner_segments=10):
+    """Create a shallow rounded rectangle without thickness limiting its corner radius."""
+    half_width = width / 2
+    half_height = height / 2
+    perimeter = []
+    corners = (
+        (half_width - radius, half_height - radius, 0),
+        (-half_width + radius, half_height - radius, 90),
+        (-half_width + radius, -half_height + radius, 180),
+        (half_width - radius, -half_height + radius, 270),
+    )
+    for center_x, center_z, start_angle in corners:
+        for step in range(corner_segments + 1):
+            angle = (start_angle + step * 90 / corner_segments) * pi / 180
+            perimeter.append((center_x + cos(angle) * radius, center_z + sin(angle) * radius))
+
+    curve_data = bpy.data.curves.new(f"{name}_CURVE", "CURVE")
+    curve_data.dimensions = "2D"
+    curve_data.resolution_u = 1
+    curve_data.fill_mode = "BOTH"
+    curve_data.extrude = depth / 2
+    spline = curve_data.splines.new("POLY")
+    spline.points.add(len(perimeter) - 1)
+    for point, (x, z) in zip(spline.points, perimeter):
+        point.co = (x, z, 0, 1)
+    spline.use_cyclic_u = True
+
+    obj = bpy.data.objects.new(name, curve_data)
+    bpy.context.collection.objects.link(obj)
+    obj.location = location
+    obj.rotation_euler.x = pi / 2
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.convert(target="MESH")
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    obj.data.materials.append(mat)
+    obj.parent = parent
+    return obj
+
+
+def boolean_recess(target, cutter):
+    """Cut a real opening and remove the temporary cutter from the export."""
+    modifier = target.modifiers.new(f"recess-{cutter.name.lower()}", "BOOLEAN")
+    modifier.operation = "DIFFERENCE"
+    modifier.solver = "EXACT"
+    modifier.object = cutter
+    bpy.context.view_layer.objects.active = target
+    target.select_set(True)
+    bpy.ops.object.modifier_apply(modifier=modifier.name)
+    bpy.data.objects.remove(cutter, do_unlink=True)
+
+
 def cylinder(name, radius, depth, location, mat, rotation=(pi / 2, 0, 0), vertices=64, parent=None):
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=depth, location=location, rotation=rotation)
     obj = bpy.context.object
@@ -113,41 +165,73 @@ paper = material("PAPER", (0.94, 0.89, 0.96), metallic=0.0, roughness=0.32)
 # makes these align to the website's X/Y face and Z depth. PHONE_BODY is the
 # complete structural shell: its rounded corners continue uninterrupted from
 # the back to the front bezel, so a side view never reveals a component stack.
-body = rounded_box("PHONE_BODY", (3.62, 0.54, 7.38), (0, 0, 0), plum_matte, 0.27)
+body = rounded_box("PHONE_BODY", (3.5, 0.42, 7.45), (0, 0, 0), plum_matte, 0.19)
 body["assembly_layer"] = "frame"
 body["surface"] = "continuous-shell"
 
+# The glass is physically seated into the shell instead of floating in front
+# of it. A true shallow recess produces a continuous bezel and a clean side
+# silhouette at glancing angles.
+display_recess = rounded_plate(
+    "DISPLAY_RECESS_CUTTER", 3.42, 0.09, 7.35, 0.23, (0, -0.205, 0), black
+)
+boolean_recess(body, display_recess)
+
 # A nearly flush rear finish adds depth without becoming another phone layer.
-back_accent = rounded_box("BACK_ACCENT", (3.22, 0.03, 6.75), (0, 0.283, -0.08), plum, 0.2)
+back_accent = rounded_plate("BACK_ACCENT", 3.18, 0.018, 6.86, 0.22, (0, 0.219, -0.06), plum)
 back_accent["assembly_layer"] = "back"
 
 # The camera bar is the only deliberate rear protrusion.
-camera_bar = rounded_box("CAMERA_BAR", (3.18, 0.16, 0.68), (0, 0.35, 2.74), graphite, 0.14)
+camera_bar = rounded_plate("CAMERA_BAR", 3.02, 0.105, 0.61, 0.15, (0, 0.262, 2.82), graphite)
 camera_bar["assembly_layer"] = "back"
 for index, x in enumerate((-0.92, -0.38)):
-    torus(f"CAMERA_RING_{index + 1}", 0.205 if index == 0 else 0.17, 0.04, (x, 0.445, 2.74), steel)
-    cylinder(f"CAMERA_LENS_{index + 1}", 0.164 if index == 0 else 0.132, 0.055, (x, 0.47, 2.74), black)
-    cylinder(f"CAMERA_GLINT_{index + 1}", 0.043, 0.06, (x - 0.04, 0.505, 2.79), aqua, vertices=32)
-cylinder("CAMERA_FLASH", 0.092, 0.055, (0.86, 0.455, 2.74), paper, vertices=40)
-rounded_box("CAMERA_CORAL_ACCENT", (0.24, 0.04, 0.065), (1.22, 0.45, 2.74), coral, 0.025)
+    lens_radius = 0.188 if index == 0 else 0.157
+    torus(f"CAMERA_RING_{index + 1}", lens_radius, 0.028, (x, 0.332, 2.82), steel)
+    torus(f"CAMERA_INNER_RING_{index + 1}", lens_radius - 0.038, 0.012, (x, 0.351, 2.82), graphite)
+    cylinder(f"CAMERA_LENS_{index + 1}", lens_radius - 0.052, 0.028, (x, 0.36, 2.82), black)
+    cylinder(f"CAMERA_GLINT_{index + 1}", 0.036, 0.016, (x - 0.038, 0.382, 2.865), aqua, vertices=32)
+cylinder("CAMERA_FLASH", 0.082, 0.025, (0.84, 0.345, 2.82), paper, vertices=40)
+rounded_box("CAMERA_CORAL_ACCENT", (0.22, 0.022, 0.055), (1.19, 0.329, 2.82), coral, 0.02)
 
 # A single thin glass surface sits flush inside the plum lip. The animated app
 # UI is rendered just above it by the website, so no OLED or display-bed slabs
 # are needed in the asset.
-glass = rounded_box("DISPLAY_GLASS", (3.45, 0.04, 7.16), (0, -0.292, 0), black, 0.235)
+glass = rounded_plate("DISPLAY_GLASS", 3.42, 0.024, 7.35, 0.23, (0, -0.204, 0), black)
 glass["assembly_layer"] = "glass"
 
 # Punch-hole camera, earpiece and tactile edge details.
-cylinder("SELFIE_RING", 0.09, 0.022, (0, -0.324, 3.17), steel, vertices=48)
-cylinder("SELFIE_LENS", 0.061, 0.028, (0, -0.34, 3.17), black, vertices=48)
-rounded_box("EARPIECE", (0.66, 0.022, 0.048), (0, -0.325, 3.47), graphite, 0.018)
+cylinder("SELFIE_RING", 0.084, 0.014, (0, -0.224, 3.39), steel, vertices=48)
+cylinder("SELFIE_LENS", 0.057, 0.018, (0, -0.234, 3.39), black, vertices=48)
+rounded_box("EARPIECE", (0.58, 0.014, 0.038), (0, -0.222, 3.57), graphite, 0.014)
 
-rounded_box("VOLUME_BUTTON", (0.09, 0.3, 0.8), (1.84, 0, 1.4), plum, 0.04)
-rounded_box("POWER_BUTTON", (0.105, 0.3, 0.52), (1.85, 0, 0.52), aqua, 0.045)
-for index, x in enumerate((-1.18, -0.94, -0.7, -0.46, 0.46, 0.7, 0.94, 1.18)):
-    cylinder(f"SPEAKER_HOLE_{index}", 0.032, 0.055, (x, 0, -3.71), black, rotation=(0, 0, 0), vertices=24)
-rounded_box("USB_C_PORT", (0.64, 0.18, 0.075), (0, 0, -3.71), black, 0.04)
-cylinder("MIC_HOLE", 0.032, 0.06, (1.43, 0, -3.71), black, rotation=(0, 0, 0), vertices=24)
+rounded_box("VOLUME_BUTTON", (0.065, 0.22, 0.72), (1.77, 0, 1.38), plum, 0.027)
+rounded_box("POWER_BUTTON", (0.07, 0.22, 0.48), (1.772, 0, 0.52), aqua, 0.028)
+
+# Bottom hardware is boolean-cut into the enclosure. Dark interior caps sit
+# well behind the exterior surface, so the speaker, microphone, and USB-C port
+# read as cavities rather than decorative pieces glued onto the phone.
+for index, x in enumerate((0.48, 0.64, 0.80, 0.96, 1.12, 1.28)):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=0.034, depth=0.17, location=(x, 0, -3.71))
+    cutter = bpy.context.object
+    cutter.name = f"SPEAKER_CUTTER_{index}"
+    boolean_recess(body, cutter)
+    cylinder(f"SPEAKER_HOLE_{index}", 0.029, 0.008, (x, 0, -3.632), black, rotation=(0, 0, 0), vertices=24)
+
+usb_cutter = rounded_box("USB_C_CUTTER", (0.64, 0.21, 0.2), (0, 0, -3.71), black, 0.07)
+boolean_recess(body, usb_cutter)
+rounded_box("USB_C_PORT", (0.53, 0.14, 0.018), (0, 0, -3.622), black, 0.04)
+rounded_box("USB_C_TONGUE", (0.29, 0.052, 0.012), (0, 0.018, -3.64), graphite, 0.006)
+
+bpy.ops.mesh.primitive_cylinder_add(vertices=28, radius=0.032, depth=0.17, location=(-1.16, 0, -3.71))
+mic_cutter = bpy.context.object
+mic_cutter.name = "MIC_CUTTER"
+boolean_recess(body, mic_cutter)
+cylinder("MIC_HOLE", 0.027, 0.008, (-1.16, 0, -3.632), black, rotation=(0, 0, 0), vertices=24)
+
+# Hairline antenna breaks keep the rail believable without splitting the shell.
+for side, x in (("LEFT", -1.754), ("RIGHT", 1.754)):
+    for edge, z in (("TOP", 2.55), ("BOTTOM", -2.55)):
+        rounded_box(f"ANTENNA_{side}_{edge}", (0.012, 0.24, 0.035), (x, 0, z), graphite, 0.006)
 
 # Metadata used by the runtime and future asset audits.
 for obj in bpy.context.scene.objects:

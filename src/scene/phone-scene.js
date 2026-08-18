@@ -265,11 +265,17 @@ export async function createPhoneScene(webglScene, camera) {
 
   const screen = createScreenTexture();
   const screenMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.32, 6.92),
-    new THREE.MeshBasicMaterial({ map: screen.texture, toneMapped: false })
+    new THREE.PlaneGeometry(3.34, 7.24),
+    new THREE.MeshBasicMaterial({
+      map: screen.texture,
+      transparent: true,
+      alphaTest: 0.01,
+      depthWrite: false,
+      toneMapped: false
+    })
   );
   screenMesh.name = "live-blabb-screen";
-  screenMesh.position.set(0, -0.035, 0.325);
+  screenMesh.position.set(0, 0, 0.219);
   screenMesh.material.polygonOffset = true;
   screenMesh.material.polygonOffsetFactor = -2;
   layers.glass.add(screenMesh);

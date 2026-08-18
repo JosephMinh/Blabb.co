@@ -117,14 +117,15 @@ export function createScreenTexture() {
 
   function render() {
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.beginPath();
+    context.roundRect(0, 0, canvas.width, canvas.height, 52);
+    context.clip();
     context.fillStyle = colors.paper;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     text(context, "9:41", 46, 48, 23, 950);
     text(context, "▮  ◡", 718, 48, 21, 900, colors.ink, "right");
-    roundedRect(context, 365, 26, 38, 38, 19, "#08050a");
-    roundedRect(context, 373, 34, 10, 10, 5, "#102c34");
-
     context.fillStyle = colors.lilac;
     context.fillRect(0, 90, 768, 2);
     roundedRect(context, 36, 112, 62, 62, 31, colors.coral);
@@ -187,6 +188,7 @@ export function createScreenTexture() {
     text(context, "↑", 707, 1022, 34, 950, colors.paper, "center");
 
     drawKeyboard(context);
+    context.restore();
     texture.needsUpdate = true;
   }
 
