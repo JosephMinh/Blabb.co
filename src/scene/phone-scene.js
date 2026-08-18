@@ -66,7 +66,7 @@ function createLabelTexture(title, subtitle, accent) {
   return texture;
 }
 
-function createBubble(materials) {
+function createBubble(materials, logoTexture) {
   const group = new THREE.Group();
   group.name = "blabb-bubble-hardware";
 
@@ -100,25 +100,10 @@ function createBubble(materials) {
   processingArc.visible = false;
   group.add(processingArc);
 
-  const logoCanvas = document.createElement("canvas");
-  logoCanvas.width = 512;
-  logoCanvas.height = 512;
-  const logoContext = logoCanvas.getContext("2d");
-  logoContext.fillStyle = "#170a1c";
-  logoContext.font = "950 300px Nunito, sans-serif";
-  logoContext.textAlign = "center";
-  logoContext.textBaseline = "middle";
-  logoContext.fillText("B", 256, 208);
-  logoContext.lineWidth = 46;
-  logoContext.lineCap = "round";
-  logoContext.beginPath();
-  logoContext.arc(256, 242, 128, Math.PI * 0.17, Math.PI * 0.83);
-  logoContext.stroke();
-  const logoTexture = new THREE.CanvasTexture(logoCanvas);
-  logoTexture.colorSpace = THREE.SRGBColorSpace;
-  const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.MeshBasicMaterial({
+  const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.64), new THREE.MeshBasicMaterial({
     map: logoTexture,
     transparent: true,
+    alphaTest: 0.01,
     depthWrite: false,
     toneMapped: false
   }));
@@ -253,7 +238,15 @@ function applyBrandMaterials(model) {
 export async function createPhoneScene(webglScene, camera) {
   const materials = createMaterials();
   const loader = new GLTFLoader();
-  const gltf = await loader.loadAsync(new URL("../../assets/phone/blabb-phone.glb", import.meta.url).href);
+  const textureLoader = new THREE.TextureLoader();
+  const [gltf, logoTexture] = await Promise.all([
+    loader.loadAsync(new URL("../../assets/phone/blabb-phone.glb", import.meta.url).href),
+    textureLoader.loadAsync(new URL("../../assets/blabb-mark.png", import.meta.url).href)
+  ]);
+  logoTexture.colorSpace = THREE.SRGBColorSpace;
+  logoTexture.anisotropy = 8;
+  logoTexture.minFilter = THREE.LinearMipmapLinearFilter;
+  logoTexture.magFilter = THREE.LinearFilter;
   const phone = new THREE.Group();
   phone.name = "blabb-android-phone";
   webglScene.add(phone);
@@ -277,7 +270,7 @@ export async function createPhoneScene(webglScene, camera) {
   screenMesh.material.polygonOffsetFactor = -2;
   layers.glass.add(screenMesh);
 
-  const bubble = createBubble(materials);
+  const bubble = createBubble(materials, logoTexture);
   bubble.group.position.set(1.5, -1.18, 0.41);
   bubble.group.scale.setScalar(1.34);
   layers.glass.add(bubble.group);

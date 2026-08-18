@@ -215,6 +215,9 @@ assert.match(screenTexture, /baseLineY[\s\S]*insertionLineY[\s\S]*secondX/);
 assert.doesNotMatch(screenTexture, /const start = 278|showSecond \? 287|showFirst \? 515/);
 assert.match(phoneScene, /GLTFLoader/);
 assert.match(phoneScene, /blabb-phone\.glb/);
+assert.match(phoneScene, /TextureLoader[\s\S]*blabb-mark\.png/);
+assert.match(phoneScene, /createBubble\(materials, logoTexture\)/);
+assert.doesNotMatch(phoneScene, /logoCanvas|logoContext|fillText\("B"/);
 for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral: 'EF8354', forest: '32533D' })) {
   assert.match(branding, new RegExp(hex));
   assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.Color\\("#${hex.toLowerCase()}"\\)`));
