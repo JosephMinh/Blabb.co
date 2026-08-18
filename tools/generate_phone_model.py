@@ -162,10 +162,16 @@ coral = material("BLABB_CORAL", (0.85, 0.27, 0.12), metallic=0.16, roughness=0.3
 paper = material("PAPER", (0.94, 0.89, 0.96), metallic=0.0, roughness=0.32)
 
 # Blender uses X/Z for the phone face and Y for depth. glTF's Y-up conversion
-# makes these align to the website's X/Y face and Z depth. PHONE_BODY is the
-# complete structural shell: its rounded corners continue uninterrupted from
-# the back to the front bezel, so a side view never reveals a component stack.
-body = rounded_box("PHONE_BODY", (3.5, 0.42, 7.45), (0, 0, 0), plum_matte, 0.19)
+# makes these align to the website's X/Y face and Z depth. The shell, glass,
+# and live screen share this exact outline so the front has no inset ledge.
+phone_width = 3.5
+phone_depth = 0.42
+phone_height = 7.45
+face_radius = 0.24
+body = rounded_plate(
+    "PHONE_BODY", phone_width, phone_depth, phone_height, face_radius, (0, 0, 0), plum_matte
+)
+finish_mesh(body, 0.035, 4)
 body["assembly_layer"] = "frame"
 body["surface"] = "continuous-shell"
 
@@ -185,11 +191,12 @@ for index, x in enumerate((-0.92, -0.38)):
 cylinder("CAMERA_FLASH", 0.082, 0.025, (0.84, 0.345, 2.82), paper, vertices=40)
 rounded_box("CAMERA_CORAL_ACCENT", (0.22, 0.022, 0.055), (1.19, 0.329, 2.82), coral, 0.02)
 
-# A single thin glass surface overlaps into the solid plum face, leaving no
-# cavity that can become visible edge-on. Only 0.006 model units sit above the
-# metal rail; the rest is embedded in the continuous enclosure. The animated
-# app UI is rendered directly on this outer surface by the website.
-glass = rounded_plate("DISPLAY_GLASS", 3.42, 0.024, 7.35, 0.23, (0, -0.204, 0), black)
+# A single thin glass surface uses the shell's exact face outline and overlaps
+# into the solid plum face, leaving neither a cavity nor a perimeter ledge.
+# Only 0.004 model units sit above the metal rail; the rest is embedded.
+glass = rounded_plate(
+    "DISPLAY_GLASS", phone_width, 0.018, phone_height, face_radius, (0, -0.205, 0), black
+)
 glass["assembly_layer"] = "glass"
 
 # Punch-hole camera, earpiece and tactile edge details.

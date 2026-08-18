@@ -265,7 +265,7 @@ export async function createPhoneScene(webglScene, camera) {
 
   const screen = createScreenTexture();
   const screenMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.34, 7.24),
+    new THREE.PlaneGeometry(3.5, 7.45),
     new THREE.MeshBasicMaterial({
       map: screen.texture,
       transparent: true,
@@ -278,7 +278,7 @@ export async function createPhoneScene(webglScene, camera) {
   // The display texture is laminated against the glass. A sub-millimetre
   // separation prevents z-fighting without producing a floating edge at
   // glancing angles; normal depth writes keep the bezel in front of it.
-  screenMesh.position.set(0, 0, 0.2168);
+  screenMesh.position.set(0, 0, 0.2148);
   layers.glass.add(screenMesh);
 
   const bubble = createBubble(materials, logoTexture);
