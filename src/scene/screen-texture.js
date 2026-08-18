@@ -119,7 +119,7 @@ export function createScreenTexture() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     context.beginPath();
-    context.roundRect(0, 0, canvas.width, canvas.height, 52);
+    context.roundRect(0, 0, canvas.width, canvas.height, 46);
     context.clip();
     context.fillStyle = colors.paper;
     context.fillRect(0, 0, canvas.width, canvas.height);

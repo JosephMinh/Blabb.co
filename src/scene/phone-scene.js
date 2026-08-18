@@ -265,7 +265,7 @@ export async function createPhoneScene(webglScene, camera) {
 
   const screen = createScreenTexture();
   const screenMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.5, 7.45),
+    new THREE.PlaneGeometry(3.43, 7.38),
     new THREE.MeshBasicMaterial({
       map: screen.texture,
       transparent: true,

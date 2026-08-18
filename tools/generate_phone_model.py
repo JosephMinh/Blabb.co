@@ -162,12 +162,14 @@ coral = material("BLABB_CORAL", (0.85, 0.27, 0.12), metallic=0.16, roughness=0.3
 paper = material("PAPER", (0.94, 0.89, 0.96), metallic=0.0, roughness=0.32)
 
 # Blender uses X/Z for the phone face and Y for depth. glTF's Y-up conversion
-# makes these align to the website's X/Y face and Z depth. The shell, glass,
-# and live screen share this exact outline so the front has no inset ledge.
+# makes these align to the website's X/Y face and Z depth. The shell defines
+# the handset silhouette; the glass fits its finished front face just inside
+# the small precision bevel instead of forcing the shell to match the screen.
 phone_width = 3.5
 phone_depth = 0.42
 phone_height = 7.45
 face_radius = 0.24
+face_inset = 0.035
 body = rounded_plate(
     "PHONE_BODY", phone_width, phone_depth, phone_height, face_radius, (0, 0, 0), plum_matte
 )
@@ -191,11 +193,17 @@ for index, x in enumerate((-0.92, -0.38)):
 cylinder("CAMERA_FLASH", 0.082, 0.025, (0.84, 0.345, 2.82), paper, vertices=40)
 rounded_box("CAMERA_CORAL_ACCENT", (0.22, 0.022, 0.055), (1.19, 0.329, 2.82), coral, 0.02)
 
-# A single thin glass surface uses the shell's exact face outline and overlaps
-# into the solid plum face, leaving neither a cavity nor a perimeter ledge.
-# Only 0.004 model units sit above the metal rail; the rest is embedded.
+# A single thin glass surface matches the shell's finished planar face after
+# its edge bevel. It overlaps into the solid plum face, leaving no cavity, and
+# only 0.004 model units sit above the surrounding metal rail.
 glass = rounded_plate(
-    "DISPLAY_GLASS", phone_width, 0.018, phone_height, face_radius, (0, -0.205, 0), black
+    "DISPLAY_GLASS",
+    phone_width - face_inset * 2,
+    0.018,
+    phone_height - face_inset * 2,
+    face_radius - face_inset,
+    (0, -0.205, 0),
+    black,
 )
 glass["assembly_layer"] = "glass"
 
