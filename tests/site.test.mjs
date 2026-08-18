@@ -248,6 +248,8 @@ assert.match(phoneGenerator, /SPEAKER_CUTTER_/);
 assert.match(phoneGenerator, /VOLUME_BUTTON", \(0\.045, 0\.16, 0\.64\)[^\n]+plum/);
 assert.match(phoneGenerator, /POWER_BUTTON", \(0\.045, 0\.16, 0\.38\)[^\n]+plum/);
 assert.match(phoneScene, /PlaneGeometry\(3\.34, 7\.24\)/);
+assert.match(phoneScene, /screenMesh\.position\.set\(0, 0, 0\.2168\)/);
+assert.doesNotMatch(phoneScene, /screenMesh\.material\.polygonOffset/);
 assert.match(screenTexture, /context\.roundRect\(0, 0, canvas\.width, canvas\.height, 52\)/);
 assert.doesNotMatch(phoneGenerator, /MAINBOARD|BATTERY_AQUA|MIDFRAME_|DISPLAY_BED|OLED_PANEL|LOCAL_ENGINE|CHARGING_COIL/);
 assert.doesNotMatch(phoneScene, /explosionTarget|updateLayerTargets/);

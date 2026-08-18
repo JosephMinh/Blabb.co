@@ -269,15 +269,16 @@ export async function createPhoneScene(webglScene, camera) {
     new THREE.MeshBasicMaterial({
       map: screen.texture,
       transparent: true,
-      alphaTest: 0.01,
-      depthWrite: false,
+      alphaTest: 0.08,
+      depthWrite: true,
       toneMapped: false
     })
   );
   screenMesh.name = "live-blabb-screen";
-  screenMesh.position.set(0, 0, 0.219);
-  screenMesh.material.polygonOffset = true;
-  screenMesh.material.polygonOffsetFactor = -2;
+  // The display texture is laminated against the glass. A sub-millimetre
+  // separation prevents z-fighting without producing a floating edge at
+  // glancing angles; normal depth writes keep the bezel in front of it.
+  screenMesh.position.set(0, 0, 0.2168);
   layers.glass.add(screenMesh);
 
   const bubble = createBubble(materials, logoTexture);
