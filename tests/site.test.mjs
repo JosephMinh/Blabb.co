@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
-const entryScript = readFileSync('script.js', 'utf8');
+const entryScript = readFileSync('src/main.js', 'utf8');
 const phoneStory = readFileSync('scripts/phone-story.js', 'utf8');
 const bubbleDemo = readFileSync('scripts/bubble-demo.js', 'utf8');
 const transcriptDemo = readFileSync('scripts/transcript-demo.js', 'utf8');
@@ -12,7 +12,14 @@ const useCases = readFileSync('scripts/use-cases.js', 'utf8');
 const privacyHtml = readFileSync('privacy/index.html', 'utf8');
 const termsHtml = readFileSync('terms/index.html', 'utf8');
 const notFoundHtml = readFileSync('404.html', 'utf8');
-const scripts = [entryScript, phoneStory, bubbleDemo, transcriptDemo, useCases].join('\n');
+const renderer = readFileSync('src/scene/renderer.js', 'utf8');
+const phoneScene = readFileSync('src/scene/phone-scene.js', 'utf8');
+const css3dScreen = readFileSync('src/scene/css3d-screen.js', 'utf8');
+const phoneTimeline = readFileSync('src/scene/phone-timeline.js', 'utf8');
+const capabilityPolicy = readFileSync('src/scene/capability-policy.js', 'utf8');
+const artifactStyles = readFileSync('src/styles/artifact.scss', 'utf8');
+const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
+const scripts = [entryScript, renderer, phoneScene, phoneTimeline, phoneStory, bubbleDemo, transcriptDemo, useCases].join('\n');
 const currentApk = 'https://github.com/JosephMinh/Blabb/releases/download/v0.12.5/Blabb-v0.12.5-debug.apk';
 
 // Metadata, publishing, and essential local assets.
@@ -36,6 +43,16 @@ assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/
   'assets/blabb-glyph.svg',
   'assets/nunito.ttf',
   'assets/nunito-subset.woff2',
+  'package-lock.json',
+  'vite.config.js',
+  '.github/workflows/pages.yml',
+  'src/main.js',
+  'src/scene/renderer.js',
+  'src/scene/phone-scene.js',
+  'src/scene/css3d-screen.js',
+  'src/scene/phone-timeline.js',
+  'src/scene/capability-policy.js',
+  'src/styles/artifact.scss',
   'scripts/main.js',
   'scripts/phone-story.js',
   'scripts/bubble-demo.js',
@@ -63,9 +80,10 @@ for (const file of ['styles.css', 'legal.css']) {
     assert.ok(existsSync(resolve(dirname(file), reference)), `${file} has a missing asset reference: ${reference}`);
   }
 }
-for (const file of ['script.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js']) {
+for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/css3d-screen.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js']) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/from\s+["']([^"']+)["']/g)) {
+    if (!match[1].startsWith('.')) continue;
     assert.ok(existsSync(resolve(dirname(file), match[1])), `${file} has a missing module import: ${match[1]}`);
   }
 }
@@ -94,9 +112,9 @@ assert.match(html, /No words appear yet\. Blabb waits for the complete recording
 assert.match(html, /Only after processing finishes does the final, punctuated sentence land/);
 assert.match(html, /remove only Blabb’s latest insertion/);
 assert.match(html, /SNOOZE · 10 MIN/);
-assert.match(phoneStory, /listening[\s\S]*processing[\s\S]*inserting[\s\S]*success/);
-assert.match(phoneStory, /undo-highlight/);
-assert.match(phoneStory, /dock-left[\s\S]*target[\s\S]*snoozed[\s\S]*returned/);
+assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S]*snooze/);
+assert.match(css3dScreen, /ui-insert-two[\s\S]*phase < 0\.68/);
+assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible[\s\S]*snoozed/);
 
 // Supporting experiences in the plan are present and interactive.
 ['modes', 'privacy', 'controls', 'tools', 'contexts', 'privacy-promise', 'questions'].forEach((id) => {
@@ -152,15 +170,32 @@ assert.match(css, /\.chapter-state-card/);
 assert.match(css, /\.js\.enhanced \.reveal/);
 assert.match(entryScript, /classList\.add\("enhanced"\)/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /motionSections[\s\S]*IntersectionObserver/);
-assert.match(phoneStory, /journeyBounds\.bottom <= 0[\s\S]*clearTimeline/);
+assert.match(html, /<canvas id="artifact-webgl"><\/canvas>/);
+assert.match(renderer, /new THREE\.WebGLRenderer/);
+assert.match(renderer, /new CSS3DRenderer/);
+assert.match(renderer, /ACESFilmicToneMapping/);
+assert.match(renderer, /powerPreference: "high-performance"/);
+assert.match(phoneTimeline, /ScrollTrigger\.create/);
+['focus', 'dictate', 'process', 'insert', 'undo', 'snooze'].forEach((label) => assert.ok(phoneTimeline.includes(`"${label}"`), `Missing scroll label: ${label}`));
+assert.doesNotMatch(phoneTimeline, /setTimeout|setInterval/);
+assert.match(capabilityPolicy, /deviceMemory <= 4/);
+assert.match(capabilityPolicy, /prefers-reduced-motion: reduce/);
+assert.match(artifactStyles, /phone-ui-3d/);
 assert.doesNotMatch(scripts, /gtag|google-analytics|segment\.com|mixpanel|hotjar/i);
 assert.doesNotMatch(html, /<link[^>]+fonts\.googleapis\.com/i);
 assert.doesNotMatch(html, /works everywhere|works in every app/i);
 
-// Keep the dependency-free page materially light without image sequences or a loader.
+// Keep the semantic shell light; the 3D runtime is dynamically imported after first paint.
 assert.ok(statSync('index.html').size < 60_000, 'HTML should stay below 60 KB');
 assert.ok(statSync('styles.css').size < 100_000, 'CSS should stay below 100 KB');
 assert.ok(statSync('legal.css').size < 10_000, 'Legal-page CSS should stay below 10 KB');
-assert.doesNotMatch(html, /splash|loading-screen|three\.js|webgl/i);
+assert.doesNotMatch(html, /splash|loading-screen/i);
+assert.match(entryScript, /import\("\.\/scene\/renderer\.js"\)/);
+assert.equal(packageJson.dependencies.three, '0.185.1');
+assert.equal(packageJson.dependencies.gsap, '3.15.0');
+assert.equal(packageJson.dependencies.lenis, '1.3.26');
+assert.equal(packageJson.devDependencies.vite, '8.2.1');
+assert.equal(packageJson.devDependencies.sass, '1.102.0');
+assert.equal(packageJson.devDependencies['@playwright/test'], '1.62.1');
 
 console.log('Blabb.co revamp checks passed.');

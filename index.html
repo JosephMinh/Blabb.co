@@ -25,8 +25,7 @@
     <meta name="twitter:image" content="https://blabb.co/assets/og.png" />
     <meta name="twitter:image:alt" content="Blabb — Voice typing. On your device." />
     <script>document.documentElement.classList.add('js');</script>
-    <link rel="stylesheet" href="styles.css" />
-    <script type="module" src="script.js"></script>
+    <script type="module" src="/src/main.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -62,6 +61,15 @@
         <a href="#story">How it works</a><a href="#privacy">Privacy</a><a href="#questions">Questions</a>
       </nav>
     </noscript>
+
+    <div class="artifact-stage" id="artifact-stage" aria-hidden="true">
+      <canvas id="artifact-webgl"></canvas>
+      <div class="artifact-poster">
+        <span class="poster-orbit"></span>
+        <span class="poster-device"><i></i></span>
+        <span class="poster-bubble"><img src="assets/blabb-glyph.svg" alt="" /></span>
+      </div>
+    </div>
 
     <main id="main">
       <div class="journey" id="top" data-header-theme="dark">

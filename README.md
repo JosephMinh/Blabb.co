@@ -4,17 +4,22 @@ The official landing page for [Blabb](https://github.com/JosephMinh/Blabb), priv
 
 ## Local preview
 
-The site is dependency-free. Serve the repository root with any static server:
+Install the pinned dependencies and run the Vite development server:
 
 ```bash
-python3 -m http.server 4173
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:4173`.
+Then open `http://localhost:4174`. The production bundle is generated with
+`npm run build`; `npm run check` runs the static checks and `npm run test:e2e`
+runs the Playwright browser suite.
 
 ## Deployment
 
-GitHub Pages publishes the `main` branch. The `CNAME` file connects the site to `blabb.co`; DNS must point the apex domain to GitHub Pages and `www` to `josephminh.github.io`.
+The Pages workflow builds `dist/` from the `main` branch. The `CNAME` file
+connects the site to `blabb.co`; DNS must point the apex domain to GitHub Pages
+and `www` to `josephminh.github.io`.
 
 Cloudflare records (set all to **DNS only** while GitHub provisions HTTPS):
 
