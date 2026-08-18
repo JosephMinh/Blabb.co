@@ -39,6 +39,8 @@ uses:
   overlap as state changes.
 - A dimensional Three.js Blabb bubble with plum rim, state ring, stop/check/
   processing badges, touch ripples, and a 3D snooze dock.
+- A shared depth profile compresses the complete bubble assembly to a slim 6%
+  edge-on silhouette while preserving its full face-on shape and interactions.
 - Its face uses the canonical transparent `blabb-mark.png` artwork derived from
   the app's original `Logo.png`; the WebGL scene never redraws or substitutes it.
 - Brand-critical bubble surfaces use unlit, non-tone-mapped materials so aqua,

@@ -69,13 +69,17 @@ function createLabelTexture(title, subtitle, accent) {
 function createBubble(materials, logoTexture) {
   const group = new THREE.Group();
   group.name = "blabb-bubble-hardware";
+  const profile = new THREE.Group();
+  profile.name = "thin-bubble-profile";
+  profile.scale.set(1, 1, 0.24);
+  group.add(profile);
 
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(0.35, 64),
     new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25, depthWrite: false })
   );
   shadow.position.set(0.055, -0.055, -0.1);
-  group.add(shadow);
+  profile.add(shadow);
 
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(0.32, 0.32, 0.16, 64, 2),
@@ -83,14 +87,14 @@ function createBubble(materials, logoTexture) {
   );
   body.rotation.x = Math.PI / 2;
   body.castShadow = true;
-  group.add(body);
+  profile.add(body);
 
   const plumRim = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 18, 80), materials.plum);
   plumRim.position.z = 0.092;
-  group.add(plumRim);
+  profile.add(plumRim);
   const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.258, 0.023, 16, 80), materials.coral);
   stateRing.position.z = 0.116;
-  group.add(stateRing);
+  profile.add(stateRing);
 
   const processingArc = new THREE.Mesh(
     new THREE.TorusGeometry(0.258, 0.026, 16, 80, THREE.MathUtils.degToRad(245)),
@@ -98,7 +102,7 @@ function createBubble(materials, logoTexture) {
   );
   processingArc.position.z = 0.121;
   processingArc.visible = false;
-  group.add(processingArc);
+  profile.add(processingArc);
 
   const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.64), new THREE.MeshBasicMaterial({
     map: logoTexture,
@@ -109,7 +113,7 @@ function createBubble(materials, logoTexture) {
   }));
   logo.position.z = 0.2;
   logo.renderOrder = 10;
-  group.add(logo);
+  profile.add(logo);
 
   const badge = new THREE.Group();
   badge.position.set(0.22, -0.22, 0.15);
@@ -135,7 +139,7 @@ function createBubble(materials, logoTexture) {
   });
   dots.visible = false;
   badge.add(dots);
-  group.add(badge);
+  profile.add(badge);
 
   return { group, body, stateRing, processingArc, badge, badgeDisc, stop, check, dots };
 }
