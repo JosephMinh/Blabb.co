@@ -14,9 +14,9 @@ const chapters = [
   ["06", "MOVE + SNOOZE", "snooze"]
 ];
 
-// These groups preserve the model's logical organization, but the handset is
-// always presented as one fully assembled object.
-const layerNames = ["back", "battery", "board", "midframe", "frame", "display", "glass"];
+// These groups keep exterior finishes maintainable while the handset remains
+// one continuous, fully assembled object.
+const layerNames = ["back", "frame", "glass"];
 
 const chapterRotations = {
   hero: [-0.14, -0.48, 0.08],
@@ -30,12 +30,7 @@ const chapterRotations = {
 
 function layerForName(name) {
   if (/^(BACK_|CAMERA_)/.test(name)) return "back";
-  if (/^(BATTERY|CHARGING_|COIL_|LOWER_CONTACT)/.test(name)) return "battery";
-  if (/^(MAINBOARD|BOARD_|LOCAL_ENGINE|ENGINE_|HEAT_|TRACE_)/.test(name)) return "board";
-  if (/^MIDFRAME/.test(name)) return "midframe";
-  if (/^(METAL_FRAME|VOLUME_|POWER_|SPEAKER_|USB_|MIC_|ANTENNA_)/.test(name)) return "frame";
-  if (/^(DISPLAY_BED|OLED_|SELFIE_|EARPIECE)/.test(name)) return "display";
-  if (/^DISPLAY_GLASS/.test(name)) return "glass";
+  if (/^(DISPLAY_GLASS|SELFIE_|EARPIECE)/.test(name)) return "glass";
   return "frame";
 }
 
@@ -168,33 +163,6 @@ function createBubble(materials) {
   return { group, body, stateRing, processingArc, badge, badgeDisc, stop, check, dots };
 }
 
-function createFlow(materials) {
-  const group = new THREE.Group();
-  group.name = "private-local-data-flow";
-  const curve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(1.38, -1.15, 0.92),
-    new THREE.Vector3(1.1, 0.05, 1.1),
-    new THREE.Vector3(0.45, 1.22, 0.72),
-    new THREE.Vector3(0.23, 2.25, 0.18)
-  ]);
-  const guide = new THREE.Mesh(
-    new THREE.TubeGeometry(curve, 48, 0.012, 8, false),
-    new THREE.MeshBasicMaterial({ color: palette.aqua, transparent: true, opacity: 0.26, depthWrite: false })
-  );
-  group.add(guide);
-  for (let index = 0; index < 12; index += 1) {
-    const dot = new THREE.Mesh(
-      new THREE.SphereGeometry(0.035 + (index % 3) * 0.01, 16, 12),
-      index % 3 ? materials.aqua : materials.coral
-    );
-    dot.userData.offset = index / 12;
-    group.add(dot);
-  }
-  group.userData.curve = curve;
-  group.visible = false;
-  return group;
-}
-
 function createTouchRings() {
   const group = new THREE.Group();
   [0, 1].forEach((index) => {
@@ -206,7 +174,7 @@ function createTouchRings() {
       toneMapped: false
     });
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.11, 0.14, 48), material);
-    ring.position.set(0.82, -0.7, 0.86 + index * 0.002);
+    ring.position.set(0.82, -0.7, 0.345 + index * 0.002);
     ring.userData.index = index;
     group.add(ring);
   });
@@ -216,7 +184,7 @@ function createTouchRings() {
 function createSnoozeTarget(materials) {
   const target = roundedPanel(2.38, 0.74, 0.075, materials.panelDeep, 0.24);
   target.name = "snooze-dock";
-  target.position.set(0, -2.82, 0.82);
+  target.position.set(0, -2.82, 0.34);
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(2.22, 0.62),
     new THREE.MeshBasicMaterial({
@@ -305,12 +273,6 @@ export async function createPhoneScene(webglScene, camera) {
   phone.add(interactionProxy);
   applyBrandMaterials(gltf.scene);
   const layers = prepareModel(gltf.scene, phone);
-  // These components are completely enclosed now that the handset never
-  // separates. Keeping them out of the draw list removes dozens of invisible
-  // meshes from every frame without changing the product silhouette.
-  layers.battery.visible = false;
-  layers.board.visible = false;
-  layers.midframe.visible = false;
 
   const screen = createScreenTexture();
   const screenMesh = new THREE.Mesh(
@@ -318,37 +280,21 @@ export async function createPhoneScene(webglScene, camera) {
     new THREE.MeshBasicMaterial({ map: screen.texture, toneMapped: false })
   );
   screenMesh.name = "live-blabb-screen";
-  screenMesh.position.set(0, -0.035, 0.775);
+  screenMesh.position.set(0, -0.035, 0.325);
   screenMesh.material.polygonOffset = true;
   screenMesh.material.polygonOffsetFactor = -2;
   layers.glass.add(screenMesh);
 
   const bubble = createBubble(materials);
-  bubble.group.position.set(1.5, -1.18, 1.08);
+  bubble.group.position.set(1.5, -1.18, 0.41);
   bubble.group.scale.setScalar(1.34);
   layers.glass.add(bubble.group);
   const bubbleTarget = bubble.group.position.clone();
 
   const snoozeTarget = createSnoozeTarget(materials);
   phone.add(snoozeTarget);
-  const flow = createFlow(materials);
-  phone.add(flow);
   const touchRings = createTouchRings();
   phone.add(touchRings);
-
-  // Compress the model's authoring-depth axis so the assembled object has a
-  // believable modern-handset profile from every draggable angle.
-  const handsetDepth = 0.3;
-  Object.values(layers).forEach((layer) => { layer.scale.z = handsetDepth; });
-  snoozeTarget.scale.z = handsetDepth;
-  touchRings.scale.z = handsetDepth;
-
-  const engineCore = phone.getObjectByName("LOCAL_ENGINE_CORE");
-  if (engineCore?.material) {
-    engineCore.material = engineCore.material.clone();
-    engineCore.material.emissive = palette.aqua.clone();
-    engineCore.material.emissiveIntensity = 0.08;
-  }
 
   const stepReadout = document.querySelector("#active-step");
   const stateReadout = document.querySelector("#state-readout span");
@@ -434,7 +380,7 @@ export async function createPhoneScene(webglScene, camera) {
     if (state === "hero") targetScale.multiplyScalar(compact ? 0.45 : 0.78);
     targetRotation.set(...chapterRotations[state]);
 
-    bubbleTarget.set(1.5, -1.18, 1.08);
+    bubbleTarget.set(1.5, -1.18, 0.41);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
 
@@ -445,7 +391,7 @@ export async function createPhoneScene(webglScene, camera) {
         bubbleTarget.y = THREE.MathUtils.lerp(-1.18, -2.82, (phase - 0.25) / 0.25);
         snoozeTarget.visible = true;
       } else if (phase < 0.76) {
-        bubbleTarget.set(-1.5, -2.82, 1.08);
+        bubbleTarget.set(-1.5, -2.82, 0.41);
         bubble.group.visible = false;
         snoozeTarget.visible = phase < 0.62;
       } else {
@@ -453,7 +399,6 @@ export async function createPhoneScene(webglScene, camera) {
       }
     }
 
-    flow.visible = false;
     applyBubbleState(state, phase);
   }
 
@@ -469,7 +414,7 @@ export async function createPhoneScene(webglScene, camera) {
     targetScale.setScalar(compact ? 0.58 : 0.9);
     updateScreen("final", 1);
     bubble.group.visible = true;
-    bubbleTarget.set(compact ? 1.1 : 1.46, compact ? -2.85 : -1.14, 0.98);
+    bubbleTarget.set(compact ? 1.1 : 1.46, compact ? -2.85 : -1.14, 0.41);
     applyBubbleState("insert", 1);
   }
 
@@ -510,27 +455,6 @@ export async function createPhoneScene(webglScene, camera) {
     bubble.group.rotation.z = Math.sin(time * 0.9) * 0.03;
     if (state === "dictate") bubble.stateRing.scale.setScalar(1 + Math.sin(time * 9) * 0.035);
     if (bubble.processingArc.visible) bubble.processingArc.rotation.z -= delta * 3.1;
-    if (flow.visible) {
-      flow.userData.curve.points[0].set(
-        bubble.group.position.x + layers.glass.position.x,
-        bubble.group.position.y + layers.glass.position.y,
-        bubble.group.position.z + layers.glass.position.z
-      );
-      flow.userData.curve.points[3].set(
-        0.23 + layers.board.position.x,
-        2.25 + layers.board.position.y,
-        0.18 + layers.board.position.z
-      );
-      flow.children.slice(1).forEach((dot) => {
-        const cycle = (time * 0.48 + dot.userData.offset) % 1;
-        dot.position.copy(flow.userData.curve.getPointAt(cycle));
-        dot.scale.setScalar(Math.sin(cycle * Math.PI));
-      });
-    }
-    if (engineCore?.material) {
-      const active = flow.visible || state === "process";
-      engineCore.material.emissiveIntensity = active ? 0.75 + Math.sin(time * 5) * 0.2 : 0.08;
-    }
     updateTouchRings(time);
     const cursorBeat = Math.floor(time * 2);
     if (cursorBeat !== lastCursorBeat) {
