@@ -8,6 +8,13 @@ export function initWaitlist() {
     const buttonLabel = button?.querySelector("span");
     const idleLabel = buttonLabel?.textContent || "Join the waitlist";
 
+    function submitWithProviderPage() {
+      form.dataset.state = "redirecting";
+      status.textContent = "Opening the secure signup confirmation…";
+      if (buttonLabel) buttonLabel.textContent = "Continuing…";
+      HTMLFormElement.prototype.submit.call(form);
+    }
+
     form.addEventListener("submit", async (event) => {
       if (!form.reportValidity()) return;
       event.preventDefault();
@@ -21,13 +28,26 @@ export function initWaitlist() {
       if (buttonLabel) buttonLabel.textContent = "Joining…";
       status.textContent = "Adding your email…";
 
+      let response;
       try {
-        const response = await fetch(endpoint, {
+        response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(payload)
         });
-        const result = await response.json().catch(() => ({}));
+      } catch {
+        submitWithProviderPage();
+        return;
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        submitWithProviderPage();
+        return;
+      }
+
+      try {
+        const result = await response.json();
         if (!response.ok || result.success === false || result.success === "false") {
           throw new Error(result.message || `Waitlist request failed (${response.status})`);
         }

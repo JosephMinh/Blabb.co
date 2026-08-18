@@ -103,6 +103,7 @@ assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+required/);
 assert.match(html, /data-waitlist-status[^>]+aria-live="polite"/);
 assert.match(waitlist, /formsubmit\.co\/ajax\//);
 assert.match(waitlist, /response\.ok/);
+assert.match(waitlist, /HTMLFormElement\.prototype\.submit\.call\(form\)/);
 assert.match(privacyHtml, /Website waitlist[\s\S]*FormSubmit/);
 assert.doesNotMatch([html, termsHtml, privacyHtml, notFoundHtml].join('\n'), /github\.com\/JosephMinh\/Blabb(?:\/|\b)|Blabb-v\d[^\s"<]*\.apk/i);
 assert.doesNotMatch(html, /Download Blabb|Download for Android/i);

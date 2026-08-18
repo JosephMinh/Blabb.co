@@ -47,6 +47,25 @@ test("waitlist confirms only after the mailing-list endpoint accepts the email",
   expect(submittedEmail).toBe("hello@example.com");
 });
 
+test("waitlist hands off safely when the AJAX endpoint presents a challenge", async ({ page }) => {
+  await page.evaluate(() => {
+    HTMLFormElement.prototype.submit = function submitFallback() {
+      this.dataset.nativeFallback = "true";
+    };
+  });
+  await page.route("https://formsubmit.co/ajax/**", (route) => route.fulfill({
+    status: 403,
+    contentType: "text/html",
+    body: "<!doctype html><title>Verification</title>"
+  }));
+
+  await page.locator("#waitlist-email").fill("hello@example.com");
+  await page.locator("[data-waitlist-form] button").click();
+  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-state", "redirecting");
+  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-native-fallback", "true");
+  await expect(page.locator("[data-waitlist-status]")).toContainText("secure signup confirmation");
+});
+
 test("mobile content remains fully styled when JavaScript is unavailable", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
