@@ -87,7 +87,7 @@ for (const file of ['styles.css', 'legal.css']) {
     assert.ok(existsSync(resolve(dirname(file), reference)), `${file} has a missing asset reference: ${reference}`);
   }
 }
-for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/screen-texture.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js', 'scripts/waitlist.js']) {
+for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/screen-texture.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js', 'scripts/waitlist.js']) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/from\s+["']([^"']+)["']/g)) {
     if (!match[1].startsWith('.')) continue;
@@ -201,6 +201,8 @@ assert.match(renderer, /RoomEnvironment/);
 assert.match(renderer, /shadowMap\.enabled = !automated/);
 assert.doesNotMatch(renderer, /PCFSoftShadowMap/);
 assert.match(renderer, /ACESFilmicToneMapping/);
+assert.match(renderer, /renderer\.render\(scene, camera\)/);
+assert.doesNotMatch(renderer, /createPostprocessing|EffectComposer|composer\.render/);
 assert.match(renderer, /powerPreference: "high-performance"/);
 assert.match(renderer, /WEBGL_debug_renderer_info/);
 assert.match(renderer, /swiftshader\|llvmpipe\|software rasterizer\|basic render\|microsoft warp/i);

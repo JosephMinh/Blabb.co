@@ -47,8 +47,8 @@ uses:
   coral, plum, and forest remain the exact canonical sRGB colors under studio
   lighting and at every rotation.
 - A PMREM studio environment, ACES tone mapping, key/aqua/coral rim lights,
-  soft cast shadows, restrained bloom on capable desktop browsers, and lower-
-  cost mobile rendering.
+  soft cast shadows, CSS atmosphere, and transparent direct rendering that
+  cannot cover the semantic walkthrough.
 - Full mobile camera blocking. The hero artifact rises below the readable copy
   and actions, then expands into the same persistent phone for the six chapters.
 - Compact walkthroughs park a smaller phone in the upper demonstration area;
@@ -681,7 +681,6 @@ src/
     phone-scene.js
     css3d-screen.js
     materials.js
-    postprocessing.js
     phone-timeline.js
     capability-policy.js
   assets/
@@ -764,7 +763,7 @@ Deliver:
 - Use vector and CSS state art; do not use image sequences.
 - Provide complete essential content, navigation, privacy facts, and waitlist
   access when JavaScript fails.
-- Stop the renderer, bloom pass, Lenis ticker work, and decorative animation when
+- Stop the renderer, Lenis ticker work, and decorative animation when
   their sections are off-screen.
 - On Lighthouse mobile with a 412×915 viewport and simulated Fast 4G, achieve
   LCP at or below 2.5 seconds, CLS at or below 0.05, and TBT below 200ms.

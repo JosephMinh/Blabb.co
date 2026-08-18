@@ -4,7 +4,6 @@ import { gsap } from "gsap";
 import { canRunArtifact, artifactPixelRatio } from "./capability-policy.js";
 import { createPhoneScene } from "./phone-scene.js";
 import { createPhoneTimeline } from "./phone-timeline.js";
-import { createPostprocessing } from "./postprocessing.js";
 
 export async function initArtifact() {
   const stage = document.querySelector("#artifact-stage");
@@ -82,9 +81,6 @@ export async function initArtifact() {
   scene.add(shadowCatcher);
 
   const controller = await createPhoneScene(scene, camera);
-  const compact = window.matchMedia("(max-width: 880px), (pointer: coarse)").matches;
-  const composer = compact || automated || softwareRenderer ? null : createPostprocessing(renderer, scene, camera);
-
   let width = 0;
   let height = 0;
   let running = true;
@@ -109,8 +105,6 @@ export async function initArtifact() {
     const ratio = softwareRenderer ? 0.5 : automated ? 1 : artifactPixelRatio();
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
-    composer?.setPixelRatio(ratio);
-    composer?.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     controller.resize(width, height);
@@ -129,10 +123,9 @@ export async function initArtifact() {
     camera.position.y = smoothPointerY * -0.26;
     camera.lookAt(0, 0, 0);
     controller.tick(seconds, delta);
-    // Direct rendering during a drag avoids spending GPU time on bloom while
-    // the object is changing fastest. The studio finish returns on release.
-    if (composer && activePointer === null) composer.render();
-    else renderer.render(scene, camera);
+    // Keep the full-viewport canvas transparent. Fullscreen bloom passes write
+    // opaque alpha and would cover the semantic walkthrough behind the phone.
+    renderer.render(scene, camera);
 
     if (!firstFrame) {
       firstFrame = true;
@@ -273,7 +266,6 @@ export async function initArtifact() {
     canvas.removeEventListener("webglcontextlost", onContextLost);
     canvas.removeEventListener("webglcontextrestored", onContextRestored);
     gsap.ticker.remove(render);
-    composer?.dispose();
     environment.dispose();
     renderer.dispose();
   }, { once: true });
