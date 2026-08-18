@@ -162,18 +162,18 @@ coral = material("BLABB_CORAL", (0.85, 0.27, 0.12), metallic=0.16, roughness=0.3
 paper = material("PAPER", (0.94, 0.89, 0.96), metallic=0.0, roughness=0.32)
 
 # Blender uses X/Z for the phone face and Y for depth. glTF's Y-up conversion
-# makes these align to the website's X/Y face and Z depth. The shell defines
-# the handset silhouette; the glass fits its finished front face just inside
-# the small precision bevel instead of forcing the shell to match the screen.
+# makes these align to the website's X/Y face and Z depth. The rounded shell
+# defines the handset silhouette; the smaller glass is derived from its actual
+# flat front surface instead of forcing the enclosure to match the display.
 phone_width = 3.5
 phone_depth = 0.42
 phone_height = 7.45
-face_radius = 0.24
-face_inset = 0.035
-body = rounded_plate(
-    "PHONE_BODY", phone_width, phone_depth, phone_height, face_radius, (0, 0, 0), plum_matte
+rail_bevel = phone_depth * 0.45
+front_face_width = phone_width - rail_bevel * 2
+front_face_height = phone_height - rail_bevel * 2
+body = rounded_box(
+    "PHONE_BODY", (phone_width, phone_depth, phone_height), (0, 0, 0), plum_matte, rail_bevel
 )
-finish_mesh(body, 0.035, 4)
 body["assembly_layer"] = "frame"
 body["surface"] = "continuous-shell"
 
@@ -193,15 +193,15 @@ for index, x in enumerate((-0.92, -0.38)):
 cylinder("CAMERA_FLASH", 0.082, 0.025, (0.84, 0.345, 2.82), paper, vertices=40)
 rounded_box("CAMERA_CORAL_ACCENT", (0.22, 0.022, 0.055), (1.19, 0.329, 2.82), coral, 0.02)
 
-# A single thin glass surface matches the shell's finished planar face after
-# its edge bevel. It overlaps into the solid plum face, leaving no cavity, and
-# only 0.004 model units sit above the surrounding metal rail.
+# A single thin glass surface matches the rounded shell's smaller flat face.
+# It overlaps into the solid plum enclosure, leaving no cavity, while only
+# 0.004 model units sit above the surrounding curved metal rails.
 glass = rounded_plate(
     "DISPLAY_GLASS",
-    phone_width - face_inset * 2,
+    front_face_width,
     0.018,
-    phone_height - face_inset * 2,
-    face_radius - face_inset,
+    front_face_height,
+    0.14,
     (0, -0.205, 0),
     black,
 )
