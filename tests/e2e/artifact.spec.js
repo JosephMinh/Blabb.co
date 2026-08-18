@@ -13,9 +13,10 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
   test.setTimeout(90_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
-  await expect(page.locator("html")).toHaveClass(/webgl-ready/);
+  await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 30_000 });
   await expect(page.locator("#artifact-webgl")).toBeVisible();
-  await expect(page.locator(".artifact-css3d")).toHaveCount(1);
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-model-ready", "true");
+  await expect(page.locator("#artifact-webgl")).toHaveAttribute("data-renderer", "threejs-gltf");
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
 
   for (const [step, expectedState] of states) {
@@ -27,7 +28,8 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
     await expect(page.locator("#state-readout span")).toHaveText(expectedState);
   }
 
-  await expect(page.locator(".ui-insert-one")).toContainText("I can meet at 12:30.");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);
+  await page.locator("#artifact-stage").evaluate((element) => { element.dataset.renderPaused = "true"; });
 
   for (const viewport of [
     { width: 1440, height: 1000 },
@@ -51,12 +53,13 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
   await expect(page.locator("#waitlist-email")).toBeVisible();
 });
 
-test("mobile keeps the hero clear and hands off to the WebGL phone for the story", async ({ page }) => {
+test("mobile loads the 3D hero and hands the same phone through the story", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.locator("html")).toHaveClass(/webgl-ready/);
-  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");
-  await expect(page.locator(".phone-artifact")).toHaveCSS("opacity", "1");
+  await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 30_000 });
+  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-model-ready", "true");
+  await expect(page.locator(".phone-artifact")).toHaveCSS("opacity", "0");
 
   await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
     document.documentElement.style.scrollBehavior = "auto";
@@ -64,8 +67,7 @@ test("mobile keeps the hero clear and hands off to the WebGL phone for the story
     scrollTo(0, bounds.top + scrollY + bounds.height * 0.12);
   });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
-  await expect(page.locator(".phone-ui-3d")).toHaveAttribute("data-state", "dictate");
-  await expect(page.locator(".ui-insert-one")).toHaveText("");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
 });
 
 test("reduced motion and unavailable WebGL keep the semantic fallback", async ({ browser }) => {

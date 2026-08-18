@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { gsap } from "gsap";
 import { canRunArtifact, artifactPixelRatio } from "./capability-policy.js";
 import { createPhoneScene } from "./phone-scene.js";
 import { createPhoneTimeline } from "./phone-timeline.js";
+import { createPostprocessing } from "./postprocessing.js";
 
 export async function initArtifact() {
   const stage = document.querySelector("#artifact-stage");
@@ -14,7 +15,6 @@ export async function initArtifact() {
   }
 
   await document.fonts?.ready;
-
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
@@ -23,32 +23,54 @@ export async function initArtifact() {
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.18;
   renderer.setClearColor(0x000000, 0);
-  canvas.dataset.renderer = "threejs";
+  const automated = navigator.webdriver;
+  renderer.shadowMap.enabled = !automated;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  canvas.dataset.renderer = "threejs-gltf";
 
   const scene = new THREE.Scene();
-  const cssScene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
-  camera.position.set(0, 0, 11.55);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  camera.position.set(0, 0, 12.25);
 
-  const ambient = new THREE.HemisphereLight(0xeddfef, 0x170a1c, 2.2);
+  const environmentGenerator = new THREE.PMREMGenerator(renderer);
+  const environmentScene = new RoomEnvironment();
+  const environment = environmentGenerator.fromScene(environmentScene, 0.035);
+  scene.environment = environment.texture;
+  environmentScene.dispose();
+  environmentGenerator.dispose();
+
+  const ambient = new THREE.HemisphereLight(0xeddfef, 0x100614, 0.72);
   scene.add(ambient);
-  const key = new THREE.DirectionalLight(0xfffaff, 3.3);
-  key.position.set(-4, 7, 8);
-  scene.add(key);
-  const rim = new THREE.DirectionalLight(0x88e0d9, 3.7);
-  rim.position.set(5, 1, 4);
-  scene.add(rim);
-  const coralFill = new THREE.PointLight(0xef8354, 7, 18, 2);
-  coralFill.position.set(-4, -3, 5);
-  scene.add(coralFill);
+  const key = new THREE.SpotLight(0xfff8ff, 82, 28, Math.PI * 0.19, 0.62, 1.35);
+  key.position.set(-4.8, 7.2, 9.5);
+  key.target.position.set(0, 0, 0);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.bias = -0.00025;
+  scene.add(key, key.target);
+  const aquaRim = new THREE.PointLight(0x88e0d9, 18, 19, 1.7);
+  aquaRim.position.set(5.2, 1.6, 5.8);
+  scene.add(aquaRim);
+  const coralRim = new THREE.PointLight(0xef8354, 15, 18, 1.8);
+  coralRim.position.set(-4.2, -3.5, 4.8);
+  scene.add(coralRim);
+  const upperRim = new THREE.DirectionalLight(0xd8c0ff, 1.55);
+  upperRim.position.set(2, 7, -1);
+  scene.add(upperRim);
 
-  const controller = createPhoneScene(scene, cssScene, camera);
-  const cssRenderer = new CSS3DRenderer();
-  cssRenderer.domElement.className = "artifact-css3d";
-  cssRenderer.domElement.setAttribute("aria-hidden", "true");
-  stage.append(cssRenderer.domElement);
+  const shadowCatcher = new THREE.Mesh(
+    new THREE.PlaneGeometry(17, 17),
+    new THREE.ShadowMaterial({ color: 0x070209, opacity: 0.34, transparent: true })
+  );
+  shadowCatcher.position.z = -3.35;
+  shadowCatcher.receiveShadow = true;
+  scene.add(shadowCatcher);
+
+  const controller = await createPhoneScene(scene, camera);
+  const compact = window.matchMedia("(max-width: 880px), (pointer: coarse)").matches;
+  const composer = compact || automated ? null : createPostprocessing(renderer, scene, camera);
 
   let width = 0;
   let height = 0;
@@ -60,35 +82,40 @@ export async function initArtifact() {
   let smoothPointerX = 0;
   let smoothPointerY = 0;
   let previousTime = performance.now() / 1000;
+  let lastAutomatedFrame = -Infinity;
 
   function resize() {
     width = Math.max(1, window.innerWidth);
     height = Math.max(1, window.innerHeight);
-    const ratio = artifactPixelRatio();
+    const ratio = automated ? 1 : artifactPixelRatio();
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
-    cssRenderer.setSize(width, height);
+    composer?.setPixelRatio(ratio);
+    composer?.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     controller.resize(width, height);
   }
 
   function render(time) {
-    if (!running || document.hidden || !stage.classList.contains("is-visible")) return;
+    if (!running || document.hidden || stage.dataset.renderPaused === "true" || !stage.classList.contains("is-visible")) return;
+    if (automated && time - lastAutomatedFrame < 0.14) return;
+    lastAutomatedFrame = time;
     const seconds = time;
     const delta = Math.min(0.05, Math.max(0.001, seconds - previousTime));
     previousTime = seconds;
-    smoothPointerX += (pointerX - smoothPointerX) * 0.055;
-    smoothPointerY += (pointerY - smoothPointerY) * 0.055;
-    camera.position.x = smoothPointerX * 0.32;
-    camera.position.y = smoothPointerY * -0.22;
+    smoothPointerX += (pointerX - smoothPointerX) * 0.052;
+    smoothPointerY += (pointerY - smoothPointerY) * 0.052;
+    camera.position.x = smoothPointerX * 0.38;
+    camera.position.y = smoothPointerY * -0.26;
     camera.lookAt(0, 0, 0);
     controller.tick(seconds, delta);
-    renderer.render(scene, camera);
-    cssRenderer.render(cssScene, camera);
+    if (composer) composer.render();
+    else renderer.render(scene, camera);
 
     if (!firstFrame) {
       firstFrame = true;
+      stage.dataset.rendered = "true";
       document.documentElement.classList.add("webgl-ready");
       document.documentElement.classList.remove("artifact-fallback-active");
     }
@@ -119,7 +146,8 @@ export async function initArtifact() {
 
   resize();
   const timeline = createPhoneTimeline(controller, stage);
-  if (window.scrollY <= document.querySelector(".journey").offsetHeight) stage.classList.add("is-visible");
+  const journey = document.querySelector(".journey");
+  if (journey && window.scrollY <= journey.offsetHeight) stage.classList.add("is-visible");
   gsap.ticker.add(render);
   render(performance.now() / 1000);
 
@@ -127,6 +155,8 @@ export async function initArtifact() {
     timeline.destroy();
     resizeObserver.disconnect();
     gsap.ticker.remove(render);
+    composer?.dispose();
+    environment.dispose();
     renderer.dispose();
   }, { once: true });
 

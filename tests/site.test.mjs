@@ -15,7 +15,7 @@ const termsHtml = readFileSync('terms/index.html', 'utf8');
 const notFoundHtml = readFileSync('404.html', 'utf8');
 const renderer = readFileSync('src/scene/renderer.js', 'utf8');
 const phoneScene = readFileSync('src/scene/phone-scene.js', 'utf8');
-const css3dScreen = readFileSync('src/scene/css3d-screen.js', 'utf8');
+const screenTexture = readFileSync('src/scene/screen-texture.js', 'utf8');
 const phoneTimeline = readFileSync('src/scene/phone-timeline.js', 'utf8');
 const capabilityPolicy = readFileSync('src/scene/capability-policy.js', 'utf8');
 const artifactStyles = readFileSync('src/styles/artifact.scss', 'utf8');
@@ -48,9 +48,11 @@ assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/
   'src/main.js',
   'src/scene/renderer.js',
   'src/scene/phone-scene.js',
-  'src/scene/css3d-screen.js',
+  'src/scene/screen-texture.js',
   'src/scene/phone-timeline.js',
   'src/scene/capability-policy.js',
+  'assets/phone/blabb-phone.glb',
+  'tools/generate_phone_model.py',
   'src/styles/artifact.scss',
   'scripts/main.js',
   'scripts/phone-story.js',
@@ -82,7 +84,7 @@ for (const file of ['styles.css', 'legal.css']) {
     assert.ok(existsSync(resolve(dirname(file), reference)), `${file} has a missing asset reference: ${reference}`);
   }
 }
-for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/css3d-screen.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js', 'scripts/waitlist.js']) {
+for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/screen-texture.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js', 'scripts/waitlist.js']) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/from\s+["']([^"']+)["']/g)) {
     if (!match[1].startsWith('.')) continue;
@@ -121,8 +123,9 @@ assert.match(html, /Only after processing finishes does the final, punctuated se
 assert.match(html, /remove only Blabb’s latest insertion/);
 assert.match(html, /SNOOZE · 10 MIN/);
 assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S]*snooze/);
-assert.match(css3dScreen, /ui-insert-two[\s\S]*phase < 0\.68/);
-assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible[\s\S]*snoozed/);
+assert.match(screenTexture, /showSecond[\s\S]*phase < 0\.68/);
+assert.match(phoneScene, /textureState[\s\S]*"snoozed"/);
+assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible/);
 
 // Supporting experiences in the plan are present and interactive.
 ['modes', 'privacy', 'controls', 'tools', 'contexts', 'privacy-promise', 'questions'].forEach((id) => {
@@ -135,8 +138,8 @@ assert.match(html, /Keyboard[\s\S]*Start speaking/);
 assert.match(html, /class="mode-home-screen"[\s\S]*You’re ready to Blabb/);
 assert.match(html, /Text field detection[\s\S]*Floating bubble[\s\S]*Microphone[\s\S]*Voice model/);
 assert.doesNotMatch(html, /local-waveform|processing-card/);
-assert.doesNotMatch(css3dScreen, /ui-state-card|Listening on this phone/);
-assert.match(css3dScreen, /ui-bubble-ring[\s\S]*ui-snooze-target/);
+assert.doesNotMatch(screenTexture, /ui-state-card|Listening on this phone/);
+assert.match(phoneScene, /stateRing[\s\S]*snoozeTarget/);
 assert.match(phoneScene, /processingArc[\s\S]*THREE\.MathUtils\.degToRad\(245\)/);
 assert.match(phoneScene, /const dots = new THREE\.Group/);
 assert.match(html, /custom field does not expose a safe bubble target/i);
@@ -190,19 +193,24 @@ assert.match(entryScript, /classList\.add\("enhanced"\)/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /motionSections[\s\S]*IntersectionObserver/);
 assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/canvas>/);
 assert.match(renderer, /new THREE\.WebGLRenderer/);
-assert.match(renderer, /new CSS3DRenderer/);
+assert.match(renderer, /RoomEnvironment/);
+assert.match(renderer, /shadowMap\.enabled = !automated/);
 assert.match(renderer, /ACESFilmicToneMapping/);
 assert.match(renderer, /powerPreference: "high-performance"/);
 assert.match(html, /data-device="android-phone"/);
-assert.match(css3dScreen, /ui-island/);
-assert.match(phoneScene, /android-camera-bar/);
+assert.match(screenTexture, /new THREE\.CanvasTexture/);
+assert.match(screenTexture, /Blabb bubble snoozed/);
+assert.match(phoneScene, /GLTFLoader/);
+assert.match(phoneScene, /blabb-phone\.glb/);
+assert.match(phoneScene, /double|TouchRings|touchRings/i);
 assert.doesNotMatch(phoneScene, /cameraIsland/);
 assert.match(phoneTimeline, /ScrollTrigger\.create/);
 ['focus', 'dictate', 'process', 'insert', 'undo', 'snooze'].forEach((label) => assert.ok(phoneTimeline.includes(`"${label}"`), `Missing scroll label: ${label}`));
 assert.doesNotMatch(phoneTimeline, /setTimeout|setInterval/);
-assert.match(capabilityPolicy, /deviceMemory <= 4/);
+assert.match(capabilityPolicy, /deviceMemory <= 2/);
 assert.match(capabilityPolicy, /prefers-reduced-motion: reduce/);
-assert.match(artifactStyles, /phone-ui-3d/);
+assert.match(artifactStyles, /artifact-stage::after/);
+assert.ok(statSync('assets/phone/blabb-phone.glb').size < 2_500_000, '3D handset should stay below 2.5 MB');
 assert.doesNotMatch(scripts, /gtag|google-analytics|segment\.com|mixpanel|hotjar/i);
 assert.doesNotMatch(html, /<link[^>]+fonts\.googleapis\.com/i);
 assert.doesNotMatch(html, /works everywhere|works in every app/i);

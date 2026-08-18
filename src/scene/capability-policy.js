@@ -1,7 +1,9 @@
 export function canRunArtifact() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
   if (typeof WebGLRenderingContext === "undefined") return false;
-  if (navigator.deviceMemory && navigator.deviceMemory <= 4) return false;
+  // Four-gigabyte Android phones can run the single bounded showcase model.
+  // Reserve the semantic fallback for genuinely constrained devices.
+  if (navigator.deviceMemory && navigator.deviceMemory <= 2) return false;
 
   try {
     const probe = document.createElement("canvas");

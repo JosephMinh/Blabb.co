@@ -6,7 +6,7 @@ import * as THREE from "three";
 export function createPostprocessing(renderer, scene, camera) {
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.32, 0.55, 0.72);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.055, 0.34, 1.08);
   composer.addPass(bloom);
   return composer;
 }
