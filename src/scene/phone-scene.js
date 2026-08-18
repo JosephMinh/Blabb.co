@@ -42,24 +42,32 @@ function createBubble(materials) {
   const group = new THREE.Group();
   group.name = "blabb-bubble";
 
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.56, 64), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.24 }));
-  shadow.position.set(0.09, -0.1, -0.04);
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.25, 64), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.24 }));
+  shadow.position.set(0.04, -0.045, -0.04);
   shadow.scale.setScalar(1.13);
   group.add(shadow);
 
-  const core = new THREE.Mesh(new THREE.CircleGeometry(0.55, 64), materials.aqua);
+  const core = new THREE.Mesh(new THREE.CircleGeometry(0.24, 64), materials.aqua);
   group.add(core);
 
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.59, 0.055, 16, 80), materials.edge);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.228, 0.025, 16, 80), materials.edge);
   rim.name = "bubble-rim";
   group.add(rim);
 
-  const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.69, 0.055, 16, 80), materials.coral);
+  const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.202, 0.022, 16, 80), materials.coral);
   stateRing.name = "state-ring";
   group.add(stateRing);
 
+  const processingArc = new THREE.Mesh(
+    new THREE.TorusGeometry(0.202, 0.024, 16, 80, THREE.MathUtils.degToRad(245)),
+    materials.coral
+  );
+  processingArc.name = "processing-arc";
+  processingArc.visible = false;
+  group.add(processingArc);
+
   const logo = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.74, 0.74),
+    new THREE.PlaneGeometry(0.48, 0.48),
     new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false })
   );
   logo.position.z = 0.035;
@@ -82,25 +90,33 @@ function createBubble(materials) {
   group.add(logo);
 
   const badge = new THREE.Group();
-  badge.position.set(0.54, -0.5, 0.08);
-  const badgeDisc = new THREE.Mesh(new THREE.CircleGeometry(0.2, 36), materials.coral);
+  badge.position.set(0.149, -0.149, 0.08);
+  const badgeDisc = new THREE.Mesh(new THREE.CircleGeometry(0.086, 36), materials.coral);
   badge.add(badgeDisc);
 
-  const stop = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), new THREE.MeshBasicMaterial({ color: palette.paper }));
+  const stop = new THREE.Mesh(new THREE.PlaneGeometry(0.064, 0.064), new THREE.MeshBasicMaterial({ color: palette.paper }));
   stop.position.z = 0.02;
   badge.add(stop);
 
   const checkGeometry = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.09, 0, 0.03),
-    new THREE.Vector3(-0.025, -0.07, 0.03),
-    new THREE.Vector3(0.115, 0.09, 0.03)
+    new THREE.Vector3(-0.044, 0, 0.03),
+    new THREE.Vector3(-0.01, -0.034, 0.03),
+    new THREE.Vector3(0.052, 0.044, 0.03)
   ]);
   const check = new THREE.Line(checkGeometry, new THREE.LineBasicMaterial({ color: palette.paper }));
   check.visible = false;
   badge.add(check);
+  const dots = new THREE.Group();
+  [-0.032, 0, 0.032].forEach((x) => {
+    const dot = faceDisc(0.009, new THREE.MeshBasicMaterial({ color: palette.paper }), 20);
+    dot.position.set(x, 0, 0.03);
+    dots.add(dot);
+  });
+  dots.visible = false;
+  badge.add(dots);
   group.add(badge);
 
-  return { group, stateRing, badge, badgeDisc, stop, check };
+  return { group, stateRing, processingArc, badge, badgeDisc, stop, check, dots };
 }
 
 function createFlow(materials) {
@@ -204,7 +220,7 @@ export function createPhoneScene(webglScene, cssScene, camera) {
   webglScene.add(engineLayer);
 
   const bubble = createBubble(materials);
-  bubble.group.position.set(2.02, -1.85, 0.72);
+  bubble.group.position.set(1.39, -1.17, 0.72);
   phone.add(bubble.group);
 
   const snoozeTarget = roundedPanel(2.1, 0.72, 0.05, materials.panelCoral, 0.18);
@@ -261,7 +277,7 @@ export function createPhoneScene(webglScene, cssScene, camera) {
   const targetRotation = new THREE.Euler();
   const targetScale = new THREE.Vector3(1, 1, 1);
   const depthBaseScale = new THREE.Vector3(1, 1, 1);
-  const bubbleTarget = new THREE.Vector3(2.02, -1.85, 0.72);
+  const bubbleTarget = new THREE.Vector3(1.39, -1.17, 0.72);
   let explosionAmount = 1;
 
   const chapterRotations = {
@@ -287,14 +303,15 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     const isListening = nextState === "dictate" || (nextState === "continue" && localPhase > 0.18 && localPhase < 0.39);
     const isProcessing = nextState === "process" || (nextState === "continue" && localPhase >= 0.39 && localPhase < 0.56);
     const isSuccess = ["insert", "continue"].includes(nextState) && !isListening && !isProcessing;
-    bubble.stateRing.visible = isListening || isProcessing || isSuccess;
+    bubble.processingArc.visible = isProcessing;
+    bubble.stateRing.visible = isListening || isSuccess;
     bubble.badge.visible = isListening || isProcessing || isSuccess;
     bubble.stateRing.material = isSuccess ? materials.forest : materials.coral;
-    bubble.badgeDisc.material = isSuccess ? materials.forest : materials.coral;
+    bubble.badgeDisc.material = isSuccess ? materials.forest : isProcessing ? materials.edge : materials.coral;
     bubble.check.visible = isSuccess;
-    bubble.stop.visible = !isSuccess;
-    bubble.stateRing.scale.setScalar(isListening ? 1 + Math.sin(performance.now() * 0.012) * 0.08 : 1);
-    if (isProcessing) bubble.stateRing.rotation.z += 0.06;
+    bubble.stop.visible = isListening;
+    bubble.dots.visible = isProcessing;
+    bubble.stateRing.scale.setScalar(isListening ? 1 + Math.sin(performance.now() * 0.012) * 0.025 : 1);
   }
 
   function setProgress(nextProgress) {
@@ -350,23 +367,23 @@ export function createPhoneScene(webglScene, cssScene, camera) {
       positions.needsUpdate = true;
     });
 
-    bubbleTarget.set(2.02, -1.85, 0.72);
+    bubbleTarget.set(1.39, -1.17, 0.72);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
 
     if (state === "snooze") {
-      if (phase < 0.25) bubbleTarget.x = THREE.MathUtils.lerp(2.02, -2.02, phase / 0.25);
+      if (phase < 0.25) bubbleTarget.x = THREE.MathUtils.lerp(1.39, -1.39, phase / 0.25);
       else if (phase < 0.5) {
-        bubbleTarget.x = -2.02;
-        bubbleTarget.y = THREE.MathUtils.lerp(-1.85, -3.05, (phase - 0.25) / 0.25);
+        bubbleTarget.x = -1.39;
+        bubbleTarget.y = THREE.MathUtils.lerp(-1.17, -3.05, (phase - 0.25) / 0.25);
         snoozeTarget.visible = true;
       } else if (phase < 0.76) {
-        bubbleTarget.set(-2.02, -3.05, 0.72);
+        bubbleTarget.set(-1.39, -3.05, 0.72);
         bubble.group.visible = false;
         snoozeTarget.visible = phase < 0.62;
         screen.update("snoozed", phase);
       } else {
-        bubbleTarget.x = THREE.MathUtils.lerp(-2.02, 2.02, (phase - 0.76) / 0.24);
+        bubbleTarget.x = THREE.MathUtils.lerp(-1.39, 1.39, (phase - 0.76) / 0.24);
       }
     }
 
@@ -393,7 +410,7 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     engineLayer.position.set(targetPosition.x - 0.7, targetPosition.y - 2.7, -0.9);
     [appLayer, fieldLayer, engineLayer].forEach((layer) => layer.scale.copy(targetScale));
     bubble.group.visible = true;
-    bubbleTarget.set(compact ? 1.45 : 2.25, compact ? -3.45 : -1.5, 0.78);
+    bubbleTarget.set(compact ? 1.2 : 1.48, compact ? -3.45 : -1.17, 0.78);
     applyBubbleState("insert", 1);
     explosionAmount = 0.9;
     depthRig.visible = true;
@@ -417,11 +434,11 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     cssPhone.rotation.copy(phone.rotation);
 
     if (state === "dictate") {
-      const pulse = 1 + Math.sin(time * 8.5) * 0.055;
+      const pulse = 1 + Math.sin(time * 8.5) * 0.025;
       bubble.stateRing.scale.setScalar(pulse);
     }
     if (state === "process") {
-      bubble.stateRing.rotation.z -= delta * 2.8;
+      bubble.processingArc.rotation.z -= delta * 2.8;
       flow.children.forEach((dot) => {
         const cycle = (time * 0.42 + dot.userData.offset) % 1;
         dot.position.set(targetPosition.x + Math.sin(cycle * 12) * 0.16, targetPosition.y + 0.2 - cycle * 2.35, 0.8);

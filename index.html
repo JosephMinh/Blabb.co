@@ -130,8 +130,6 @@
                     <div class="chat-space">
                       <div class="date-chip">Tomorrow</div>
                       <p class="chat-bubble">Still good for lunch?</p>
-                      <div class="local-waveform" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-                      <div class="processing-card"><span class="technical-label">ON THIS PHONE</span><b>Processing full recording</b><i></i></div>
                     </div>
                     <div class="composer-wrap">
                       <div class="composer-field">
@@ -140,10 +138,11 @@
                       <span class="send-button">↑</span>
                     </div>
                     <div class="keyboard">
-                      <div class="key-row"><span>Q</span><span>W</span><span>E</span><span>R</span><span>T</span><span>Y</span><span>U</span><span>I</span><span>O</span><span>P</span></div>
-                      <div class="key-row key-row-mid"><span>A</span><span>S</span><span>D</span><span>F</span><span>G</span><span>H</span><span>J</span><span>K</span><span>L</span></div>
-                      <div class="key-row key-row-low"><span class="wide">⇧</span><span>Z</span><span>X</span><span>C</span><span>V</span><span>B</span><span>N</span><span>M</span><span class="wide">⌫</span></div>
-                      <div class="key-row key-row-bottom"><span>?123</span><span>☺</span><span class="space-key">English</span><span>·</span><span>↵</span></div>
+                      <div class="keyboard-toolbar"><span>▦</span><span>☺</span><span>GIF</span><span>▣</span><span>⚙</span><span>◉</span><b>●</b></div>
+                      <div class="key-row"><span>q</span><span>w</span><span>e</span><span>r</span><span>t</span><span>y</span><span>u</span><span>i</span><span>o</span><span>p</span></div>
+                      <div class="key-row key-row-mid"><span>a</span><span>s</span><span>d</span><span>f</span><span>g</span><span>h</span><span>j</span><span>k</span><span>l</span></div>
+                      <div class="key-row key-row-low"><span class="wide">⇧</span><span>z</span><span>x</span><span>c</span><span>v</span><span>b</span><span>n</span><span>m</span><span class="wide">⌫</span></div>
+                      <div class="key-row key-row-bottom"><span class="pill">?123</span><span>,</span><span>☺</span><span class="space-key"></span><span>.</span><span class="pill">↵</span></div>
                     </div>
                   </div>
                   <div class="bubble-control">
@@ -248,6 +247,7 @@
         <div class="mode-switch reveal" role="tablist" aria-label="Blabb input routes">
           <button id="bubble-tab" type="button" role="tab" aria-selected="true" aria-controls="bubble-panel" tabindex="0" data-mode="bubble"><span>01</span> Bubble</button>
           <button id="voice-tab" type="button" role="tab" aria-selected="false" aria-controls="voice-panel" tabindex="-1" data-mode="voice"><span>02</span> Voice Input</button>
+          <button id="app-tab" type="button" role="tab" aria-selected="false" aria-controls="app-panel" tabindex="-1" data-mode="app"><span>03</span> Blabb app</button>
         </div>
         <div class="mode-layout reveal" id="mode-demo" data-mode="bubble">
           <div class="mode-copy is-active" id="bubble-panel" role="tabpanel" aria-labelledby="bubble-tab" data-mode-panel="bubble">
@@ -259,19 +259,41 @@
           <div class="mode-copy" id="voice-panel" role="tabpanel" aria-labelledby="voice-tab" data-mode-panel="voice">
             <p class="mode-number">02 / VOICE INPUT</p>
             <h3>A safe route for custom editors.</h3>
-            <p>When a custom field does not expose a safe bubble target, optional Blabb Voice Input uses Android’s input route. Your ordinary keyboard remains available.</p>
+            <p>When a custom field does not expose a safe bubble target, optional Blabb Voice Input replaces the keyboard with a simple Android input panel. Tap Keyboard to switch back.</p>
             <span class="mode-best"><i></i> Custom and node-less editors</span>
+          </div>
+          <div class="mode-copy" id="app-panel" role="tabpanel" aria-labelledby="app-tab" data-mode-panel="app">
+            <p class="mode-number">03 / BLABB APP</p>
+            <h3>A clear home for setup and control.</h3>
+            <p>The app itself uses the same soft gradient, aqua status pills, rounded cards, and Nunito type people see during setup. It shows runtime health, a practice field, and pause controls.</p>
+            <span class="mode-best"><i></i> Setup, status, and settings</span>
           </div>
           <div class="mode-device" aria-hidden="true">
             <div class="mode-screen">
-              <div class="mode-appbar"><span>NEW NOTE</span><i>•••</i></div>
-              <div class="mode-document"><span>Ideas for tomorrow</span><i></i><i></i><i></i><b></b></div>
-              <div class="mode-keyboard"><span>Q&nbsp;&nbsp;W&nbsp;&nbsp;E&nbsp;&nbsp;R&nbsp;&nbsp;T&nbsp;&nbsp;Y&nbsp;&nbsp;U&nbsp;&nbsp;I&nbsp;&nbsp;O&nbsp;&nbsp;P</span><span>A&nbsp;&nbsp;S&nbsp;&nbsp;D&nbsp;&nbsp;F&nbsp;&nbsp;G&nbsp;&nbsp;H&nbsp;&nbsp;J&nbsp;&nbsp;K&nbsp;&nbsp;L</span><span>Z&nbsp;&nbsp;X&nbsp;&nbsp;C&nbsp;&nbsp;V&nbsp;&nbsp;B&nbsp;&nbsp;N&nbsp;&nbsp;M</span></div>
-              <div class="mode-voice-panel"><span class="technical-label">BLABB VOICE INPUT</span><div class="voice-panel-wave"><i></i><i></i><i></i><i></i><i></i></div><b>Tap to dictate with Blabb</b><small>Local voice model ready</small><em>Keyboard</em></div>
+              <div class="mode-host-app">
+                <div class="mode-appbar"><span>NEW NOTE</span><i>•••</i></div>
+                <div class="mode-document"><span>Ideas for tomorrow</span><i></i><i></i><i></i><b></b></div>
+                <div class="mode-keyboard">
+                  <div class="mode-key-tools"><span>▦</span><span>☺</span><span>GIF</span><span>▣</span><span>⚙</span><span>◉</span><b>●</b></div>
+                  <span>q&nbsp;&nbsp;w&nbsp;&nbsp;e&nbsp;&nbsp;r&nbsp;&nbsp;t&nbsp;&nbsp;y&nbsp;&nbsp;u&nbsp;&nbsp;i&nbsp;&nbsp;o&nbsp;&nbsp;p</span><span>a&nbsp;&nbsp;s&nbsp;&nbsp;d&nbsp;&nbsp;f&nbsp;&nbsp;g&nbsp;&nbsp;h&nbsp;&nbsp;j&nbsp;&nbsp;k&nbsp;&nbsp;l</span><span>⇧&nbsp;&nbsp;z&nbsp;&nbsp;x&nbsp;&nbsp;c&nbsp;&nbsp;v&nbsp;&nbsp;b&nbsp;&nbsp;n&nbsp;&nbsp;m&nbsp;&nbsp;⌫</span><small>?123&nbsp;&nbsp;&nbsp;☺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;↵</small>
+                </div>
+                <div class="mode-voice-panel"><b>Tap to dictate with Blabb</b><div><button type="button">Keyboard</button><button type="button">Start speaking</button></div></div>
+              </div>
+              <div class="mode-home-screen">
+                <div class="app-statusbar"><span>9:41</span><i></i><b>▰ ◢ ▮</b></div>
+                <div class="app-home-header"><span class="app-brand-mark"><img src="assets/blabb-mark.png" alt="" /></span><em>BLABB</em><b>⚙</b></div>
+                <div class="app-ready-card"><small><i></i> READY</small><strong>You’re ready to Blabb</strong><p>Open an app and tap a compatible text field.</p></div>
+                <div class="app-section-label">SYSTEM</div>
+                <div class="app-system-card"><span>● &nbsp; Text field detection <b>On</b></span><span>● &nbsp; Floating bubble <b>On</b></span><span>● &nbsp; Microphone <b>On</b></span><span>● &nbsp; Voice model <b>On</b></span></div>
+                <div class="app-section-label">PRACTICE HERE</div>
+                <div class="app-practice-card"><small>▣ &nbsp; STAYS ON THIS PHONE</small><div>Your words will appear here</div></div>
+                <div class="app-home-actions"><b>Pause Blabb</b><span>Settings</span></div>
+              </div>
             </div>
             <span class="mode-bubble"><img src="assets/blabb-mark.png" alt="" /></span>
             <span class="mode-caption mode-caption-bubble">Your keyboard</span>
-            <span class="mode-caption mode-caption-voice">Optional compatibility route</span>
+            <span class="mode-caption mode-caption-voice">Actual Android input panel</span>
+            <span class="mode-caption mode-caption-app">Blabb home</span>
           </div>
         </div>
       </section>

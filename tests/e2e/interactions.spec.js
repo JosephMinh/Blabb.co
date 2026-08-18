@@ -10,6 +10,13 @@ test("mode switch, transcript rules, use cases, and bubble controls respond", as
   await page.locator("#voice-tab").click();
   await expect(page.locator("#voice-tab")).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#voice-panel")).toHaveClass(/is-active/);
+  await expect(page.locator(".mode-voice-panel")).toContainText("Tap to dictate with Blabb");
+  await expect(page.locator(".mode-voice-panel")).toContainText("Start speaking");
+
+  await page.locator("#app-tab").click();
+  await expect(page.locator("#app-tab")).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("#app-panel")).toHaveClass(/is-active/);
+  await expect(page.locator(".mode-home-screen")).toContainText("You’re ready to Blabb");
 
   await page.locator('[data-bubble-state="listening"]').click();
   await expect(page.locator("#giant-bubble")).toHaveAttribute("data-state", "listening");

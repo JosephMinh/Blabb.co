@@ -129,6 +129,16 @@ assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible[\s\S]*snoo
   assert.match(html, new RegExp(`id="${id}"`), `Missing required section #${id}`);
 });
 assert.match(html, /Bubble[\s\S]*Voice Input/);
+assert.match(html, /id="app-tab"[\s\S]*Blabb app/);
+assert.match(html, /Tap to dictate with Blabb/);
+assert.match(html, /Keyboard[\s\S]*Start speaking/);
+assert.match(html, /class="mode-home-screen"[\s\S]*You’re ready to Blabb/);
+assert.match(html, /Text field detection[\s\S]*Floating bubble[\s\S]*Microphone[\s\S]*Voice model/);
+assert.doesNotMatch(html, /local-waveform|processing-card/);
+assert.doesNotMatch(css3dScreen, /ui-state-card|Listening on this phone/);
+assert.match(css3dScreen, /ui-bubble-ring[\s\S]*ui-snooze-target/);
+assert.match(phoneScene, /processingArc[\s\S]*THREE\.MathUtils\.degToRad\(245\)/);
+assert.match(phoneScene, /const dots = new THREE\.Group/);
 assert.match(html, /custom field does not expose a safe bubble target/i);
 assert.match(html, /Dictated audio sent to Blabb[\s\S]*0 <em>bytes<\/em>/);
 assert.match(html, /first voice-model download is about 73 MB/i);
