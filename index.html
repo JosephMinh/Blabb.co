@@ -447,20 +447,15 @@
         <div class="cta-copy reveal">
           <p class="section-kicker">PRIVATE BETA / ANDROID</p>
           <h2 id="cta-title">Your thumbs can<br /><em>thank you later.</em></h2>
-          <p>Join the waitlist for launch news and private Android beta invitations.</p>
-          <form class="waitlist-form" data-waitlist-form action="https://formsubmit.co/private-contact-removed" method="post">
+          <p>Waitlist signups are temporarily paused while we connect a private signup endpoint.</p>
+          <div class="waitlist-form" data-state="paused" aria-label="Waitlist signups are paused">
             <label class="sr-only" for="waitlist-email">Email address</label>
             <div class="waitlist-field">
-              <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
-              <button class="button button-plum" type="submit"><span>Join the waitlist</span><i aria-hidden="true">↘</i></button>
+              <input id="waitlist-email" name="email" type="email" placeholder="Signups reopening soon" disabled />
+              <button class="button button-plum" type="button" disabled><span>Waitlist paused</span><i aria-hidden="true">↘</i></button>
             </div>
-            <input class="waitlist-honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <input type="hidden" name="_subject" value="New Blabb waitlist signup" />
-            <input type="hidden" name="source" value="blabb.co launch waitlist" />
-            <input type="hidden" name="_next" value="https://blabb.co/#waitlist" />
-            <p class="waitlist-consent">Launch and product emails only. Unsubscribe anytime. See our <a href="privacy/">privacy policy</a>.</p>
-            <p class="waitlist-status" data-waitlist-status aria-live="polite"></p>
-          </form>
+            <p class="waitlist-consent">No email is collected here while signups are paused. See our <a href="privacy/">privacy policy</a>.</p>
+          </div>
           <p class="cta-meta"><span>Android 13+</span><span>Private beta</span><span>No spam</span></p>
         </div>
       </section>

@@ -32,38 +32,12 @@ test("mobile menu is keyboard reachable and dismisses with Escape", async ({ pag
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "false");
 });
 
-test("waitlist confirms only after the mailing-list endpoint accepts the email", async ({ page }) => {
-  let submittedEmail = "";
-  await page.route("https://formsubmit.co/ajax/**", async (route) => {
-    const payload = JSON.parse(route.request().postData() || "{}");
-    submittedEmail = payload.email;
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true }) });
-  });
-
-  await page.locator("#waitlist-email").fill("hello@example.com");
-  await page.locator("[data-waitlist-form] button").click();
-  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-state", "success");
-  await expect(page.locator("[data-waitlist-status]")).toContainText("You’re on the list");
-  expect(submittedEmail).toBe("hello@example.com");
-});
-
-test("waitlist hands off safely when the AJAX endpoint presents a challenge", async ({ page }) => {
-  await page.evaluate(() => {
-    HTMLFormElement.prototype.submit = function submitFallback() {
-      this.dataset.nativeFallback = "true";
-    };
-  });
-  await page.route("https://formsubmit.co/ajax/**", (route) => route.fulfill({
-    status: 403,
-    contentType: "text/html",
-    body: "<!doctype html><title>Verification</title>"
-  }));
-
-  await page.locator("#waitlist-email").fill("hello@example.com");
-  await page.locator("[data-waitlist-form] button").click();
-  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-state", "redirecting");
-  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-native-fallback", "true");
-  await expect(page.locator("[data-waitlist-status]")).toContainText("secure signup confirmation");
+test("paused waitlist exposes no submission endpoint", async ({ page }) => {
+  await expect(page.locator(".waitlist-form")).toHaveAttribute("data-state", "paused");
+  await expect(page.locator("#waitlist-email")).toBeDisabled();
+  await expect(page.locator(".waitlist-form button")).toBeDisabled();
+  await expect(page.locator(".waitlist-form")).toContainText("No email is collected");
+  await expect(page.locator("form[data-waitlist-form]")).toHaveCount(0);
 });
 
 test("mobile content remains fully styled when JavaScript is unavailable", async ({ browser }) => {

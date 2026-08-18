@@ -786,6 +786,9 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .waitlist-field input:focus-visible { border-radius: 999px; box-shadow: 0 0 0 3px rgba(136, 224, 217, 0.75); }
 .waitlist-field button { min-height: 56px; border: 0; white-space: nowrap; }
 .waitlist-field button i { font-style: normal; }
+.waitlist-form[data-state="paused"] .waitlist-field { border-color: rgba(78, 22, 91, 0.42); box-shadow: none; }
+.waitlist-form[data-state="paused"] input:disabled { color: rgba(23, 10, 28, 0.58); opacity: 1; }
+.waitlist-form[data-state="paused"] button:disabled { cursor: not-allowed; opacity: 0.72; }
 .waitlist-form[data-state="success"] .waitlist-field { border-color: var(--forest); }
 .waitlist-form[data-state="success"] button { background: var(--forest); }
 .waitlist-consent { margin: 12px 8px 0 !important; color: rgba(23, 10, 28, 0.68); font-size: 0.65rem !important; line-height: 1.5; }
