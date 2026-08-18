@@ -17,6 +17,10 @@ function roundedPanel(width, height, depth, material, radius = 0.12) {
   return new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 5, radius), material);
 }
 
+function faceDisc(radius, material, segments = 48) {
+  return new THREE.Mesh(new THREE.CircleGeometry(radius, segments), material);
+}
+
 function textSprite(text, color = "#88e0d9") {
   const canvas = document.createElement("canvas");
   canvas.width = 768;
@@ -60,9 +64,20 @@ function createBubble(materials) {
   );
   logo.position.z = 0.035;
   new THREE.TextureLoader().load(new URL("../../assets/blabb-mark.png", import.meta.url).href, (texture) => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    logo.material.map = texture;
+    const source = texture.image;
+    const canvas = document.createElement("canvas");
+    canvas.width = source.naturalWidth || source.width;
+    canvas.height = source.naturalHeight || source.height;
+    const context = canvas.getContext("2d");
+    context.drawImage(source, 0, 0, canvas.width, canvas.height);
+    context.globalCompositeOperation = "source-in";
+    context.fillStyle = "#170a1c";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    const tintedMark = new THREE.CanvasTexture(canvas);
+    tintedMark.colorSpace = THREE.SRGBColorSpace;
+    logo.material.map = tintedMark;
     logo.material.needsUpdate = true;
+    texture.dispose();
   });
   group.add(logo);
 
@@ -105,26 +120,60 @@ export function createPhoneScene(webglScene, cssScene, camera) {
   phone.name = "blabb-phone";
   webglScene.add(phone);
 
-  const shell = roundedPanel(3.76, 7.78, 0.38, materials.shell, 0.34);
+  const rail = roundedPanel(3.86, 7.88, 0.48, materials.rail, 0.36);
+  rail.name = "android-metal-rail";
+  phone.add(rail);
+
+  const shell = roundedPanel(3.74, 7.76, 0.38, materials.shell, 0.33);
   shell.name = "shell";
+  shell.position.z = 0.01;
   phone.add(shell);
+
+  const back = roundedPanel(3.65, 7.66, 0.12, materials.back, 0.3);
+  back.name = "matte-android-back";
+  back.position.z = -0.25;
+  phone.add(back);
 
   const glass = roundedPanel(3.5, 7.47, 0.12, materials.glass, 0.28);
   glass.name = "glass";
   glass.position.z = 0.22;
   phone.add(glass);
 
-  const sideA = roundedPanel(0.08, 0.75, 0.12, materials.edge, 0.04);
-  sideA.position.set(1.92, 1.7, 0);
+  const sideA = roundedPanel(0.09, 0.72, 0.15, materials.edge, 0.04);
+  sideA.name = "android-volume-rocker";
+  sideA.position.set(1.96, 1.58, 0.02);
   phone.add(sideA);
   const sideB = sideA.clone();
-  sideB.scale.y = 0.68;
-  sideB.position.y = 0.72;
+  sideB.name = "android-power-button";
+  sideB.material = materials.aqua;
+  sideB.scale.y = 0.58;
+  sideB.position.y = 0.64;
   phone.add(sideB);
 
-  const cameraIsland = roundedPanel(0.8, 0.18, 0.08, materials.edge, 0.09);
-  cameraIsland.position.set(0, 3.48, 0.34);
-  phone.add(cameraIsland);
+  const rearCameraBar = roundedPanel(3.44, 0.66, 0.22, materials.cameraBar, 0.18);
+  rearCameraBar.name = "android-camera-bar";
+  rearCameraBar.position.set(0, 2.72, -0.34);
+  phone.add(rearCameraBar);
+  [-0.92, -0.42].forEach((x, index) => {
+    const lensRing = new THREE.Mesh(new THREE.TorusGeometry(index ? 0.165 : 0.19, 0.04, 16, 48), materials.rail);
+    lensRing.position.set(x, 2.72, -0.465);
+    lensRing.rotation.y = Math.PI;
+    phone.add(lensRing);
+    const lens = faceDisc(index ? 0.145 : 0.17, materials.cameraGlass);
+    lens.position.set(x, 2.72, -0.47);
+    lens.rotation.y = Math.PI;
+    phone.add(lens);
+  });
+  const cameraFlash = faceDisc(0.09, materials.lilac);
+  cameraFlash.position.set(0.82, 2.72, -0.47);
+  cameraFlash.rotation.y = Math.PI;
+  phone.add(cameraFlash);
+
+  const usbPort = roundedPanel(0.42, 0.08, 0.13, materials.cameraGlass, 0.04);
+  usbPort.name = "usb-c-port";
+  usbPort.position.set(0, -3.96, 0.01);
+  usbPort.rotation.x = Math.PI * 0.5;
+  phone.add(usbPort);
 
   const appLayer = roundedPanel(3.35, 6.9, 0.08, materials.panelDeep, 0.18);
   appLayer.name = "active-app";
@@ -170,6 +219,29 @@ export function createPhoneScene(webglScene, cssScene, camera) {
   const flow = createFlow(materials);
   webglScene.add(flow);
 
+  const depthRig = new THREE.Group();
+  depthRig.name = "exploded-depth-rig";
+  const aquaOrbit = new THREE.Mesh(
+    new THREE.TorusGeometry(2.75, 0.022, 10, 96),
+    new THREE.MeshBasicMaterial({ color: palette.aqua, transparent: true, opacity: 0.46, depthWrite: false })
+  );
+  aquaOrbit.scale.set(1.05, 1.38, 1);
+  const coralOrbit = new THREE.Mesh(
+    new THREE.TorusGeometry(2.32, 0.016, 10, 96),
+    new THREE.MeshBasicMaterial({ color: palette.coral, transparent: true, opacity: 0.38, depthWrite: false })
+  );
+  coralOrbit.scale.set(1.12, 1.5, 1);
+  coralOrbit.rotation.z = 0.48;
+  depthRig.add(aquaOrbit, coralOrbit);
+  webglScene.add(depthRig);
+
+  const depthLines = [materials.aqua, materials.coral, materials.aqua].map((material) => {
+    const lineMaterial = new THREE.LineBasicMaterial({ color: material.color, transparent: true, opacity: 0.52 });
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), lineMaterial);
+    webglScene.add(line);
+    return line;
+  });
+
   const cssPhone = new THREE.Group();
   const screen = createScreenSurface();
   cssPhone.add(screen.object);
@@ -188,7 +260,19 @@ export function createPhoneScene(webglScene, cssScene, camera) {
   const targetPosition = new THREE.Vector3();
   const targetRotation = new THREE.Euler();
   const targetScale = new THREE.Vector3(1, 1, 1);
+  const depthBaseScale = new THREE.Vector3(1, 1, 1);
   const bubbleTarget = new THREE.Vector3(2.02, -1.85, 0.72);
+  let explosionAmount = 1;
+
+  const chapterRotations = {
+    hero: [-0.14, -0.5, 0.09],
+    focus: [-0.05, -0.18, 0.02],
+    dictate: [-0.08, 0.18, -0.025],
+    process: [-0.13, -0.32, 0.05],
+    insert: [0.035, 0.12, -0.02],
+    continue: [-0.04, -0.2, 0.018],
+    snooze: [-0.07, 0.26, -0.045]
+  };
 
   function updateReadout(index) {
     if (index === currentIndex) return;
@@ -236,21 +320,35 @@ export function createPhoneScene(webglScene, cssScene, camera) {
       : tablet
         ? Math.min(0.72, viewport.height / 1100)
         : Math.min(1.02, viewport.height / 920));
-    targetRotation.set(-0.035, state === "hero" ? -0.2 + phase * 0.12 : -0.05, state === "hero" ? 0.07 - phase * 0.04 : 0.018);
+    const rotation = chapterRotations[state];
+    targetRotation.set(rotation[0], rotation[1], rotation[2]);
 
-    const explosion = state === "hero" ? 1 - phase * 0.75 : state === "process" ? 0.7 : 0;
-    appLayer.position.set(targetPosition.x - explosion * 1.15, targetPosition.y + explosion * 0.46, -0.45 - explosion * 0.4);
-    appLayer.rotation.z = explosion * -0.13;
+    const explosion = state === "hero" ? 1.2 - phase * 0.78 : state === "process" ? 0.86 : 0;
+    explosionAmount = explosion;
+    appLayer.position.set(targetPosition.x - explosion * 1.34, targetPosition.y + explosion * 0.64, -0.62 - explosion * 0.62);
+    appLayer.rotation.set(explosion * 0.04, explosion * -0.1, explosion * -0.15);
     appLayer.scale.copy(targetScale);
-    fieldLayer.position.set(targetPosition.x + explosion * 1.4, targetPosition.y - 1.45 + explosion * 0.18, -0.2 - explosion * 0.3);
-    fieldLayer.rotation.z = explosion * 0.11;
+    fieldLayer.position.set(targetPosition.x + explosion * 1.58, targetPosition.y - 1.45 + explosion * 0.24, 0.28 + explosion * 0.5);
+    fieldLayer.rotation.set(explosion * -0.08, explosion * 0.16, explosion * 0.13);
     fieldLayer.scale.copy(targetScale);
-    engineLayer.position.set(targetPosition.x - explosion * 0.48, targetPosition.y - 2.3 - explosion * 0.8, -0.6 - explosion * 0.45);
-    engineLayer.rotation.z = explosion * -0.06;
+    engineLayer.position.set(targetPosition.x - explosion * 0.66, targetPosition.y - 2.3 - explosion * 0.92, 0.5 + explosion * 0.72);
+    engineLayer.rotation.set(explosion * 0.1, explosion * -0.12, explosion * -0.08);
     engineLayer.scale.copy(targetScale);
     appLayer.visible = explosion > 0.03;
     fieldLayer.visible = explosion > 0.03;
     engineLayer.visible = explosion > 0.03;
+    depthRig.visible = explosion > 0.03;
+    depthRig.position.set(targetPosition.x, targetPosition.y, -1.42);
+    depthBaseScale.copy(targetScale).multiplyScalar(0.92 + explosion * 0.08);
+    depthRig.scale.copy(depthBaseScale);
+    const layerTargets = [appLayer.position, fieldLayer.position, engineLayer.position];
+    depthLines.forEach((line, lineIndex) => {
+      line.visible = explosion > 0.08;
+      const positions = line.geometry.attributes.position;
+      positions.setXYZ(0, targetPosition.x, targetPosition.y, -0.18);
+      positions.setXYZ(1, layerTargets[lineIndex].x, layerTargets[lineIndex].y, layerTargets[lineIndex].z);
+      positions.needsUpdate = true;
+    });
 
     bubbleTarget.set(2.02, -1.85, 0.72);
     bubble.group.visible = true;
@@ -284,7 +382,7 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
     const viewWidth = viewHeight * camera.aspect;
     targetPosition.set(compact ? 0 : -viewWidth * 0.22, compact ? -3.45 : 0, 0);
-    targetRotation.set(-0.1, -0.36, -0.05);
+    targetRotation.set(-0.16, -0.52, -0.065);
     targetScale.setScalar(compact ? 0.55 : 0.92);
     screen.update("insert", 1);
     appLayer.visible = true;
@@ -297,6 +395,12 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     bubble.group.visible = true;
     bubbleTarget.set(compact ? 1.45 : 2.25, compact ? -3.45 : -1.5, 0.78);
     applyBubbleState("insert", 1);
+    explosionAmount = 0.9;
+    depthRig.visible = true;
+    depthRig.position.set(targetPosition.x, targetPosition.y, -1.45);
+    depthBaseScale.copy(targetScale);
+    depthRig.scale.copy(depthBaseScale);
+    depthLines.forEach((line) => { line.visible = false; });
   }
 
   function tick(time, delta) {
@@ -327,6 +431,12 @@ export function createPhoneScene(webglScene, cssScene, camera) {
     engineBars.children.forEach((bar, index) => {
       bar.scale.y = 0.7 + Math.sin(time * 4 + index) * 0.24;
     });
+    if (depthRig.visible) {
+      aquaOrbit.rotation.z = time * 0.055;
+      coralOrbit.rotation.z = 0.48 - time * 0.075;
+      const breathe = 1 + Math.sin(time * 1.3) * 0.018 * explosionAmount;
+      depthRig.scale.copy(depthBaseScale).multiplyScalar(breathe);
+    }
   }
 
   function resize(width, height) {

@@ -1,4 +1,3 @@
-import "../styles.css";
 import "./styles/artifact.scss";
 
 import { initShell } from "../scripts/main.js";
@@ -6,6 +5,7 @@ import { initPhoneStory } from "../scripts/phone-story.js";
 import { initBubbleExperiences } from "../scripts/bubble-demo.js";
 import { initTranscriptDemo } from "../scripts/transcript-demo.js";
 import { initUseCases } from "../scripts/use-cases.js";
+import { initWaitlist } from "../scripts/waitlist.js";
 
 document.documentElement.classList.add("enhanced");
 
@@ -13,6 +13,7 @@ initShell();
 initBubbleExperiences();
 initTranscriptDemo();
 initUseCases();
+initWaitlist();
 
 const artifactModule = import("./scene/renderer.js");
 

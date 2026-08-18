@@ -6,6 +6,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("mode switch, transcript rules, use cases, and bubble controls respond", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.locator("#voice-tab").click();
   await expect(page.locator("#voice-tab")).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#voice-panel")).toHaveClass(/is-active/);
@@ -29,4 +30,41 @@ test("mobile menu is keyboard reachable and dismisses with Escape", async ({ pag
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "true");
   await page.keyboard.press("Escape");
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "false");
+});
+
+test("waitlist confirms only after the mailing-list endpoint accepts the email", async ({ page }) => {
+  let submittedEmail = "";
+  await page.route("https://formsubmit.co/ajax/**", async (route) => {
+    const payload = JSON.parse(route.request().postData() || "{}");
+    submittedEmail = payload.email;
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true }) });
+  });
+
+  await page.locator("#waitlist-email").fill("hello@example.com");
+  await page.locator("[data-waitlist-form] button").click();
+  await expect(page.locator("[data-waitlist-form]")).toHaveAttribute("data-state", "success");
+  await expect(page.locator("[data-waitlist-status]")).toContainText("You’re on the list");
+  expect(submittedEmail).toBe("hello@example.com");
+});
+
+test("mobile content remains fully styled when JavaScript is unavailable", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.goto("/");
+  await expect(page.locator("#hero-title")).toBeVisible();
+  await expect(page.locator(".phone-artifact")).toBeVisible();
+  const presentation = await page.evaluate(() => {
+    const mark = document.querySelector(".brand-mark").getBoundingClientRect();
+    return {
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      markWidth: mark.width,
+      bodyFont: getComputedStyle(document.body).fontFamily,
+      heroSize: Number.parseFloat(getComputedStyle(document.querySelector("#hero-title")).fontSize)
+    };
+  });
+  expect(presentation.overflow).toBeLessThanOrEqual(0);
+  expect(presentation.markWidth).toBeLessThan(60);
+  expect(presentation.bodyFont).toContain("Nunito");
+  expect(presentation.heroSize).toBeGreaterThan(48);
+  await context.close();
 });

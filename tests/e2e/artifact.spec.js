@@ -46,7 +46,9 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator(".final-cta").scrollIntoViewIfNeeded();
   await expect(page.locator("#artifact-stage")).toHaveClass(/is-final/);
-  await expect(page.locator("#artifact-webgl")).toBeVisible();
+  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");
+  await expect(page.locator(".cta-art")).toHaveCSS("opacity", "1");
+  await expect(page.locator("#waitlist-email")).toBeVisible();
 });
 
 test("mobile keeps the hero clear and hands off to the WebGL phone for the story", async ({ page }) => {

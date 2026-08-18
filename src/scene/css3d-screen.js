@@ -17,7 +17,7 @@ function keyboardMarkup() {
 }
 
 export function createScreenSurface() {
-  const logoUrl = new URL("../../assets/blabb-glyph.svg", import.meta.url).href;
+  const logoUrl = new URL("../../assets/blabb-mark.png", import.meta.url).href;
   const element = document.createElement("div");
   element.className = "phone-ui-3d";
   element.setAttribute("aria-hidden", "true");
@@ -33,7 +33,8 @@ export function createScreenSurface() {
       <div class="ui-notification"><img src="${logoUrl}" alt=""><span>Blabb bubble snoozed<small>Returns automatically in 10 minutes</small></span><em>End snooze</em></div>
     </div>
     <div class="ui-composer"><div class="ui-field"><span class="ui-base">Lunch tomorrow works.</span><span class="ui-insert ui-insert-one"></span><span class="ui-insert ui-insert-two"></span><i class="ui-cursor"></i></div><span class="ui-send">↑</span></div>
-    <div class="ui-keyboard">${keyboardMarkup()}</div>`;
+    <div class="ui-keyboard">${keyboardMarkup()}</div>
+    <i class="ui-gesture"></i>`;
 
   const object = new CSS3DObject(element);
   object.scale.setScalar(0.00522);

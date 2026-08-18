@@ -1,6 +1,6 @@
 # Blabb.co
 
-The official landing page for [Blabb](https://github.com/JosephMinh/Blabb), private offline voice typing for Android.
+The official landing page for Blabb, private offline voice typing for Android.
 
 ## Local preview
 

@@ -9,6 +9,7 @@ const phoneStory = readFileSync('scripts/phone-story.js', 'utf8');
 const bubbleDemo = readFileSync('scripts/bubble-demo.js', 'utf8');
 const transcriptDemo = readFileSync('scripts/transcript-demo.js', 'utf8');
 const useCases = readFileSync('scripts/use-cases.js', 'utf8');
+const waitlist = readFileSync('scripts/waitlist.js', 'utf8');
 const privacyHtml = readFileSync('privacy/index.html', 'utf8');
 const termsHtml = readFileSync('terms/index.html', 'utf8');
 const notFoundHtml = readFileSync('404.html', 'utf8');
@@ -19,8 +20,7 @@ const phoneTimeline = readFileSync('src/scene/phone-timeline.js', 'utf8');
 const capabilityPolicy = readFileSync('src/scene/capability-policy.js', 'utf8');
 const artifactStyles = readFileSync('src/styles/artifact.scss', 'utf8');
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
-const scripts = [entryScript, renderer, phoneScene, phoneTimeline, phoneStory, bubbleDemo, transcriptDemo, useCases].join('\n');
-const currentApk = 'https://github.com/JosephMinh/Blabb/releases/download/v0.12.5/Blabb-v0.12.5-debug.apk';
+const scripts = [entryScript, renderer, phoneScene, phoneTimeline, phoneStory, bubbleDemo, transcriptDemo, useCases, waitlist].join('\n');
 
 // Metadata, publishing, and essential local assets.
 assert.match(html, /<title>Blabb — Private offline voice typing for Android<\/title>/);
@@ -40,7 +40,6 @@ assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/
 [
   'assets/blabb-mark.png',
   'assets/blabb-logo.png',
-  'assets/blabb-glyph.svg',
   'assets/nunito.ttf',
   'assets/nunito-subset.woff2',
   'package-lock.json',
@@ -57,8 +56,11 @@ assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/
   'scripts/phone-story.js',
   'scripts/bubble-demo.js',
   'scripts/transcript-demo.js',
-  'scripts/use-cases.js'
+  'scripts/use-cases.js',
+  'scripts/waitlist.js'
 ].forEach((path) => assert.ok(existsSync(path), `Missing required site asset: ${path}`));
+assert.equal(existsSync('assets/blabb-glyph.svg'), false, 'The non-canonical redraw must not ship');
+assert.equal(existsSync('assets/favicon.svg'), false, 'The non-canonical favicon must not ship');
 
 // Every local HTML/CSS/module reference resolves in the static site tree.
 const htmlFiles = ['index.html', 'privacy/index.html', 'terms/index.html', '404.html'];
@@ -80,7 +82,7 @@ for (const file of ['styles.css', 'legal.css']) {
     assert.ok(existsSync(resolve(dirname(file), reference)), `${file} has a missing asset reference: ${reference}`);
   }
 }
-for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/css3d-screen.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js']) {
+for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-scene.js', 'src/scene/css3d-screen.js', 'src/scene/phone-timeline.js', 'src/scene/materials.js', 'src/scene/postprocessing.js', 'src/scene/capability-policy.js', 'scripts/main.js', 'scripts/phone-story.js', 'scripts/bubble-demo.js', 'scripts/transcript-demo.js', 'scripts/use-cases.js', 'scripts/waitlist.js']) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/from\s+["']([^"']+)["']/g)) {
     if (!match[1].startsWith('.')) continue;
@@ -93,11 +95,18 @@ assert.match(html, /Speak\.[\s\S]*It types\./);
 assert.match(html, /private voice bubble for Android/i);
 assert.match(html, /keyboard you already use/i);
 assert.match(html, /without sending your voice to the cloud/i);
-assert.match(html, /Testing build/);
+assert.match(html, /Private beta/);
 assert.match(html, /Android 13\+/);
-assert.match(html, /No account/);
-assert.ok(html.split(currentApk).length >= 5, 'Primary CTAs must use the current v0.12.5 APK URL');
-assert.match(html, /class="button header-download"[^>]+aria-label="Download Blabb v0\.12\.5"/);
+assert.match(html, /No app account/);
+assert.match(html, /<form class="waitlist-form"[^>]+action="https:\/\/formsubmit\.co\/josephsamara00@gmail\.com"/);
+assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+required/);
+assert.match(html, /data-waitlist-status[^>]+aria-live="polite"/);
+assert.match(waitlist, /formsubmit\.co\/ajax\//);
+assert.match(waitlist, /response\.ok/);
+assert.match(privacyHtml, /Website waitlist[\s\S]*FormSubmit/);
+assert.doesNotMatch([html, termsHtml, privacyHtml, notFoundHtml].join('\n'), /github\.com\/JosephMinh\/Blabb(?:\/|\b)|Blabb-v\d[^\s"<]*\.apk/i);
+assert.doesNotMatch(html, /Download Blabb|Download for Android/i);
+assert.match(html, /<link rel="stylesheet" href="\/styles\.css"/);
 
 // The continuous story covers the product-accurate, full-context lifecycle.
 [
@@ -155,7 +164,7 @@ const faqQuestions = [
   'Does the bubble work in every text field?',
   'What is Blabb Voice Input?',
   'What should Samsung users change?',
-  'Is this currently a testing build?'
+  'When can I try Blabb?'
 ];
 faqQuestions.forEach((question) => assert.ok(html.includes(question), `Missing FAQ: ${question}`));
 assert.equal((html.match(/<details>/g) || []).length, 10, 'Expected all ten setup FAQ answers');
@@ -170,11 +179,15 @@ assert.match(css, /\.chapter-state-card/);
 assert.match(css, /\.js\.enhanced \.reveal/);
 assert.match(entryScript, /classList\.add\("enhanced"\)/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /motionSections[\s\S]*IntersectionObserver/);
-assert.match(html, /<canvas id="artifact-webgl"><\/canvas>/);
+assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/canvas>/);
 assert.match(renderer, /new THREE\.WebGLRenderer/);
 assert.match(renderer, /new CSS3DRenderer/);
 assert.match(renderer, /ACESFilmicToneMapping/);
 assert.match(renderer, /powerPreference: "high-performance"/);
+assert.match(html, /data-device="android-phone"/);
+assert.match(css3dScreen, /ui-island/);
+assert.match(phoneScene, /android-camera-bar/);
+assert.doesNotMatch(phoneScene, /cameraIsland/);
 assert.match(phoneTimeline, /ScrollTrigger\.create/);
 ['focus', 'dictate', 'process', 'insert', 'undo', 'snooze'].forEach((label) => assert.ok(phoneTimeline.includes(`"${label}"`), `Missing scroll label: ${label}`));
 assert.doesNotMatch(phoneTimeline, /setTimeout|setInterval/);

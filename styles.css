@@ -177,8 +177,8 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 }
 .site-header.is-scrolled { box-shadow: 0 12px 45px rgba(17, 7, 21, 0.2); }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 950; letter-spacing: -0.06em; }
-.brand-mark { width: 37px; height: 37px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; background: var(--aqua); }
-.brand-mark img { width: 29px; height: 29px; }
+.brand-mark { width: 37px; height: 37px; display: grid; place-items: center; flex: 0 0 auto; overflow: hidden; border: 2px solid var(--plum); border-radius: 50%; background: var(--aqua); }
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; }
 .header-descriptor { padding-left: 20px; border-left: 1px solid currentColor; opacity: 0.62; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .desktop-nav { justify-self: center; display: flex; align-items: center; gap: clamp(18px, 2.5vw, 38px); font-size: 0.76rem; font-weight: 800; }
 .desktop-nav a { position: relative; }
@@ -342,17 +342,17 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
   height: 626px;
   padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 48px;
-  background: linear-gradient(145deg, #34233a, #09040b 45%, #27182c);
+  border-radius: 34px;
+  background: linear-gradient(110deg, #6d6570 0%, #231928 13%, #09040b 49%, #4f4652 88%, #151018 100%);
   box-shadow: 0 45px 90px rgba(0, 0, 0, 0.48), inset 0 0 0 2px rgba(255, 255, 255, 0.04);
   transition: transform 0.9s var(--ease-out);
 }
 .hardware-button { position: absolute; right: -4px; width: 4px; border-radius: 0 3px 3px 0; background: #4e3c53; }
-.hardware-button-a { top: 116px; height: 56px; }
-.hardware-button-b { top: 184px; height: 36px; }
-.phone-screen { position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 40px; color: var(--plum); background: var(--paper); }
+.hardware-button-a { top: 112px; height: 72px; }
+.hardware-button-b { top: 198px; height: 42px; background: var(--aqua); }
+.phone-screen { position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 27px; color: var(--plum); background: var(--paper); }
 .status-bar { position: relative; z-index: 2; height: 30px; flex: 0 0 30px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; color: #281b2c; font-size: 0.48rem; font-weight: 900; }
-.camera-cutout { position: absolute; left: 50%; top: 7px; width: 55px; height: 16px; border-radius: 20px; background: #0d080e; transform: translateX(-50%); }
+.camera-cutout { position: absolute; left: 50%; top: 8px; width: 12px; height: 12px; border: 2px solid #2f2632; border-radius: 50%; background: #050306; box-shadow: inset 0 0 0 1px #0d3038; transform: translateX(-50%); }
 .status-icons { display: flex; align-items: flex-end; gap: 3px; }
 .status-icons i { width: 3px; height: 7px; border-radius: 2px; background: currentColor; }
 .status-icons i + i { height: 9px; }
@@ -766,18 +766,33 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .cta-layer { display: flex; align-items: flex-end; padding: 18px; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em; }
 .cta-layer-a { transform: translate(-84%, -55%) rotate(-10deg); }
 .cta-layer-b { color: var(--paper); background: var(--forest); transform: translate(-32%, -45%) rotate(7deg); }
-.cta-phone { overflow: hidden; border: 9px solid var(--plum); border-radius: 42px; background: var(--paper); transform: translate(-50%, -50%) rotate(-2deg); }
-.cta-phone span { display: block; height: 60px; border-bottom: 1px solid var(--line-dark); background: var(--lilac); }
+.cta-phone { overflow: hidden; border: 9px solid var(--plum); border-radius: 30px; background: var(--paper); transform: translate(-50%, -50%) rotate(-2deg); }
+.cta-phone span { position: relative; display: block; height: 60px; border-bottom: 1px solid var(--line-dark); background: var(--lilac); }
+.cta-phone span::after { content: ""; position: absolute; left: 50%; top: 10px; width: 13px; height: 13px; border: 3px solid #49354e; border-radius: 50%; background: var(--near-black); transform: translateX(-50%); }
 .cta-phone i { display: block; width: 70%; height: 13px; margin: 65px 20px 10px; border-radius: 10px; background: var(--lilac); }
 .cta-phone i::after { content: ""; display: block; width: 74%; height: 13px; margin-top: 20px; border-radius: 10px; background: var(--lilac); }
 .cta-phone b { position: absolute; left: 0; right: 0; bottom: 0; height: 155px; background: repeating-linear-gradient(90deg, #ded3df 0 23px, transparent 23px 27px), #ebe4ec; }
+.cta-phone b::after { content: ""; position: absolute; left: 50%; bottom: 8px; width: 72px; height: 4px; border-radius: 10px; background: rgba(23, 10, 28, 0.72); transform: translateX(-50%); }
 .cta-bubble { position: absolute; z-index: 8; left: 67%; top: 54%; width: 170px; height: 170px; display: grid; place-items: center; border: 8px solid var(--plum); border-radius: 50%; background: var(--aqua); box-shadow: 0 30px 65px rgba(23, 10, 28, 0.3); animation: cta-float 5s ease-in-out infinite; }
 .cta-bubble img { width: 125px; }
 .cta-copy { position: relative; z-index: 3; }
 .cta-copy h2 { font-size: clamp(4rem, 7vw, 7.6rem); }
 .cta-copy h2 em { color: var(--plum); }
 .cta-copy > p:not(.section-kicker):not(.cta-meta) { margin: 30px 0; font-size: 1.05rem; }
-.cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+.waitlist-form { width: min(100%, 600px); margin-top: 30px; }
+.waitlist-field { display: flex; align-items: center; gap: 8px; padding: 7px; border: 2px solid var(--plum); border-radius: 999px; background: var(--paper); box-shadow: 0 18px 50px rgba(23, 10, 28, 0.14); }
+.waitlist-field input { min-width: 0; flex: 1; border: 0; outline: 0; padding: 0 15px; color: var(--plum); background: transparent; font: 800 1rem/1 var(--font); }
+.waitlist-field input::placeholder { color: rgba(23, 10, 28, 0.45); }
+.waitlist-field input:focus-visible { border-radius: 999px; box-shadow: 0 0 0 3px rgba(136, 224, 217, 0.75); }
+.waitlist-field button { min-height: 56px; border: 0; white-space: nowrap; }
+.waitlist-field button i { font-style: normal; }
+.waitlist-form[data-state="success"] .waitlist-field { border-color: var(--forest); }
+.waitlist-form[data-state="success"] button { background: var(--forest); }
+.waitlist-consent { margin: 12px 8px 0 !important; color: rgba(23, 10, 28, 0.68); font-size: 0.65rem !important; line-height: 1.5; }
+.waitlist-consent a { border-bottom: 1px solid currentColor; }
+.waitlist-status { min-height: 1.3em; margin: 8px 8px 0 !important; color: var(--plum); font-size: 0.7rem !important; font-weight: 900; }
+.waitlist-form[data-state="error"] .waitlist-status { color: #6f2211; }
+.waitlist-honey { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
 .cta-meta { display: flex; flex-wrap: wrap; gap: 0; margin: 22px 0 0; font-family: var(--mono); font-size: 0.57rem; letter-spacing: 0.05em; text-transform: uppercase; }
 .cta-meta span:not(:last-child)::after { content: "•"; margin: 0 9px; }
 footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 28px; color: var(--lilac); background: var(--near-black); }
@@ -789,6 +804,21 @@ footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 
 .footer-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; padding-top: 22px; border-top: 1px solid var(--line-light); color: rgba(237, 223, 239, 0.66); font-family: var(--mono); font-size: 0.54rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .footer-bottom > span:nth-child(2) { text-align: center; }
 .footer-bottom > span:last-child { display: flex; justify-content: flex-end; gap: 20px; }
+
+/* The Android app's canonical mark is always rendered inside the same flat
+   aqua bubble and plum rim. Never redraw or substitute the mark. */
+:is(.poster-bubble, .bubble-core, .mode-bubble, .giant-core, .context-bubble, .cta-bubble, .mini-state-bubble) img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.snooze-notification > img {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--plum);
+  object-fit: contain;
+}
 
 /* Motion */
 
@@ -834,6 +864,7 @@ footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 
 
 @media (max-width: 880px) {
   :root { --page-pad: clamp(20px, 5vw, 36px); }
+  .js.enhanced .reveal { opacity: 1; transform: none; }
   .section-pad { padding-block: 100px; }
   .site-header { top: 10px; width: calc(100vw - 20px); grid-template-columns: auto 1fr auto; gap: 8px; min-height: 58px; padding: 7px 8px 7px 11px; }
   .site-header .brand-name, .desktop-nav { display: none; }
@@ -972,6 +1003,9 @@ footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 
   .cta-bubble { left: 61%; }
   .cta-actions { flex-direction: column; }
   .cta-actions .button { width: 100%; }
+  .waitlist-field { display: grid; grid-template-columns: 1fr; border-radius: 28px; }
+  .waitlist-field input { min-height: 54px; text-align: center; }
+  .waitlist-field button { width: 100%; }
   .cta-meta { row-gap: 7px; }
   .footer-top { grid-template-columns: 1fr; gap: 25px; }
   .footer-top nav { grid-column: 1; }

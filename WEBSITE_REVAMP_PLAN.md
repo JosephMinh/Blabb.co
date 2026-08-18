@@ -82,8 +82,8 @@ the product-truth audit before every future website release.
    typography, controlled motion, and a single transforming device.
 5. Preserve Blabb's approachable personality and canonical colors.
 6. Stay materially lighter, faster, and more accessible than the reference site.
-7. Make the Android download the obvious next action without hiding the testing
-   build status or setup requirements.
+7. Make the private Android beta waitlist the obvious next action without
+   exposing the private source repository or unpublished install artifacts.
 
 ## Reference-derived implementation decisions
 
@@ -101,9 +101,9 @@ analytics.
 
 Use the reference's architecture, not its old dependency versions or its asset
 volume. Blabb uses one persistent WebGL canvas, one synchronized CSS3D layer,
-two GLB files, KTX2 textures, a small HDR environment map, and one master scroll
-timeline. This preserves the reference's 3D continuity while keeping Blabb's
-payload and runtime work bounded.
+procedural Three.js geometry, canonical local brand assets, and one master
+scroll timeline. This preserves the reference's 3D continuity while keeping
+Blabb's payload and runtime work bounded.
 
 ### Locked package baseline
 
@@ -125,9 +125,9 @@ payload and runtime work bounded.
 - Do not use Taxi or client-side page-transition routing.
 - Do not use Segment or any analytics, advertising, tracking, or session replay.
 - Do not use a blocking asset loader. Render the headline, product explanation,
-  download action, and an approved fallback poster before the 3D runtime loads.
+  waitlist action, and an approved fallback poster before the 3D runtime loads.
 - Do not reproduce the reference's four-canvas and 58-asset 3D payload. Use the
-  single-canvas, two-model architecture defined in this plan.
+  single-canvas, procedural-phone architecture defined in this plan.
 
 ## Brand and visual direction
 
@@ -186,14 +186,14 @@ Content:
 - Blabb mark.
 - `Voice typing for Android` descriptor.
 - `How it works`, `Privacy`, and `Questions` navigation.
-- Primary `Download Blabb` action.
+- Primary `Join the waitlist` action.
 
 Behavior:
 
 - Use a translucent near-black plum capsule with a 1px lilac border and backdrop
   blur over the hero.
 - Switches to a light treatment over pale sections.
-- At viewport widths below 720px, collapses to a logo, download button, and menu
+- At viewport widths below 720px, collapses to a logo, waitlist button, and menu
   button.
 - No audio toggle or social-share controls.
 
@@ -211,9 +211,9 @@ Supporting copy:
 
 Actions:
 
-- Primary: `Download for Android`
+- Primary: `Join the Android waitlist`
 - Secondary: `See it work`
-- Qualification: `Testing build · Android 13+ · No account`
+- Qualification: `Private beta · Android 13+ · Early access`
 
 Central visual:
 
@@ -465,9 +465,11 @@ Headline:
 
 CTA:
 
-- `Download Blabb for Android`
-- Include the current version, Android requirement, testing-build status, and
-  link to the current GitHub release page.
+- Email field and `Join the waitlist` submit action.
+- Send accepted signups to the maintained mailing-list intake, show success only
+  after the endpoint confirms receipt, and provide an accessible error state.
+- Include the Android requirement and private-beta status. Never expose the
+  private GitHub repository, release pages, or APK URLs.
 
 ## Motion design
 
@@ -521,7 +523,7 @@ When `prefers-reduced-motion: reduce` is active:
 - Keep one WebGL phone sticky through six 65vh chapters, then release it
   immediately after Step 06. Use stacked static chapter cards only for the
   reduced-motion and WebGL-unavailable fallbacks.
-- Keep the download CTA reachable without completing the demonstration.
+- Keep the waitlist CTA reachable without completing the demonstration.
 - Never allow the simulated keyboard or bubble to render below browser controls.
 - Disable cursor parallax and other pointer-only interactions.
 
@@ -530,7 +532,7 @@ When `prefers-reduced-motion: reduce` is active:
 ### Document and build architecture
 
 - Serve each page as complete semantic HTML. The headline, product explanation,
-  download action, privacy facts, FAQ, and legal content exist in the document
+  waitlist action, privacy facts, FAQ, and legal content exist in the document
   before JavaScript runs.
 - Use vanilla ES modules. Do not use React, Vue, Svelte, Web Components, or a
   client-side router.
@@ -553,11 +555,8 @@ When `prefers-reduced-motion: reduce` is active:
   `powerPreference: "high-performance"`. Cap device pixel ratio at `1.5` on
   desktop and `1.25` on tablet and mobile.
 - Set `SRGBColorSpace`, ACES filmic tone mapping, and physically based materials.
-  Use one key light, one rim light, and the HDR environment map; do not add
-  decorative lights that lack a defined role.
-- Use `EffectComposer`, `RenderPass`, and `UnrealBloomPass`. Restrict bloom to the
-  aqua bubble and local-engine emissive layers with Three.js layers; all other
-  geometry renders without bloom.
+  Use a key, aqua rim, coral fill, and restrained emissive materials. Preserve
+  the transparent canvas so semantic page content remains visible beneath it.
 - Use `CSS3DRenderer` for the active app, composer, inserted text, cursor,
   keyboard, technical labels, and notification. These DOM surfaces track named
   anchors in the 3D model and remain crisp at every viewport size.
@@ -568,26 +567,20 @@ When `prefers-reduced-motion: reduce` is active:
   outside its story range or `document.visibilityState` is `hidden`, and resume
   on the next GSAP update.
 
-### 3D asset contract
+### 3D artifact contract
 
-- Create the artifact in Blender 4.5 LTS and export glTF 2.0.
-- Deliver exactly two runtime models: `blabb-phone.glb` and `blabb-bubble.glb`.
-- `blabb-phone.glb` contains named nodes for `shell`, `glass`, `screen-anchor`,
-  `keyboard-anchor`, `composer-anchor`, `local-engine`, `notification-anchor`,
-  and the separable exploded layers.
-- `blabb-bubble.glb` contains named nodes for the bubble body, plum mark, coral
-  ring, forest ring, stop badge, three-dot badge, check badge, keyboard badge,
-  and attention badge.
-- Keep the combined visible scene below 100,000 triangles. Keep
-  `blabb-phone.glb` below 900 KiB and `blabb-bubble.glb` below 150 KiB after
-  compression.
-- Compress mesh geometry with Draco through `@gltf-transform/cli`. Encode PBR,
-  normal, emissive, and baked-light textures as KTX2/Basis at a maximum of
-  1024×1024. Keep all KTX2 textures together below 1.2 MiB.
-- Use one 512×256 HDR environment map below 200 KiB. Do not ship raw PNG or
-  JPEG material maps in the production build.
-- Load the two models with `GLTFLoader` and `DRACOLoader`, textures with
-  `KTX2Loader`, and the environment with `RGBELoader` plus `PMREMGenerator`.
+- Build the handset from bounded, named procedural Three.js geometry so its
+  proportions and materials remain art-directable in the website source.
+- It must read unmistakably as a modern Android handset: centered circular
+  punch-hole camera, slim rails, Android side-button arrangement, gesture bar,
+  USB-C detail, and a rear camera bar that becomes visible in perspective.
+- Use the canonical `blabb-mark.png` alpha silhouette for the 3D bubble and tint
+  it with the same flat plum treatment used by Android's `BubbleView`.
+- Include named separable layers for the active app, focused field, and local
+  voice engine. Add restrained orbit and connector geometry to make exploded
+  depth legible without obscuring the product UI.
+- Keep the combined visible scene below 100,000 triangles and avoid runtime
+  model, texture-decoder, and HDR requests.
 
 ### Scroll and animation architecture
 
@@ -650,7 +643,6 @@ src/
     use-cases.js
   scene/
     renderer.js
-    asset-loader.js
     phone-scene.js
     css3d-screen.js
     materials.js
@@ -658,17 +650,9 @@ src/
     phone-timeline.js
     capability-policy.js
   assets/
-    brand/
-    fonts/
-public/
-  assets/
-    models/
-      blabb-phone.glb
-      blabb-bubble.glb
-    textures/
-    environment/
-    fallback/
-  draco/
+    blabb-logo.png
+    blabb-mark.png
+    nunito-subset.woff2
 tests/
   e2e/
     artifact.spec.js
@@ -712,8 +696,9 @@ Deliver:
   app lists.
 - Keep recovery claims precise: at most one item, encrypted where applicable,
   short-lived, and resumed only by user action.
-- Recheck current version, model size, Android support, and download URL before
-  release.
+- Recheck model size, Android support, private-beta status, and waitlist handling
+  before release.
+- Never publish private repository links, private release links, or APK URLs.
 
 ## Accessibility and privacy requirements
 
@@ -734,15 +719,15 @@ Deliver:
 - Keep all Nunito WOFF2 subsets together below 80 KiB transferred.
 - Keep the dynamically imported Three.js, GSAP, Lenis, and scene runtime below
   450 KiB transferred with Brotli compression.
-- Keep the two GLB models, KTX2 textures, HDR map, and fallback posters together
+- Keep the phone geometry, canonical PNG assets, and fallback posters together
   below 2.5 MiB transferred.
-- Keep the complete first-visit page transfer below 3.3 MiB, excluding the APK.
-- Render the headline, explanation, download action, and fallback poster before
+- Keep the complete first-visit page transfer below 3.3 MiB.
+- Render the headline, explanation, waitlist action, and fallback poster before
   the WebGL runtime request begins.
 - Lazy-load the use-case carousel artwork and supporting demo code when their
   sections enter a 600px root margin.
 - Use vector and CSS state art; do not use image sequences.
-- Provide complete essential content, navigation, privacy facts, and download
+- Provide complete essential content, navigation, privacy facts, and waitlist
   access when JavaScript fails.
 - Stop the renderer, bloom pass, Lenis ticker work, and decorative animation when
   their sections are off-screen.
@@ -763,8 +748,8 @@ Deliver:
   by a new line and `Comma means the word.`
 - Produce desktop and mobile wireframes.
 - Apply the Nunito-only hierarchy and the exact `Speak. It types.` headline.
-- Record the current version, Android requirement, testing-build status, APK
-  URL, model size, and GitHub release URL from the product source of truth.
+- Record the Android requirement, private-beta status, model size, and waitlist
+  destination. Confirm that no private repository or APK URL enters public HTML.
 
 ### Phase 2 — Visual foundation
 
@@ -802,7 +787,7 @@ Deliver:
 - Compare every claim with the current Android repository.
 - Remove stale references to live preview or retired models.
 - Validate permissions, recovery, secure-field, and compatibility language.
-- Validate the current APK URL and version.
+- Validate private-beta and waitlist language and scan for private URLs.
 
 ### Phase 7 — Quality and release
 

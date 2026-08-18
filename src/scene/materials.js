@@ -13,6 +13,13 @@ export const palette = {
 
 export function createMaterials() {
   return {
+    rail: new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#49354e"),
+      metalness: 0.92,
+      roughness: 0.18,
+      clearcoat: 0.86,
+      clearcoatRoughness: 0.12
+    }),
     shell: new THREE.MeshPhysicalMaterial({
       color: palette.plum,
       metalness: 0.68,
@@ -21,6 +28,9 @@ export function createMaterials() {
       clearcoatRoughness: 0.2
     }),
     edge: new THREE.MeshStandardMaterial({ color: palette.deep, metalness: 0.82, roughness: 0.24 }),
+    back: new THREE.MeshPhysicalMaterial({ color: palette.deep, metalness: 0.28, roughness: 0.5, clearcoat: 0.32 }),
+    cameraBar: new THREE.MeshPhysicalMaterial({ color: new THREE.Color("#0b070d"), metalness: 0.74, roughness: 0.16, clearcoat: 1 }),
+    cameraGlass: new THREE.MeshPhysicalMaterial({ color: new THREE.Color("#060308"), metalness: 0.25, roughness: 0.08, clearcoat: 1 }),
     glass: new THREE.MeshPhysicalMaterial({
       color: palette.paper,
       metalness: 0.02,

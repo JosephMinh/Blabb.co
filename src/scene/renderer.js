@@ -25,11 +25,12 @@ export async function initArtifact() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
   renderer.setClearColor(0x000000, 0);
+  canvas.dataset.renderer = "threejs";
 
   const scene = new THREE.Scene();
   const cssScene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
-  camera.position.set(0, 0, 12);
+  camera.position.set(0, 0, 11.55);
 
   const ambient = new THREE.HemisphereLight(0xeddfef, 0x170a1c, 2.2);
   scene.add(ambient);
@@ -79,8 +80,8 @@ export async function initArtifact() {
     previousTime = seconds;
     smoothPointerX += (pointerX - smoothPointerX) * 0.055;
     smoothPointerY += (pointerY - smoothPointerY) * 0.055;
-    camera.position.x = smoothPointerX * 0.14;
-    camera.position.y = smoothPointerY * -0.1;
+    camera.position.x = smoothPointerX * 0.32;
+    camera.position.y = smoothPointerY * -0.22;
     camera.lookAt(0, 0, 0);
     controller.tick(seconds, delta);
     renderer.render(scene, camera);
