@@ -92,21 +92,35 @@ function drawKeyboard(context) {
   roundedRect(context, 305, 1570, 158, 7, 7, "rgba(23,10,28,.78)");
 }
 
-function drawNotification(context) {
+function drawBrandMark(context, logoImage, x, y, size, radius = size * 0.24) {
+  context.save();
+  context.beginPath();
+  context.roundRect(x, y, size, size, radius);
+  context.clip();
+  context.fillStyle = colors.aqua;
+  context.fillRect(x, y, size, size);
+  if (logoImage) {
+    const scaledSize = size * 1.25;
+    const offset = (scaledSize - size) / 2;
+    context.drawImage(logoImage, x - offset, y - offset, scaledSize, scaledSize);
+  }
+  context.restore();
+}
+
+function drawNotification(context, logoImage) {
   context.save();
   context.shadowColor = "rgba(17,7,21,.26)";
   context.shadowBlur = 34;
   context.shadowOffsetY = 16;
   roundedRect(context, 52, 260, 664, 128, 30, "#f2eaf4");
   context.restore();
-  roundedRect(context, 70, 281, 82, 82, 41, colors.aqua, colors.ink, 5);
-  text(context, "B", 111, 322, 39, 950, colors.ink, "center");
+  drawBrandMark(context, logoImage, 70, 281, 82);
   text(context, "Blabb bubble snoozed", 174, 307, 24, 950);
-  text(context, "Returns automatically in 10 minutes", 174, 342, 17, 700, colors.muted);
-  text(context, "END", 686, 323, 17, 950, colors.forest, "right");
+  text(context, "It will return automatically in 10 minutes.", 174, 342, 17, 700, colors.muted);
+  text(context, "End snooze", 686, 323, 17, 950, colors.forest, "right");
 }
 
-export function createScreenTexture() {
+export function createScreenTexture(logoImage) {
   const canvas = document.createElement("canvas");
   canvas.width = 768;
   canvas.height = 1600;
@@ -151,7 +165,7 @@ export function createScreenTexture() {
     roundedRect(context, 52, 290, 336, 80, [26, 26, 26, 7], colors.lilac);
     text(context, "Still good for lunch?", 78, 330, 25, 850);
 
-    if (state === "snoozed") drawNotification(context);
+    if (state === "snoozed") drawNotification(context, logoImage);
 
     context.fillStyle = colors.white;
     context.fillRect(0, 940, 768, 170);

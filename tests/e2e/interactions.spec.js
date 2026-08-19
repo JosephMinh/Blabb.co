@@ -41,6 +41,38 @@ test("mobile menu is keyboard reachable and dismisses with Escape", async ({ pag
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "false");
 });
 
+test("the snooze target follows the app's drag, capture, and release lifecycle", async ({ page }) => {
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
+  await page.locator("#controls").scrollIntoViewIfNeeded();
+  await page.locator('[data-bubble-state="ready"]').click();
+
+  const bubble = page.locator("#giant-bubble");
+  const target = page.locator("#lab-snooze-target");
+  await expect(target).not.toHaveClass(/is-visible/);
+
+  const bubbleBox = await bubble.boundingBox();
+  const targetBox = await target.boundingBox();
+  expect(bubbleBox).not.toBeNull();
+  expect(targetBox).not.toBeNull();
+  const startX = bubbleBox.x + bubbleBox.width / 2;
+  const startY = bubbleBox.y + bubbleBox.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX, startY + 20, { steps: 3 });
+  await expect(target).toHaveClass(/is-visible/);
+  await page.mouse.move(
+    targetBox.x + targetBox.width / 2,
+    targetBox.y + targetBox.height / 2,
+    { steps: 12 }
+  );
+  await expect(target).toHaveClass(/is-captured/);
+  await page.mouse.up();
+
+  await expect(bubble).toHaveClass(/snoozed/);
+  await expect(target).not.toHaveClass(/is-visible/);
+  await expect(page.locator("#lab-status")).toContainText("SNOOZED");
+});
+
 test("paused waitlist exposes no submission endpoint", async ({ page }) => {
   await expect(page.locator(".waitlist-form")).toHaveAttribute("data-state", "paused");
   await expect(page.locator("#waitlist-email")).toBeDisabled();

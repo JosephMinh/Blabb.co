@@ -83,7 +83,7 @@ for (const file of ['styles.css', 'legal.css']) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/url\(["']?([^"')]+)["']?\)/g)) {
     const reference = match[1];
-    if (/^(?:data:|https?:)/i.test(reference)) continue;
+    if (/^(?:#|data:|https?:)/i.test(reference)) continue;
     assert.ok(existsSync(resolve(dirname(file), reference)), `${file} has a missing asset reference: ${reference}`);
   }
 }
@@ -124,7 +124,7 @@ assert.match(html, /<link rel="stylesheet" href="\/styles\.css"/);
 assert.match(html, /No words appear yet\. Blabb waits for the complete recording\./);
 assert.match(html, /Only after processing finishes does the final, punctuated sentence land/);
 assert.match(html, /remove only Blabb’s latest insertion/);
-assert.match(html, /SNOOZE · 10 MIN/);
+assert.match(html, /SNOOZE<br \/>10 MIN/);
 assert.equal((html.match(/class="mobile-chapter-summary"/g) || []).length, 6);
 assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S]*snooze/);
 assert.match(screenTexture, /showSecond[\s\S]*phase < 0\.68/);
@@ -146,7 +146,21 @@ assert.doesNotMatch(html, /local-waveform|processing-card/);
 assert.doesNotMatch(screenTexture, /ui-state-card|Listening on this phone/);
 assert.match(phoneScene, /stateRing[\s\S]*snoozeTarget/);
 assert.match(phoneScene, /processingArc[\s\S]*THREE\.MathUtils\.degToRad\(245\)/);
+assert.match(phoneScene, /Math\.PI \* 2 \/ 1\.2/);
+assert.match(phoneScene, /badgeRadius: 0\.1152/);
+assert.match(phoneScene, /badgeOffset: 0\.1984/);
+assert.match(phoneScene, /roundedPanel\(1\.526, 0\.676[\s\S]*roundedPanel\(1\.491, 0\.641/);
+assert.match(phoneScene, /bubble\.group\.visible = false;[\s\S]*snoozeTarget\.visible = false;/);
+assert.match(phoneScene, /globalCompositeOperation = "source-in"/);
+assert.match(phoneScene, /fillStyle = "#170a1c"/);
+assert.doesNotMatch(phoneScene, /bubble\.group\.rotation\.z/);
 assert.match(phoneScene, /const dots = new THREE\.Group/);
+assert.match(screenTexture, /It will return automatically in 10 minutes\./);
+assert.match(screenTexture, /End snooze/);
+assert.match(html, /Drag the idle bubble down to snooze for 10 minutes\./);
+assert.doesNotMatch(html, /⌨/);
+assert.match(html, /id="bubble-plum-tint"[\s\S]*flood-color="#170A1C"[\s\S]*in2="SourceAlpha"/);
+assert.match(css, /circle closest-side, transparent 88\.3%, black 89%/);
 assert.match(html, /custom field does not expose a safe bubble target/i);
 assert.match(html, /Dictated audio sent to Blabb[\s\S]*0 <em>bytes<\/em>/);
 assert.match(html, /first voice-model download is about 73 MB/i);
@@ -240,7 +254,7 @@ for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral
   assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.Color\\("#${hex.toLowerCase()}"\\)`));
   assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.MeshBasicMaterial\\(\\{ color: palette\\.${name}, toneMapped: false \\}\\)`));
 }
-assert.match(phoneScene, /CylinderGeometry\(0\.32, 0\.32, 0\.16[\s\S]*materials\.aqua/);
+assert.match(phoneScene, /CylinderGeometry\(bubbleMetrics\.radius, bubbleMetrics\.radius, 0\.16[\s\S]*materials\.aqua/);
 assert.doesNotMatch(phoneScene, /bubble\.body\.material\.emissiveIntensity/);
 assert.match(phoneScene, /double|TouchRings|touchRings/i);
 assert.match(phoneScene, /function rotateBy/);

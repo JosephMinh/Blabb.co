@@ -28,6 +28,19 @@ const chapterRotations = {
   snooze: [-0.06, 0.24, -0.04]
 };
 
+// Normalized directly from BubbleView.kt. Keeping these ratios together makes
+// every status state share the Android overlay's exact 48dp construction.
+const bubbleMetrics = Object.freeze({
+  radius: 0.32,
+  rimCenter: 0.3032,
+  rimTube: 0.0168,
+  listeningRingCenter: 0.2664,
+  stateRingCenter: 0.2688,
+  stateRingTube: 0.016,
+  badgeRadius: 0.1152,
+  badgeOffset: 0.1984
+});
+
 function layerForName(name) {
   if (/^(BACK_|CAMERA_)/.test(name)) return "back";
   if (/^(DISPLAY_GLASS|SELFIE_|EARPIECE)/.test(name)) return "glass";
@@ -41,28 +54,24 @@ function roundedPanel(width, height, depth, material, radius = 0.12) {
   return mesh;
 }
 
-function createLabelTexture(title, subtitle, accent) {
+// BubbleView applies a PorterDuff SRC_IN plum tint to this master bitmap.
+// Reproduce that operation for the 3D plane while preserving the untouched
+// launcher mark for BrandMark tiles on the phone screen.
+function createBubbleLogoTexture(image) {
   const canvas = document.createElement("canvas");
-  canvas.width = 768;
-  canvas.height = 220;
+  canvas.width = image.naturalWidth || image.width;
+  canvas.height = image.naturalHeight || image.height;
   const context = canvas.getContext("2d");
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = "rgba(23,10,28,.9)";
-  context.beginPath();
-  context.roundRect(12, 12, 744, 196, 38);
-  context.fill();
-  context.strokeStyle = accent;
-  context.lineWidth = 5;
-  context.stroke();
-  context.font = "950 42px Nunito, sans-serif";
-  context.fillStyle = accent;
-  context.textAlign = "center";
-  context.fillText(title, 384, 94);
-  context.font = "800 23px Nunito, sans-serif";
-  context.fillStyle = "#eddfef";
-  context.fillText(subtitle, 384, 148);
+  context.drawImage(image, 0, 0);
+  context.globalCompositeOperation = "source-in";
+  context.fillStyle = "#170a1c";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.globalCompositeOperation = "source-over";
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   return texture;
 }
 
@@ -82,25 +91,43 @@ function createBubble(materials, logoTexture) {
   profile.add(shadow);
 
   const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.32, 0.32, 0.16, 64, 2),
+    new THREE.CylinderGeometry(bubbleMetrics.radius, bubbleMetrics.radius, 0.16, 64, 2),
     materials.aqua
   );
   body.rotation.x = Math.PI / 2;
   body.castShadow = true;
   profile.add(body);
 
-  const plumRim = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.035, 18, 80), materials.plum);
-  plumRim.position.z = 0.092;
+  const plumRim = new THREE.Mesh(
+    new THREE.TorusGeometry(bubbleMetrics.rimCenter, bubbleMetrics.rimTube, 18, 80),
+    materials.plum
+  );
+  plumRim.position.z = 0.091;
   profile.add(plumRim);
-  const stateRing = new THREE.Mesh(new THREE.TorusGeometry(0.258, 0.023, 16, 80), materials.coral);
-  stateRing.position.z = 0.116;
+  const listeningRingMaterial = materials.coral.clone();
+  listeningRingMaterial.transparent = true;
+  listeningRingMaterial.opacity = 0.86;
+  const successRingMaterial = materials.forest.clone();
+  successRingMaterial.transparent = true;
+  successRingMaterial.opacity = 230 / 255;
+  const stateRing = new THREE.Mesh(
+    new THREE.TorusGeometry(bubbleMetrics.listeningRingCenter, bubbleMetrics.stateRingTube, 16, 80),
+    listeningRingMaterial
+  );
+  stateRing.position.z = 0.094;
   profile.add(stateRing);
 
   const processingArc = new THREE.Mesh(
-    new THREE.TorusGeometry(0.258, 0.026, 16, 80, THREE.MathUtils.degToRad(245)),
+    new THREE.TorusGeometry(
+      bubbleMetrics.stateRingCenter,
+      bubbleMetrics.stateRingTube,
+      16,
+      80,
+      THREE.MathUtils.degToRad(245)
+    ),
     materials.coral
   );
-  processingArc.position.z = 0.121;
+  processingArc.position.z = 0.096;
   processingArc.visible = false;
   profile.add(processingArc);
 
@@ -111,29 +138,40 @@ function createBubble(materials, logoTexture) {
     depthWrite: false,
     toneMapped: false
   }));
-  logo.position.z = 0.2;
-  logo.renderOrder = 10;
+  logo.position.z = 0.086;
   profile.add(logo);
 
   const badge = new THREE.Group();
-  badge.position.set(0.22, -0.22, 0.15);
-  const badgeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.06, 40), materials.coral);
+  badge.position.set(bubbleMetrics.badgeOffset, -bubbleMetrics.badgeOffset, 0.09);
+  const badgeDisc = new THREE.Mesh(
+    new THREE.CylinderGeometry(bubbleMetrics.badgeRadius, bubbleMetrics.badgeRadius, 0.06, 40),
+    materials.coral
+  );
   badgeDisc.rotation.x = Math.PI / 2;
   badge.add(badgeDisc);
-  const stop = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), new THREE.MeshBasicMaterial({ color: palette.paper, toneMapped: false }));
+  const stopSize = bubbleMetrics.badgeRadius * 0.74;
+  const stop = new THREE.Mesh(new THREE.PlaneGeometry(stopSize, stopSize), materials.white);
   stop.position.z = 0.04;
   badge.add(stop);
-  const checkGeometry = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(-0.047, 0, 0.045),
-    new THREE.Vector3(-0.012, -0.034, 0.045),
-    new THREE.Vector3(0.054, 0.045, 0.045)
-  ]);
-  const check = new THREE.Line(checkGeometry, new THREE.LineBasicMaterial({ color: palette.paper, linewidth: 3, toneMapped: false }));
+  const checkPoints = [
+    new THREE.Vector3(-bubbleMetrics.badgeRadius * 0.5, 0, 0.045),
+    new THREE.Vector3(-bubbleMetrics.badgeRadius * 0.12, -bubbleMetrics.badgeRadius * 0.34, 0.045),
+    new THREE.Vector3(bubbleMetrics.badgeRadius * 0.52, bubbleMetrics.badgeRadius * 0.4, 0.045)
+  ];
+  const checkCurve = new THREE.CurvePath();
+  checkCurve.add(new THREE.LineCurve3(checkPoints[0], checkPoints[1]));
+  checkCurve.add(new THREE.LineCurve3(checkPoints[1], checkPoints[2]));
+  const check = new THREE.Mesh(
+    new THREE.TubeGeometry(checkCurve, 16, bubbleMetrics.badgeRadius * 0.11, 10, false),
+    materials.white
+  );
   check.visible = false;
   badge.add(check);
   const dots = new THREE.Group();
-  [-0.032, 0, 0.032].forEach((x) => {
-    const dot = new THREE.Mesh(new THREE.CircleGeometry(0.01, 18), new THREE.MeshBasicMaterial({ color: palette.paper, toneMapped: false }));
+  const dotRadius = bubbleMetrics.badgeRadius * 0.13;
+  [-1, 0, 1].forEach((index) => {
+    const dot = new THREE.Mesh(new THREE.CircleGeometry(dotRadius, 18), materials.white);
+    const x = index * dotRadius * 2.5;
     dot.position.set(x, 0, 0.045);
     dots.add(dot);
   });
@@ -141,7 +179,19 @@ function createBubble(materials, logoTexture) {
   badge.add(dots);
   profile.add(badge);
 
-  return { group, body, stateRing, processingArc, badge, badgeDisc, stop, check, dots };
+  return {
+    group,
+    body,
+    stateRing,
+    listeningRingMaterial,
+    successRingMaterial,
+    processingArc,
+    badge,
+    badgeDisc,
+    stop,
+    check,
+    dots
+  };
 }
 
 function createTouchRings() {
@@ -162,22 +212,62 @@ function createTouchRings() {
   return group;
 }
 
+function createSnoozeLabelTexture(color) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 228;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = color;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = "900 52px Nunito, sans-serif";
+  context.fillText("SNOOZE", 256, 83);
+  context.font = "900 43px Nunito, sans-serif";
+  context.fillText("10 MIN", 256, 151);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function createSnoozeTarget(materials) {
-  const target = roundedPanel(2.38, 0.74, 0.075, materials.panelDeep, 0.24);
+  const target = new THREE.Group();
   target.name = "snooze-dock";
-  target.position.set(0, -2.82, 0.34);
+  // 176dp × 78dp on the app's 360dp-wide handset, 22dp above the bottom.
+  // The physical model has a slightly narrower display aspect, so preserve
+  // the target's own 176:78 silhouette rather than stretching it with it.
+  target.position.set(0, -2.99, 0.34);
+  const border = roundedPanel(1.526, 0.676, 0.06, materials.aqua, 0.243);
+  const body = roundedPanel(1.491, 0.641, 0.075, materials.snooze, 0.226);
+  body.position.z = 0.015;
+  target.add(border, body);
+  const restingLabel = createSnoozeLabelTexture("#eddfef");
+  const capturedLabel = createSnoozeLabelTexture("#170a1c");
   const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.22, 0.62),
+    new THREE.PlaneGeometry(1.43, 0.61),
     new THREE.MeshBasicMaterial({
-      map: createLabelTexture("SNOOZE", "RETURNS IN 10 MINUTES", "#88e0d9"),
+      map: restingLabel,
       transparent: true,
       toneMapped: false
     })
   );
-  label.position.z = 0.05;
+  label.position.z = 0.065;
   target.add(label);
   target.visible = false;
+  target.userData = { border, body, label, restingLabel, capturedLabel, captured: false };
   return target;
+}
+
+function setSnoozeTargetCaptured(target, captured, materials) {
+  if (target.userData.captured === captured) return;
+  target.userData.captured = captured;
+  target.userData.border.material = captured ? materials.plum : materials.aqua;
+  target.userData.body.material = captured ? materials.aqua : materials.snooze;
+  target.userData.label.material.map = captured
+    ? target.userData.capturedLabel
+    : target.userData.restingLabel;
+  target.userData.label.material.needsUpdate = true;
+  target.scale.setScalar(captured ? 1.06 : 1);
 }
 
 function prepareModel(model, phone) {
@@ -263,7 +353,7 @@ export async function createPhoneScene(webglScene, camera) {
   applyBrandMaterials(gltf.scene);
   const layers = prepareModel(gltf.scene, phone);
 
-  const screen = createScreenTexture();
+  const screen = createScreenTexture(logoTexture.image);
   const screenMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(3.122, 7.072),
     new THREE.MeshBasicMaterial({
@@ -281,7 +371,7 @@ export async function createPhoneScene(webglScene, camera) {
   screenMesh.position.set(0, 0, 0.2158);
   layers.glass.add(screenMesh);
 
-  const bubble = createBubble(materials, logoTexture);
+  const bubble = createBubble(materials, createBubbleLogoTexture(logoTexture.image));
   bubble.group.position.set(1.5, -1.18, 0.41);
   bubble.group.scale.setScalar(1.34);
   layers.glass.add(bubble.group);
@@ -339,7 +429,10 @@ export async function createPhoneScene(webglScene, camera) {
     bubble.processingArc.visible = processing;
     bubble.stateRing.visible = listening || success;
     bubble.badge.visible = listening || processing || success;
-    bubble.stateRing.material = success ? materials.forest : materials.coral;
+    bubble.stateRing.material = success ? bubble.successRingMaterial : bubble.listeningRingMaterial;
+    bubble.stateRing.scale.setScalar(success
+      ? bubbleMetrics.stateRingCenter / bubbleMetrics.listeningRingCenter
+      : 1);
     bubble.badgeDisc.material = success ? materials.forest : processing ? materials.plum : materials.coral;
     bubble.check.visible = success;
     bubble.stop.visible = listening;
@@ -418,17 +511,19 @@ export async function createPhoneScene(webglScene, camera) {
     bubbleTarget.set(1.5, -1.18, 0.41);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
+    setSnoozeTargetCaptured(snoozeTarget, false, materials);
 
     if (state === "snooze") {
       if (phase < 0.25) bubbleTarget.x = THREE.MathUtils.lerp(1.5, -1.5, phase / 0.25);
       else if (phase < 0.5) {
         bubbleTarget.x = -1.5;
-        bubbleTarget.y = THREE.MathUtils.lerp(-1.18, -2.82, (phase - 0.25) / 0.25);
+        bubbleTarget.y = THREE.MathUtils.lerp(-1.18, -2.99, (phase - 0.25) / 0.25);
         snoozeTarget.visible = true;
+        setSnoozeTargetCaptured(snoozeTarget, phase >= 0.44, materials);
       } else if (phase < 0.76) {
-        bubbleTarget.set(-1.5, -2.82, 0.41);
+        bubbleTarget.set(-1.5, -2.99, 0.41);
         bubble.group.visible = false;
-        snoozeTarget.visible = phase < 0.62;
+        snoozeTarget.visible = false;
       } else {
         bubbleTarget.x = THREE.MathUtils.lerp(-1.5, 1.5, (phase - 0.76) / 0.24);
       }
@@ -488,9 +583,13 @@ export async function createPhoneScene(webglScene, camera) {
     phone.rotation.z = THREE.MathUtils.lerp(phone.rotation.z, targetRotation.z, ease);
     bubble.group.position.lerp(bubbleTarget, ease);
 
-    bubble.group.rotation.z = Math.sin(time * 0.9) * 0.03;
-    if (state === "dictate") bubble.stateRing.scale.setScalar(1 + Math.sin(time * 9) * 0.035);
-    if (bubble.processingArc.visible) bubble.processingArc.rotation.z -= delta * 3.1;
+    if (state === "dictate") {
+      const pulsePhase = (time % 1.2) / 1.2;
+      const ringRadius = bubbleMetrics.radius * (0.82 + 0.025 * pulsePhase);
+      bubble.stateRing.scale.setScalar(ringRadius / bubbleMetrics.listeningRingCenter);
+      bubble.listeningRingMaterial.opacity = (150 + 90 * (1 - pulsePhase)) / 255;
+    }
+    if (bubble.processingArc.visible) bubble.processingArc.rotation.z -= delta * (Math.PI * 2 / 1.2);
     updateTouchRings(time);
   }
 

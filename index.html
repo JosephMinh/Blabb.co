@@ -29,6 +29,14 @@
     <script type="module" src="/src/main.js"></script>
   </head>
   <body>
+    <svg class="filter-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="bubble-plum-tint" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+          <feFlood flood-color="#170A1C" result="plum" />
+          <feComposite in="plum" in2="SourceAlpha" operator="in" />
+        </filter>
+      </defs>
+    </svg>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header" id="site-header" data-theme="dark">
@@ -151,8 +159,8 @@
                     <span class="bubble-core"><img src="assets/blabb-mark.png" alt="" /></span>
                     <span class="bubble-badge"><i></i><i></i><i></i></span>
                   </div>
-                  <div class="snooze-target"><span>⌄</span><b>SNOOZE · 10 MIN</b></div>
-                  <div class="snooze-notification"><img src="assets/blabb-mark.png" alt="" /><span><b>Blabb bubble snoozed</b><small>Returns automatically in 10 minutes</small></span><em>End snooze</em></div>
+                  <div class="snooze-target"><b>SNOOZE<br />10 MIN</b></div>
+                  <div class="snooze-notification"><img src="assets/blabb-mark.png" alt="" /><span><b>Blabb bubble snoozed</b><small>It will return automatically in 10 minutes.</small></span><em>End snooze</em></div>
                 </div>
                 <div class="flow-line"><span></span><i></i></div>
               </div>
@@ -283,11 +291,11 @@
               <div class="mode-home-screen">
                 <div class="app-statusbar"><span>9:41</span><i></i><b>▰ ◢ ▮</b></div>
                 <div class="app-home-header"><span class="app-brand-mark"><img src="assets/blabb-mark.png" alt="" /></span><em>BLABB</em><b>⚙</b></div>
-                <div class="app-ready-card"><small><i></i> READY</small><strong>You’re ready to Blabb</strong><p>Open an app and tap a compatible text field.</p></div>
+                <div class="app-ready-card"><small><i></i> READY</small><strong>You’re ready to Blabb</strong><p>Open an app and tap a compatible text field. For custom fields, Blabb can offer its Voice Input route.</p></div>
                 <div class="app-section-label">SYSTEM</div>
-                <div class="app-system-card"><span>● &nbsp; Text field detection <b>On</b></span><span>● &nbsp; Floating bubble <b>On</b></span><span>● &nbsp; Microphone <b>On</b></span><span>● &nbsp; Voice model <b>On</b></span></div>
+                <div class="app-system-card"><span><i></i>Text field detection <b>On</b></span><span><i></i>Floating bubble <b>On</b></span><span><i></i>Microphone <b>On</b></span><span><i></i>Voice model <b>On</b></span></div>
                 <div class="app-section-label">PRACTICE HERE</div>
-                <div class="app-practice-card"><small>▣ &nbsp; STAYS ON THIS PHONE</small><div>Your words will appear here</div></div>
+                <div class="app-practice-card"><small>▣ &nbsp; STAYS ON THIS PHONE</small><div>Your words will appear here</div><p>Green check: tap once to dictate again or double-tap to delete. Drag the idle bubble down to snooze for 10 minutes.</p></div>
                 <div class="app-home-actions"><b>Pause Blabb</b><span>Settings</span></div>
               </div>
             </div>
@@ -338,7 +346,7 @@
             <button class="giant-bubble" id="giant-bubble" type="button" data-state="ready" aria-label="Blabb bubble: ready. Tap to start listening.">
               <span class="giant-ring"></span><span class="giant-core"><img src="assets/blabb-mark.png" alt="" /></span><span class="giant-badge"><i></i><i></i><i></i></span>
             </button>
-            <span class="lab-snooze-target" id="lab-snooze-target">⌄ &nbsp; SNOOZE · 10 MIN</span>
+            <span class="lab-snooze-target" id="lab-snooze-target">SNOOZE<br />10 MIN</span>
             <p class="lab-status" id="lab-status" aria-live="polite"><span>READY</span> Tap to start. Drag to move.</p>
           </div>
           <div class="state-controls" role="group" aria-label="Preview bubble states">

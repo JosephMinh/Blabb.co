@@ -53,9 +53,10 @@ function initModeSwitch() {
 function initBubbleLab() {
   const stage = document.querySelector("#lab-stage");
   const bubble = document.querySelector("#giant-bubble");
+  const snoozeTarget = document.querySelector("#lab-snooze-target");
   const status = document.querySelector("#lab-status");
   const stateButtons = [...document.querySelectorAll("[data-bubble-state]")];
-  if (!stage || !bubble || !status || !stateButtons.length) return;
+  if (!stage || !bubble || !snoozeTarget || !status || !stateButtons.length) return;
 
   let state = "ready";
   let stateTimer = 0;
@@ -72,11 +73,28 @@ function initBubbleLab() {
     bubble.style.setProperty("--drag-y", `${drag.y}px`);
   }
 
+  function updateSnoozeTarget() {
+    snoozeTarget.classList.toggle("is-visible", dragging && state === "ready");
+    if (!dragging || state !== "ready") {
+      snoozeTarget.classList.remove("is-captured");
+      return false;
+    }
+    const bubbleBounds = bubble.getBoundingClientRect();
+    const targetBounds = snoozeTarget.getBoundingClientRect();
+    const bubbleCenterX = bubbleBounds.left + bubbleBounds.width / 2;
+    const captured = bubbleCenterX >= targetBounds.left - 28 &&
+      bubbleCenterX <= targetBounds.right + 28 &&
+      bubbleBounds.bottom >= targetBounds.top + targetBounds.height * 0.22;
+    snoozeTarget.classList.toggle("is-captured", captured);
+    return captured;
+  }
+
   function setState(next, customMessage = "") {
     window.clearTimeout(stateTimer);
     state = next;
     bubble.dataset.state = next;
     bubble.classList.remove("snoozed");
+    snoozeTarget.classList.remove("is-visible", "is-captured");
     const [label, message, ariaLabel] = bubbleMessages[next];
     status.innerHTML = `<span>${label}</span> ${customMessage || message}`;
     bubble.setAttribute("aria-label", customMessage ? `${label}. ${customMessage}` : ariaLabel);
@@ -132,10 +150,11 @@ function initBubbleLab() {
     }
     if (!dragging) return;
     const maxX = Math.max(0, (stage.clientWidth - bubble.offsetWidth) / 2 - 14);
-    const maxY = Math.max(0, (stage.clientHeight - bubble.offsetHeight) / 2 - 55);
+    const maxY = Math.max(0, (stage.clientHeight - bubble.offsetHeight) / 2 - 14);
     drag.x = Math.max(-maxX, Math.min(maxX, dragStart.x + deltaX));
     drag.y = Math.max(-maxY, Math.min(maxY, dragStart.y + deltaY));
     updateDrag();
+    updateSnoozeTarget();
   });
 
   function releasePointer(event) {
@@ -148,9 +167,9 @@ function initBubbleLab() {
       finishProcessing();
     } else if (dragging) {
       suppressClick = true;
+      const shouldSnooze = updateSnoozeTarget();
       const maxX = Math.max(0, (stage.clientWidth - bubble.offsetWidth) / 2 - 14);
-      const maxY = Math.max(0, (stage.clientHeight - bubble.offsetHeight) / 2 - 55);
-      if (drag.y > maxY * 0.62) {
+      if (shouldSnooze) {
         bubble.classList.add("snoozed");
         status.innerHTML = "<span>SNOOZED</span> Returns automatically in 10 minutes. End snooze is always available.";
         bubble.setAttribute("aria-label", "Blabb bubble snoozed for ten minutes.");
@@ -166,6 +185,8 @@ function initBubbleLab() {
         setState("ready", "Docked neatly to the nearest side.");
       }
     }
+
+    snoozeTarget.classList.remove("is-visible", "is-captured");
 
     pointerStart = null;
     dragging = false;
