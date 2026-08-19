@@ -98,6 +98,14 @@ for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-sce
 // The first viewport says what Blabb is and qualifies the current build.
 assert.match(html, /Speak\.[\s\S]*It types\./);
 assert.match(html, /private voice bubble for Android/i);
+
+// Public copy describes what each visual signal means, without internal palette names.
+const renderedCopy = html
+  .replace(/<!--[\s\S]*?-->/g, ' ')
+  .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ');
+assert.doesNotMatch(renderedCopy, /\b(?:aqua|coral|forest(?: green)?|plum|lilac)\b/i);
 assert.match(html, /keyboard you already use/i);
 assert.match(html, /without sending your voice to the cloud/i);
 assert.match(html, /Private beta/);

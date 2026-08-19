@@ -186,7 +186,7 @@
               <h2>Tap.<br /><em>Talk.</em></h2>
             </div>
             <div class="chapter-copy chapter-right reveal">
-              <p><span class="desktop-chapter-summary">Tap once to record. The aqua bubble gains a coral amplitude ring and stop badge, responding to your voice.</span><span class="mobile-chapter-summary">Tap once to record. The bubble responds as you speak.</span></p>
+              <p><span class="desktop-chapter-summary">Tap once to record. An orange listening ring and stop badge respond to your voice.</span><span class="mobile-chapter-summary">Tap once to record. The bubble responds as you speak.</span></p>
               <div class="gesture-hint"><span class="press-icon">↧</span><p><b>Or press + hold</b><small>Release when you finish for push-to-talk.</small></p></div>
               <p class="fine-print accent">No words appear yet. Blabb waits for the complete recording.</p>
             </div>
@@ -201,7 +201,7 @@
             <div class="chapter-copy chapter-right reveal">
               <p><span class="desktop-chapter-summary">Stop recording and the captured waveform travels into Blabb’s local voice engine—and no farther.</span><span class="mobile-chapter-summary">Your complete recording is processed entirely on this phone.</span></p>
               <dl class="chapter-specs"><div><dt>ENGINE</dt><dd>Full-context recognition</dd></div><div><dt>NETWORK</dt><dd><i class="dot forest"></i> Not used</dd></div></dl>
-              <p class="fine-print">The processing ring uses the app’s real coral state treatment.</p>
+              <p class="fine-print">The spinning ring shows that Blabb is processing your recording on this phone.</p>
             </div>
             <div class="chapter-state-card"><span class="mini-state-bubble state-processing"><img src="assets/blabb-mark.png" alt="" /><i></i></span><span><b>Processing locally</b><small>Complete recording → local engine</small></span></div>
           </section>
@@ -214,7 +214,7 @@
             <div class="chapter-copy chapter-right reveal">
               <p><span class="desktop-chapter-summary">Only after processing finishes does the final, punctuated sentence land beside the text that was already there.</span><span class="mobile-chapter-summary">The finished sentence lands exactly at your active cursor.</span></p>
               <div class="insert-proof"><span>Lunch tomorrow works.</span><mark>I can meet at 12:30.</mark></div>
-              <p class="fine-print success-copy">Verified insertion turns the bubble’s ring forest green.</p>
+              <p class="fine-print success-copy">A green ring and check confirm that Blabb inserted your words.</p>
             </div>
             <div class="chapter-state-card"><span class="mini-state-bubble state-success"><img src="assets/blabb-mark.png" alt="" /><i></i></span><span><b>Inserted + verified</b><small>Final words appear at the cursor</small></span></div>
           </section>
@@ -273,7 +273,7 @@
           <div class="mode-copy" id="app-panel" role="tabpanel" aria-labelledby="app-tab" data-mode-panel="app">
             <p class="mode-number">03 / BLABB APP</p>
             <h3>A clear home for setup and control.</h3>
-            <p>The app itself uses the same soft gradient, aqua status pills, rounded cards, and Nunito type people see during setup. It shows runtime health, a practice field, and pause controls.</p>
+            <p>The app shows runtime health, setup status, a practice field, and pause controls in the same rounded interface people see during setup.</p>
             <span class="mode-best"><i></i> Setup, status, and settings</span>
           </div>
           <div class="mode-device" aria-hidden="true">
@@ -349,10 +349,10 @@
             <p class="lab-status" id="lab-status" aria-live="polite"><span>READY</span> Tap to start. Drag to move.</p>
           </div>
           <div class="state-controls" role="group" aria-label="Preview bubble states">
-            <button type="button" class="is-active" data-bubble-state="ready" aria-pressed="true"><i class="state-swatch ready"></i><span><b>Ready</b><small>Calm aqua</small></span><em>01</em></button>
+            <button type="button" class="is-active" data-bubble-state="ready" aria-pressed="true"><i class="state-swatch ready"></i><span><b>Ready</b><small>Waiting to record</small></span><em>01</em></button>
             <button type="button" data-bubble-state="listening" aria-pressed="false"><i class="state-swatch listening"></i><span><b>Listening</b><small>Amplitude + stop</small></span><em>02</em></button>
-            <button type="button" data-bubble-state="processing" aria-pressed="false"><i class="state-swatch processing"></i><span><b>Processing</b><small>Coral arc + dots</small></span><em>03</em></button>
-            <button type="button" data-bubble-state="success" aria-pressed="false"><i class="state-swatch success"></i><span><b>Success</b><small>Forest check</small></span><em>04</em></button>
+            <button type="button" data-bubble-state="processing" aria-pressed="false"><i class="state-swatch processing"></i><span><b>Processing</b><small>Orange arc + dots</small></span><em>03</em></button>
+            <button type="button" data-bubble-state="success" aria-pressed="false"><i class="state-swatch success"></i><span><b>Success</b><small>Green check</small></span><em>04</em></button>
             <button type="button" data-bubble-state="compatibility" aria-pressed="false"><i class="state-swatch compatibility"></i><span><b>Compatibility</b><small>Keyboard route</small></span><em>05</em></button>
             <button type="button" data-bubble-state="attention" aria-pressed="false"><i class="state-swatch attention"></i><span><b>Recovery</b><small>Action needed</small></span><em>06</em></button>
           </div>
