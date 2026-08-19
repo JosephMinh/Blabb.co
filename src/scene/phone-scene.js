@@ -383,7 +383,6 @@ export async function createPhoneScene(webglScene, camera) {
   phone.add(touchRings);
 
   const stepReadout = document.querySelector("#active-step");
-  const stateReadout = document.querySelector("#state-readout span");
   const liveRegion = document.querySelector("#phone-live");
   const stage = document.querySelector("#artifact-stage");
 
@@ -408,7 +407,6 @@ export async function createPhoneScene(webglScene, camera) {
     currentIndex = index;
     const [step, label, chapter] = chapters[index];
     if (stepReadout) stepReadout.textContent = step;
-    if (stateReadout) stateReadout.textContent = label;
     if (liveRegion) liveRegion.textContent = `${label}. ${chapter === "dictate" ? "No transcript is shown while Blabb is listening." : "The Blabb phone demonstration updated."}`;
   }
 

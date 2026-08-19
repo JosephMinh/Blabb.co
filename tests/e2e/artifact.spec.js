@@ -1,13 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const states = [
-  ["01", "READY"],
-  ["02", "LISTENING"],
-  ["03", "PROCESSING LOCALLY"],
-  ["04", "INSERT + VERIFY"],
-  ["05", "CONTINUE + EXACT UNDO"],
-  ["06", "MOVE + SNOOZE"]
-];
+const steps = ["01", "02", "03", "04", "05", "06"];
 
 test("desktop uses one persistent 3D phone through the six product states", async ({ page }) => {
   test.setTimeout(90_000);
@@ -36,13 +29,13 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-interaction", "ready");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-rotation", /,/);
 
-  for (const [step, expectedState] of states) {
+  for (const step of steps) {
     const section = page.locator(`.story-chapter[data-step="${step}"]`);
     await section.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
       scrollTo(0, bounds.top + scrollY + bounds.height * 0.12);
     });
-    await expect(page.locator("#state-readout span")).toHaveText(expectedState);
+    await expect(page.locator("#active-step")).toHaveText(step);
   }
 
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);

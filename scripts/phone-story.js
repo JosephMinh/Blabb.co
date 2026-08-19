@@ -14,7 +14,6 @@ export function initPhoneStory() {
   const journey = document.querySelector(".journey");
   const chapters = [...document.querySelectorAll("[data-phone-state]")];
   const stepReadout = document.querySelector("#active-step");
-  const stateReadout = document.querySelector("#state-readout span");
   const liveRegion = document.querySelector("#phone-live");
   const replayButtons = [...document.querySelectorAll("[data-replay]")];
   if (!phone || !hero || !journey || !chapters.length) return;
@@ -79,9 +78,8 @@ export function initPhoneStory() {
     phone.dataset.chapter = chapter;
     phone.dataset.phase = "idle";
 
-    const [step, label, announcement] = stateCopy[chapter];
+    const [step, , announcement] = stateCopy[chapter];
     if (stepReadout) stepReadout.textContent = step;
-    if (stateReadout) stateReadout.textContent = label;
     if (liveRegion) liveRegion.textContent = announcement;
 
     if (chapter === "dictate") setVisualState("listening");
