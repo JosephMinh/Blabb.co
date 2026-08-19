@@ -250,7 +250,7 @@ assert.match(phoneScene, /showcaseScale = THREE\.MathUtils\.clamp\(viewport\.hei
 assert.match(phoneScene, /smoothstep\(phase, 0\.3, 0\.62\)/);
 assert.match(phoneScene, /smoothstep\(phase, 0\.64, 0\.86\)/);
 assert.match(phoneScene, /stage\.dataset\.mobileMode = phase < 0\.48 \? "peek" : phase < 0\.7 \? "showcase" : "handoff"/);
-assert.match(phoneScene, /targetScale\.setScalar\(Math\.min\(0\.66, showcaseScale \* 0\.9\)\)/);
+assert.match(phoneScene, /targetScale\.setScalar\(0\.66\)/);
 assert.match(phoneScene, /stage\.dataset\.phoneScale = targetScale\.x\.toFixed\(3\)/);
 assert.match(phoneScene, /state === "hero" \? 0\.5 : 0\.6/);
 assert.match(phoneScene, /if \(compact\) \{[\s\S]*phone\.position\.copy\(targetPosition\);[\s\S]*phone\.scale\.copy\(targetScale\)/);

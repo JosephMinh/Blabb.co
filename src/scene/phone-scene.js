@@ -386,7 +386,7 @@ export async function createPhoneScene(webglScene, camera) {
       } else {
         if (stage) stage.dataset.mobileMode = "story";
         targetPosition.y = 1.18;
-        targetScale.setScalar(Math.min(0.66, showcaseScale * 0.9));
+        targetScale.setScalar(0.66);
       }
     } else {
       if (stage) delete stage.dataset.mobileMode;

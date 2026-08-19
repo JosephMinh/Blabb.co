@@ -124,8 +124,16 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);
 
   await page.setViewportSize({ width: 320, height: 568 });
-  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");
-  await expect(page.locator('.story-chapter[data-step="02"] .chapter-state-card')).toBeVisible();
+  await page.locator('.story-chapter[data-step="06"]').evaluate((element) => {
+    scrollTo(0, element.offsetTop);
+  });
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-mobile-mode", "story");
+  await expect(page.locator("#artifact-stage")).toHaveClass(/is-visible/);
+  await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
+  const shortPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
+  expect(shortPhoneScale).toBeGreaterThanOrEqual(0.65);
+  await expect(page.locator('.story-chapter[data-step="06"] .mobile-chapter-summary')).toBeVisible();
+  await expect(page.locator('.story-chapter[data-step="06"] .chapter-state-card')).toBeHidden();
 });
 
 test("dense phone displays receive a crisp adaptive framebuffer", async ({ browser }) => {
