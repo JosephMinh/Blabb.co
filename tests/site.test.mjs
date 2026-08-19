@@ -192,6 +192,9 @@ assert.match(html, /first voice-model download is about 73 MB/i);
 assert.match(html, /period[\s\S]*comma[\s\S]*question mark[\s\S]*new line[\s\S]*literal/);
 assert.match(html, /Remove fillers/);
 assert.match(transcriptDemo, /true-true[\s\S]*false-false/);
+assert.match(html, /don't forget the literal comma after the greeting/i);
+assert.match(html, /Don’t forget the comma after the greeting\./);
+assert.doesNotMatch([html, transcriptDemo].join('\n'), /comma means the word/i);
 ['messages', 'notes', 'email', 'search', 'forms'].forEach((context) => {
   assert.match(useCases, new RegExp(`id: "${context}"`), `Missing generic typing context: ${context}`);
 });

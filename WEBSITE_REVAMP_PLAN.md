@@ -787,10 +787,10 @@ Deliver:
 
 - Lock the storyboard to the six states and lifecycle defined in this plan.
 - Use this exact spoken phrase for the transcript demonstration: `hey um send
-  the draft comma then call me question mark new line literal comma means the
-  word`.
+  the draft comma then call me question mark new line don't forget the literal
+  comma after the greeting`.
 - Use this exact processed result: `Hey, send the draft, then call me?` followed
-  by a new line and `Comma means the word.`
+  by a new line and `Don’t forget the comma after the greeting.`
 - Produce desktop and mobile wireframes.
 - Apply the Nunito-only hierarchy and the exact `Speak. It types.` headline.
 - Record the Android requirement, private-beta status, model size, and waitlist

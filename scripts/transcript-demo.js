@@ -1,8 +1,8 @@
 const results = {
-  "true-true": "Hey, send the draft, then call me?<br />Comma means the word.",
-  "true-false": "Hey um, send the draft, then call me?<br />Comma means the word.",
-  "false-true": "Hey send the draft comma then call me question mark new line literal comma means the word.",
-  "false-false": "Hey um send the draft comma then call me question mark new line literal comma means the word."
+  "true-true": "Hey, send the draft, then call me?<br />Don’t forget the comma after the greeting.",
+  "true-false": "Hey um, send the draft, then call me?<br />Don’t forget the comma after the greeting.",
+  "false-true": "Hey send the draft comma then call me question mark new line don’t forget the literal comma after the greeting.",
+  "false-false": "Hey um send the draft comma then call me question mark new line don’t forget the literal comma after the greeting."
 };
 
 export function initTranscriptDemo() {
