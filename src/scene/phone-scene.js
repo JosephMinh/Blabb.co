@@ -402,6 +402,11 @@ export async function createPhoneScene(webglScene, camera) {
       stage.dataset.phoneY = targetPosition.y.toFixed(3);
     }
     targetRotation.set(...chapterRotations[state]);
+    if (compact && state !== "hero") {
+      targetRotation.x *= 0.82;
+      targetRotation.y *= 0.72;
+      targetRotation.z *= 0.8;
+    }
     // Touch scrolling already supplies the easing on compact layouts. Apply
     // the composed position immediately so the phone follows the viewport
     // instead of lagging behind a quick swipe by several frames.

@@ -13,6 +13,11 @@ const colors = {
   keyboard: "#efedf4"
 };
 
+// The 3D glass and rounded metal rail cover a few pixels at oblique angles.
+// Keep functional UI inside this inset so no text or key is lost behind the
+// physical phone frame on narrow mobile renders.
+const screenSafe = { left: 64, right: 704 };
+
 const keyRows = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
@@ -50,21 +55,21 @@ function drawKeyboard(context) {
   context.fillStyle = colors.keyboard;
   context.fillRect(0, 1110, 768, 490);
 
-  text(context, "▦", 54, 1153, 25, 900, colors.deep, "center");
+  text(context, "▦", screenSafe.left, 1153, 25, 900, colors.deep, "center");
   text(context, "☺", 158, 1153, 27, 900, colors.deep, "center");
   text(context, "GIF", 270, 1153, 19, 900, colors.deep, "center");
   text(context, "▣", 386, 1153, 25, 900, colors.deep, "center");
   text(context, "⚙", 506, 1153, 25, 900, colors.deep, "center");
-  roundedRect(context, 665, 1123, 56, 56, 28, colors.white);
-  text(context, "●", 693, 1151, 22, 900, colors.coral, "center");
+  roundedRect(context, 648, 1123, 56, 56, 28, colors.white);
+  text(context, "●", 676, 1151, 22, 900, colors.coral, "center");
 
   keyRows.forEach((row, rowIndex) => {
-    const gap = 8;
-    const normalWidth = rowIndex === 0 ? 66 : 68;
-    const wideWidth = 88;
+    const gap = rowIndex === 0 ? 6 : 8;
+    const normalWidth = rowIndex === 0 ? 58 : rowIndex === 1 ? 62 : 55;
+    const wideWidth = 76;
     const widths = row.map((key) => (key === "⇧" || key === "⌫" ? wideWidth : normalWidth));
     const total = widths.reduce((sum, width) => sum + width, 0) + gap * (row.length - 1);
-    let cursor = (768 - total) / 2;
+    let cursor = screenSafe.left + (screenSafe.right - screenSafe.left - total) / 2;
     const y = 1205 + rowIndex * 82;
     row.forEach((key, keyIndex) => {
       const width = widths[keyIndex];
@@ -74,16 +79,16 @@ function drawKeyboard(context) {
     });
   });
 
-  roundedRect(context, 24, 1451, 104, 70, 34, "#dfe2ee");
-  text(context, "?123", 76, 1486, 20, 800, colors.deep, "center");
-  roundedRect(context, 140, 1451, 66, 70, 14, colors.white);
-  text(context, ",", 173, 1481, 30, 800, colors.deep, "center");
-  roundedRect(context, 218, 1451, 332, 70, 14, colors.white);
-  text(context, "English", 384, 1486, 19, 700, colors.muted, "center");
-  roundedRect(context, 562, 1451, 68, 70, 14, colors.white);
-  text(context, ".", 596, 1479, 30, 800, colors.deep, "center");
-  roundedRect(context, 642, 1451, 102, 70, 34, "#cfe8e5");
-  text(context, "↵", 693, 1485, 30, 900, colors.deep, "center");
+  roundedRect(context, 40, 1451, 94, 70, 34, "#dfe2ee");
+  text(context, "?123", 87, 1486, 20, 800, colors.deep, "center");
+  roundedRect(context, 146, 1451, 58, 70, 14, colors.white);
+  text(context, ",", 175, 1481, 30, 800, colors.deep, "center");
+  roundedRect(context, 216, 1451, 300, 70, 14, colors.white);
+  text(context, "English", 366, 1486, 19, 700, colors.muted, "center");
+  roundedRect(context, 528, 1451, 58, 70, 14, colors.white);
+  text(context, ".", 557, 1479, 30, 800, colors.deep, "center");
+  roundedRect(context, 598, 1451, 106, 70, 34, "#cfe8e5");
+  text(context, "↵", 651, 1485, 30, 900, colors.deep, "center");
   roundedRect(context, 305, 1570, 158, 7, 7, "rgba(23,10,28,.78)");
 }
 
@@ -92,13 +97,13 @@ function drawNotification(context) {
   context.shadowColor = "rgba(17,7,21,.26)";
   context.shadowBlur = 34;
   context.shadowOffsetY = 16;
-  roundedRect(context, 36, 260, 696, 128, 30, "#f2eaf4");
+  roundedRect(context, 52, 260, 664, 128, 30, "#f2eaf4");
   context.restore();
-  roundedRect(context, 58, 281, 82, 82, 41, colors.aqua, colors.ink, 5);
-  text(context, "B", 99, 322, 39, 950, colors.ink, "center");
-  text(context, "Blabb bubble snoozed", 162, 307, 24, 950);
-  text(context, "Returns automatically in 10 minutes", 162, 342, 17, 700, colors.muted);
-  text(context, "END", 694, 323, 17, 950, colors.forest, "right");
+  roundedRect(context, 70, 281, 82, 82, 41, colors.aqua, colors.ink, 5);
+  text(context, "B", 111, 322, 39, 950, colors.ink, "center");
+  text(context, "Blabb bubble snoozed", 174, 307, 24, 950);
+  text(context, "Returns automatically in 10 minutes", 174, 342, 17, 700, colors.muted);
+  text(context, "END", 686, 323, 17, 950, colors.forest, "right");
 }
 
 export function createScreenTexture() {
@@ -124,15 +129,15 @@ export function createScreenTexture() {
     context.fillStyle = colors.paper;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    text(context, "9:41", 46, 48, 23, 950);
-    text(context, "▮  ◡", 718, 48, 21, 900, colors.ink, "right");
+    text(context, "9:41", screenSafe.left, 48, 23, 950);
+    text(context, "▮  ◡", screenSafe.right, 48, 21, 900, colors.ink, "right");
     context.fillStyle = colors.lilac;
     context.fillRect(0, 90, 768, 2);
-    roundedRect(context, 36, 112, 62, 62, 31, colors.coral);
-    text(context, "M", 67, 144, 29, 950, colors.ink, "center");
-    text(context, "Maya", 118, 132, 29, 950);
-    text(context, "online", 118, 163, 17, 750, colors.forest);
-    text(context, "•••", 716, 144, 26, 950, colors.ink, "right");
+    roundedRect(context, 52, 112, 62, 62, 31, colors.coral);
+    text(context, "M", 83, 144, 29, 950, colors.ink, "center");
+    text(context, "Maya", 134, 132, 29, 950);
+    text(context, "online", 134, 163, 17, 750, colors.forest);
+    text(context, "•••", screenSafe.right, 144, 26, 950, colors.ink, "right");
     context.fillStyle = colors.lilac;
     context.fillRect(0, 198, 768, 2);
 
@@ -143,8 +148,8 @@ export function createScreenTexture() {
     context.fillRect(0, 200, 768, 740);
     roundedRect(context, 326, 225, 116, 38, 19, "#f2eaf4");
     text(context, "Tomorrow", 384, 245, 15, 800, colors.muted, "center");
-    roundedRect(context, 36, 290, 336, 80, [26, 26, 26, 7], colors.lilac);
-    text(context, "Still good for lunch?", 62, 330, 25, 850);
+    roundedRect(context, 52, 290, 336, 80, [26, 26, 26, 7], colors.lilac);
+    text(context, "Still good for lunch?", 78, 330, 25, 850);
 
     if (state === "snoozed") drawNotification(context);
 
@@ -152,11 +157,11 @@ export function createScreenTexture() {
     context.fillRect(0, 940, 768, 170);
     context.fillStyle = colors.lilac;
     context.fillRect(0, 940, 768, 2);
-    roundedRect(context, 30, 972, 622, 104, 27, colors.white, "#d4c9d6", 3);
+    roundedRect(context, 50, 972, 574, 104, 27, colors.white, "#d4c9d6", 3);
 
     const showFirst = ["insert", "continue", "undo", "snooze", "snoozed", "final"].includes(state);
     const showSecond = state === "continue" && phase < 0.68;
-    const composerX = 56;
+    const composerX = 72;
     const baseLineY = showFirst ? 1003 : 1024;
     const insertionLineY = 1047;
     const baseText = "Lunch tomorrow works.";
@@ -186,8 +191,8 @@ export function createScreenTexture() {
     if (state !== "snoozed") {
       roundedRect(context, cursorX, cursorY, 3, 34, 2, colors.ink);
     }
-    roundedRect(context, 674, 990, 66, 66, 33, colors.ink);
-    text(context, "↑", 707, 1022, 34, 950, colors.paper, "center");
+    roundedRect(context, 638, 990, 66, 66, 33, colors.ink);
+    text(context, "↑", 671, 1022, 34, 950, colors.paper, "center");
 
     drawKeyboard(context);
     context.restore();

@@ -226,6 +226,7 @@ assert.match(screenTexture, /new THREE\.CanvasTexture/);
 assert.match(screenTexture, /Blabb bubble snoozed/);
 assert.match(screenTexture, /function textWidth[\s\S]*context\.measureText/);
 assert.match(screenTexture, /baseLineY[\s\S]*insertionLineY[\s\S]*secondX/);
+assert.match(screenTexture, /const screenSafe = \{ left: 64, right: 704 \}/);
 assert.doesNotMatch(screenTexture, /const start = 278|showSecond \? 287|showFirst \? 515/);
 assert.match(phoneScene, /GLTFLoader/);
 assert.match(phoneScene, /blabb-phone\.glb/);
@@ -253,6 +254,7 @@ assert.match(phoneScene, /stage\.dataset\.mobileMode = phase < 0\.48 \? "peek" :
 assert.match(phoneScene, /targetScale\.setScalar\(0\.66\)/);
 assert.match(phoneScene, /stage\.dataset\.phoneScale = targetScale\.x\.toFixed\(3\)/);
 assert.match(phoneScene, /state === "hero" \? 0\.5 : 0\.6/);
+assert.match(phoneScene, /compact && state !== "hero"[\s\S]*targetRotation\.y \*= 0\.72/);
 assert.match(phoneScene, /if \(compact\) \{[\s\S]*phone\.position\.copy\(targetPosition\);[\s\S]*phone\.scale\.copy\(targetScale\)/);
 assert.match(phoneScene, /const float = viewport\.width <= 880 \? 0/);
 assert.doesNotMatch(phoneScene, /phone\.position\.y \+= float/);
