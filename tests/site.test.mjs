@@ -98,6 +98,12 @@ for (const file of ['src/main.js', 'src/scene/renderer.js', 'src/scene/phone-sce
 // The first viewport says what Blabb is and qualifies the current build.
 assert.match(html, /Speak\.[\s\S]*It types\./);
 assert.match(html, /private voice bubble for Android/i);
+assert.doesNotMatch(html, />Tomorrow</);
+assert.match(html, /class="date-chip">Today</);
+assert.match(html, /status-signal[\s\S]*status-wifi[\s\S]*status-battery/);
+assert.match(screenTexture, /text\(context, "Today"/);
+assert.match(screenTexture, /function drawStatusIcons/);
+assert.match(screenTexture, /opticallyCenteredText\(context, "M", 83, 143/);
 
 // Public copy describes what each visual signal means, without internal palette names.
 const renderedCopy = html

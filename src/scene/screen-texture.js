@@ -51,6 +51,51 @@ function textWidth(context, value, size, weight = 700) {
   return context.measureText(value).width;
 }
 
+function opticallyCenteredText(context, value, centerX, centerY, size, weight = 700, color = colors.ink) {
+  context.save();
+  context.font = `${weight} ${size}px Nunito, system-ui, sans-serif`;
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
+  context.fillStyle = color;
+  const metrics = context.measureText(value);
+  const x = centerX + (metrics.actualBoundingBoxLeft - metrics.actualBoundingBoxRight) / 2;
+  const y = centerY + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+  context.fillText(value, x, y);
+  context.restore();
+}
+
+function drawStatusIcons(context) {
+  context.save();
+  context.fillStyle = colors.ink;
+  context.strokeStyle = colors.ink;
+  context.lineCap = "round";
+
+  // Four ascending cellular bars, matching the familiar Android status glyph.
+  [7, 11, 15, 19].forEach((height, index) => {
+    roundedRect(context, 610 + index * 7, 57 - height, 4, height, 2, colors.ink);
+  });
+
+  // Wi-Fi arcs and center dot are drawn as paths so they stay legible after
+  // the canvas is mipmapped onto the phone screen.
+  context.lineWidth = 3.5;
+  context.beginPath();
+  context.arc(656, 55, 16, Math.PI * 1.18, Math.PI * 1.82);
+  context.stroke();
+  context.beginPath();
+  context.arc(656, 55, 9, Math.PI * 1.18, Math.PI * 1.82);
+  context.stroke();
+  context.beginPath();
+  context.arc(656, 54, 2.4, 0, Math.PI * 2);
+  context.fill();
+
+  // Outlined battery, filled to roughly 70%, with the positive terminal.
+  context.lineWidth = 2.5;
+  roundedRect(context, 678, 39, 22, 16, 3, null, colors.ink, 2.5);
+  roundedRect(context, 681, 42, 12, 10, 1.5, colors.ink);
+  roundedRect(context, 702, 44, 3, 6, 1.5, colors.ink);
+  context.restore();
+}
+
 function drawKeyboard(context) {
   context.fillStyle = colors.keyboard;
   context.fillRect(0, 1110, 768, 490);
@@ -144,11 +189,11 @@ export function createScreenTexture(logoImage) {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     text(context, "9:41", screenSafe.left, 48, 23, 950);
-    text(context, "▮  ◡", screenSafe.right, 48, 21, 900, colors.ink, "right");
+    drawStatusIcons(context);
     context.fillStyle = colors.lilac;
     context.fillRect(0, 90, 768, 2);
     roundedRect(context, 52, 112, 62, 62, 31, colors.coral);
-    text(context, "M", 83, 144, 29, 950, colors.ink, "center");
+    opticallyCenteredText(context, "M", 83, 143, 29, 950);
     text(context, "Maya", 134, 132, 29, 950);
     text(context, "online", 134, 163, 17, 750, colors.forest);
     text(context, "•••", screenSafe.right, 144, 26, 950, colors.ink, "right");
@@ -161,7 +206,7 @@ export function createScreenTexture(logoImage) {
     context.fillStyle = gradient;
     context.fillRect(0, 200, 768, 740);
     roundedRect(context, 326, 225, 116, 38, 19, "#f2eaf4");
-    text(context, "Tomorrow", 384, 245, 15, 800, colors.muted, "center");
+    text(context, "Today", 384, 245, 15, 800, colors.muted, "center");
     roundedRect(context, 52, 290, 336, 80, [26, 26, 26, 7], colors.lilac);
     text(context, "Still good for lunch?", 78, 330, 25, 850);
 
