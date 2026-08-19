@@ -95,6 +95,12 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy').first()).toHaveCSS("opacity", "1");
   await expect(page.locator('.story-chapter[data-step="02"] .mobile-chapter-summary')).toBeVisible();
   await expect(page.locator('.story-chapter[data-step="02"] .desktop-chapter-summary')).toBeHidden();
+  const storyType = await page.locator('.story-chapter[data-step="02"]').evaluate((element) => ({
+    summary: Number.parseFloat(getComputedStyle(element.querySelector(".chapter-right > p")).fontSize),
+    spec: Number.parseFloat(getComputedStyle(document.querySelector(".chapter-specs dd")).fontSize)
+  }));
+  expect(storyType.summary).toBeGreaterThanOrEqual(14);
+  expect(storyType.spec).toBeGreaterThanOrEqual(11.5);
   const posterLayout = await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
     const title = element.querySelector(".chapter-left").getBoundingClientRect();
     const panel = element.querySelector(".chapter-right").getBoundingClientRect();
@@ -127,6 +133,12 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   expect(shortPhoneScale).toBeGreaterThanOrEqual(0.65);
   await expect(page.locator('.story-chapter[data-step="06"] .mobile-chapter-summary')).toBeVisible();
   await expect(page.locator('.story-chapter[data-step="06"] .chapter-state-card')).toBeHidden();
+  const shortStoryType = await page.locator('.story-chapter[data-step="06"]').evaluate((element) => ({
+    summary: Number.parseFloat(getComputedStyle(element.querySelector(".chapter-right > p")).fontSize),
+    spec: Number.parseFloat(getComputedStyle(element.querySelector(".chapter-specs dd")).fontSize)
+  }));
+  expect(shortStoryType.summary).toBeGreaterThanOrEqual(12);
+  expect(shortStoryType.spec).toBeGreaterThanOrEqual(10);
 });
 
 test("dense phone displays receive a crisp adaptive framebuffer", async ({ browser }) => {

@@ -41,6 +41,43 @@ test("mobile menu is keyboard reachable and dismisses with Escape", async ({ pag
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "false");
 });
 
+test("supporting copy stays readable in the brand palette", async ({ page }) => {
+  const desktop = await page.evaluate(() => {
+    const read = (selector) => {
+      const style = getComputedStyle(document.querySelector(selector));
+      return { size: Number.parseFloat(style.fontSize), color: style.color };
+    };
+    return {
+      hero: read(".hero-lede"),
+      chapter: read(".chapter-right > p"),
+      tools: read(".tools-copy > p:not(.section-kicker)"),
+      promise: read(".promise-list p"),
+      faqQuestion: read(".faq-list summary"),
+      faqAnswer: read(".faq-list details p")
+    };
+  });
+
+  expect(desktop.hero.size).toBeGreaterThanOrEqual(17.5);
+  expect(desktop.chapter.size).toBeGreaterThanOrEqual(17.5);
+  expect(desktop.tools.size).toBeGreaterThanOrEqual(16.5);
+  expect(desktop.promise.size).toBeGreaterThanOrEqual(13.5);
+  expect(desktop.faqQuestion.size).toBeGreaterThanOrEqual(16);
+  expect(desktop.faqAnswer.size).toBeGreaterThanOrEqual(14.5);
+  expect(desktop.hero.color).toBe("rgba(237, 223, 239, 0.88)");
+  expect(desktop.tools.color).toBe("rgba(237, 223, 239, 0.88)");
+  expect(desktop.faqAnswer.color).toBe("rgba(23, 10, 28, 0.78)");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await page.evaluate(() => ({
+    heroSize: Number.parseFloat(getComputedStyle(document.querySelector(".hero-lede")).fontSize),
+    faqSize: Number.parseFloat(getComputedStyle(document.querySelector(".faq-list summary")).fontSize),
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+  }));
+  expect(mobile.heroSize).toBeGreaterThanOrEqual(16.5);
+  expect(mobile.faqSize).toBeGreaterThanOrEqual(15);
+  expect(mobile.overflow).toBeLessThanOrEqual(0);
+});
+
 test("the snooze target follows the app's drag, capture, and release lifecycle", async ({ page }) => {
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
   await page.locator("#controls").scrollIntoViewIfNeeded();

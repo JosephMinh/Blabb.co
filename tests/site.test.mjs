@@ -255,6 +255,9 @@ for (const [name, hex] of Object.entries({ plum: '170A1C', aqua: '88E0D9', coral
   assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.Color\\("#${hex.toLowerCase()}"\\)`));
   assert.match(sceneMaterials, new RegExp(`${name}: new THREE\\.MeshBasicMaterial\\(\\{ color: palette\\.${name}, toneMapped: false \\}\\)`));
 }
+assert.match(css, /--text-on-dark: rgba\(237, 223, 239, 0\.88\)/);
+assert.match(css, /--text-on-dark-muted: rgba\(237, 223, 239, 0\.72\)/);
+assert.match(css, /--text-on-light-muted: rgba\(23, 10, 28, 0\.78\)/);
 assert.match(phoneScene, /CylinderGeometry\(bubbleMetrics\.radius, bubbleMetrics\.radius, 0\.16[\s\S]*materials\.aqua/);
 assert.doesNotMatch(phoneScene, /bubble\.body\.material\.emissiveIntensity/);
 assert.match(phoneScene, /double|TouchRings|touchRings/i);
