@@ -125,10 +125,12 @@ assert.match(html, /No words appear yet\. Blabb waits for the complete recording
 assert.match(html, /Only after processing finishes does the final, punctuated sentence land/);
 assert.match(html, /remove only Blabb’s latest insertion/);
 assert.match(html, /SNOOZE · 10 MIN/);
+assert.equal((html.match(/class="mobile-chapter-summary"/g) || []).length, 6);
 assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S]*snooze/);
 assert.match(screenTexture, /showSecond[\s\S]*phase < 0\.68/);
 assert.match(phoneScene, /textureState[\s\S]*"snoozed"/);
 assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible/);
+assert.match(phoneTimeline, /syncJourneyVisibility[\s\S]*bounds\.bottom > 0 && bounds\.top < window\.innerHeight/);
 
 // Supporting experiences in the plan are present and interactive.
 ['modes', 'privacy', 'controls', 'tools', 'contexts', 'privacy-promise', 'questions'].forEach((id) => {
@@ -250,6 +252,7 @@ assert.match(phoneScene, /smoothstep\(phase, 0\.64, 0\.86\)/);
 assert.match(phoneScene, /stage\.dataset\.mobileMode = phase < 0\.48 \? "peek" : phase < 0\.7 \? "showcase" : "handoff"/);
 assert.match(phoneScene, /targetScale\.setScalar\(Math\.min\(0\.66, showcaseScale \* 0\.9\)\)/);
 assert.match(phoneScene, /stage\.dataset\.phoneScale = targetScale\.x\.toFixed\(3\)/);
+assert.match(phoneScene, /state === "hero" \? 0\.5 : 0\.6/);
 assert.match(phoneScene, /if \(compact\) \{[\s\S]*phone\.position\.copy\(targetPosition\);[\s\S]*phone\.scale\.copy\(targetScale\)/);
 assert.match(phoneScene, /const float = viewport\.width <= 880 \? 0/);
 assert.doesNotMatch(phoneScene, /phone\.position\.y \+= float/);

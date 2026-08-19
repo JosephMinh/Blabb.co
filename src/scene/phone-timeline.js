@@ -23,17 +23,23 @@ export function createPhoneTimeline(controller, stage) {
     master.to(proxy, { progress: (index + 1) / labels.length, duration: 1, ease: "none" });
   });
 
+  const syncJourneyVisibility = () => {
+    const bounds = journey.getBoundingClientRect();
+    stage.classList.toggle("is-visible", bounds.bottom > 0 && bounds.top < window.innerHeight);
+  };
+
   const storyTrigger = ScrollTrigger.create({
     trigger: journey,
     start: "top top",
     end: "bottom top",
     scrub: 0.35,
     invalidateOnRefresh: true,
-    onEnter: () => stage.classList.add("is-visible"),
-    onEnterBack: () => stage.classList.add("is-visible"),
-    onLeave: () => stage.classList.remove("is-visible"),
-    onLeaveBack: () => stage.classList.remove("is-visible"),
+    onEnter: syncJourneyVisibility,
+    onEnterBack: syncJourneyVisibility,
+    onLeave: syncJourneyVisibility,
+    onLeaveBack: syncJourneyVisibility,
     onUpdate: () => {
+      syncJourneyVisibility();
       const marker = window.scrollY + window.innerHeight * 0.5;
       let activeIndex = storySections.length - 1;
       let localProgress = 1;

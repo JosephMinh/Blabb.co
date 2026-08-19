@@ -362,7 +362,9 @@ export async function createPhoneScene(webglScene, camera) {
     const tablet = viewport.width <= 1180;
     const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
     const viewWidth = viewHeight * camera.aspect;
-    const xRatio = compact ? 0.5 : tablet ? 0.5 : 0.59;
+    // Mobile story chapters use an editorial two-layer composition: copy on
+    // the left, handset on the right. The hero remains centered.
+    const xRatio = compact ? (state === "hero" ? 0.5 : 0.6) : tablet ? 0.5 : 0.59;
     targetPosition.x = (xRatio * 2 - 1) * viewWidth * 0.5;
     targetPosition.z = 0;
     if (compact) {
@@ -396,6 +398,7 @@ export async function createPhoneScene(webglScene, camera) {
     }
     if (stage) {
       stage.dataset.phoneScale = targetScale.x.toFixed(3);
+      stage.dataset.phoneX = targetPosition.x.toFixed(3);
       stage.dataset.phoneY = targetPosition.y.toFixed(3);
     }
     targetRotation.set(...chapterRotations[state]);

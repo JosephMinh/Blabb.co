@@ -96,8 +96,32 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
   const storyPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
   expect(storyPhoneScale).toBeGreaterThanOrEqual(0.65);
+  const storyPhoneX = Number(await page.locator("#artifact-stage").getAttribute("data-phone-x"));
+  expect(storyPhoneX).toBeGreaterThan(0);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy')).toHaveCount(2);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy').first()).toHaveCSS("opacity", "1");
+  await expect(page.locator('.story-chapter[data-step="02"] .mobile-chapter-summary')).toBeVisible();
+  await expect(page.locator('.story-chapter[data-step="02"] .desktop-chapter-summary')).toBeHidden();
+  const posterLayout = await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
+    const title = element.querySelector(".chapter-left").getBoundingClientRect();
+    const panel = element.querySelector(".chapter-right").getBoundingClientRect();
+    return {
+      titleTop: title.top,
+      titleBottom: title.bottom,
+      panelTop: panel.top,
+      panelBottom: panel.bottom,
+      viewportHeight: innerHeight
+    };
+  });
+  expect(posterLayout.titleTop).toBeGreaterThanOrEqual(0);
+  expect(posterLayout.panelTop).toBeGreaterThan(posterLayout.titleBottom);
+  expect(posterLayout.panelBottom).toBeLessThanOrEqual(posterLayout.viewportHeight);
+
+  await page.locator('.story-chapter[data-step="06"]').evaluate((element) => {
+    scrollTo(0, element.offsetTop);
+  });
+  await expect(page.locator("#artifact-stage")).toHaveClass(/is-visible/);
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);
 
   await page.setViewportSize({ width: 320, height: 568 });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");

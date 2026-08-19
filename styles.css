@@ -466,6 +466,7 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .chapter-dictate .step-label, .chapter-process .step-label { color: var(--coral); }
 .chapter-copy h2 { margin: 0; font-size: clamp(3.2rem, 5.7vw, 6.6rem); font-weight: 950; line-height: 0.86; letter-spacing: -0.075em; }
 .chapter-copy > p:not(.step-label):not(.fine-print) { color: rgba(237, 223, 239, 0.68); font-size: 1rem; line-height: 1.65; }
+.mobile-chapter-summary { display: none; }
 .chapter-specs { margin: 34px 0 24px; border-top: 1px solid var(--line-light); }
 .chapter-specs > div { display: grid; grid-template-columns: 85px 1fr; gap: 15px; padding: 13px 0; border-bottom: 1px solid var(--line-light); }
 .chapter-specs dt { color: rgba(237, 223, 239, 0.38); font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.08em; }

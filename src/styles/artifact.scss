@@ -390,10 +390,7 @@ html.artifact-dragging body {
   html[data-artifact-chapter="hero"].webgl-ready .phone-artifact { opacity: 0; }
   .webgl-ready .story-chapter {
     min-height: 100svh;
-    align-content: end;
-    padding-top: 62vh;
-    padding-bottom: 9vh;
-    background: linear-gradient(180deg, transparent 0 46%, rgba(17, 7, 21, .92) 60% 100%);
+    background: linear-gradient(180deg, transparent 0 50%, rgba(17, 7, 21, .78) 68% 100%);
   }
   .webgl-ready .chapter-right { margin-left: 0; }
   .webgl-ready .chapter-state-card { display: none; }
@@ -402,7 +399,151 @@ html.artifact-dragging body {
 @media (max-width: 590px) {
   .webgl-ready .hero h1 { font-size: clamp(4rem, 19vw, 6.2rem); }
   .webgl-ready .hero-notes { margin-top: 520px; }
-  .webgl-ready .story-chapter { padding-top: 64vh; }
+}
+
+// A mobile chapter is composed like a compact editorial poster: the live
+// handset owns the upper-right, the desktop-scale headline sits above it on
+// the left, and the essential explanation becomes a concise glass plate.
+@media (max-width: 880px) and (min-height: 701px) {
+  html:not([data-artifact-chapter="hero"]) .artifact-stage {
+    --artifact-x: 60vw;
+    --artifact-y: 38vh;
+  }
+
+  .webgl-ready .story-chapter {
+    z-index: 6;
+    display: block;
+    min-height: 100svh;
+    padding: 0;
+    border-bottom-color: rgba(237, 223, 239, .1);
+    background: linear-gradient(180deg, transparent 0 56%, rgba(17, 7, 21, .5) 66%, rgba(17, 7, 21, .98) 82% 100%);
+  }
+
+  .webgl-ready .story-chapter::before {
+    inset: 8% -15% 38%;
+    z-index: -1;
+    opacity: .8;
+  }
+
+  .webgl-ready .journey .chapter-left {
+    position: absolute;
+    z-index: 9;
+    top: clamp(108px, 14.5svh, 142px);
+    left: var(--page-pad);
+    width: min(58vw, 250px);
+    max-width: none;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  .webgl-ready .chapter-left .step-label {
+    width: max-content;
+    margin: 0 0 12px;
+    padding: 6px 9px;
+    border: 1px solid rgba(136, 224, 217, .32);
+    border-radius: 999px;
+    color: var(--aqua);
+    background: rgba(17, 7, 21, .72);
+    font-size: .52rem;
+    letter-spacing: .11em;
+    backdrop-filter: blur(10px);
+  }
+
+  .webgl-ready :is(.chapter-dictate, .chapter-process) .chapter-left .step-label {
+    border-color: rgba(239, 131, 84, .38);
+    color: var(--coral);
+  }
+
+  .webgl-ready .chapter-left h2 {
+    width: max-content;
+    max-width: 68vw;
+    color: var(--lilac);
+    font-size: clamp(2.65rem, 12.5vw, 3.55rem);
+    line-height: .86;
+    letter-spacing: -.07em;
+    -webkit-text-stroke: .8px rgba(17, 7, 21, .62);
+    paint-order: stroke fill;
+    text-shadow: 0 3px 18px rgba(17, 7, 21, .9), 0 16px 50px rgba(17, 7, 21, .72);
+  }
+
+  .webgl-ready :is(.chapter-process, .chapter-continue) .chapter-left h2 {
+    font-size: clamp(2.4rem, 11.4vw, 3.25rem);
+  }
+
+  .webgl-ready .journey .chapter-right {
+    position: absolute;
+    z-index: 9;
+    right: var(--page-pad);
+    bottom: clamp(24px, 4svh, 38px);
+    left: var(--page-pad);
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 17px 18px 16px;
+    overflow: hidden;
+    border: 1px solid rgba(237, 223, 239, .18);
+    border-radius: 3px;
+    background: linear-gradient(135deg, rgba(42, 24, 47, .94), rgba(17, 7, 21, .9));
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .38), inset 0 1px rgba(255, 255, 255, .035);
+    backdrop-filter: blur(18px) saturate(1.12);
+  }
+
+  .webgl-ready .chapter-right::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 18px;
+    width: 54px;
+    height: 2px;
+    background: var(--aqua);
+    box-shadow: 0 0 16px rgba(136, 224, 217, .45);
+  }
+
+  .webgl-ready :is(.chapter-dictate, .chapter-process) .chapter-right::before { background: var(--coral); box-shadow: 0 0 16px rgba(239, 131, 84, .42); }
+  .webgl-ready :is(.chapter-insert, .chapter-continue) .chapter-right::before { background: #7abd8c; box-shadow: 0 0 16px rgba(122, 189, 140, .38); }
+
+  .webgl-ready .chapter-right > p:not(.fine-print) {
+    margin: 0;
+    color: rgba(237, 223, 239, .82);
+    font-size: clamp(.76rem, 3.35vw, .86rem);
+    font-weight: 750;
+    line-height: 1.48;
+  }
+
+  .webgl-ready .desktop-chapter-summary { display: none; }
+  .webgl-ready .mobile-chapter-summary { display: inline; }
+  .webgl-ready .chapter-right .fine-print,
+  .webgl-ready .chapter-right .replay-button { display: none; }
+
+  .webgl-ready .chapter-right .chapter-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin: 12px 0 0;
+    border: 0;
+  }
+
+  .webgl-ready .chapter-right .chapter-specs > div {
+    display: block;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid rgba(237, 223, 239, .11);
+    background: rgba(255, 255, 255, .025);
+  }
+
+  .webgl-ready .chapter-right .chapter-specs dt { margin-bottom: 3px; font-size: .46rem; }
+  .webgl-ready .chapter-right .chapter-specs dd { overflow-wrap: anywhere; font-size: .65rem; }
+
+  .webgl-ready .chapter-right :is(.gesture-hint, .insert-proof, .undo-proof) {
+    margin: 11px 0 0;
+  }
+
+  .webgl-ready .chapter-right .gesture-hint { gap: 9px; padding: 8px 10px; }
+  .webgl-ready .chapter-right .press-icon { width: 30px; height: 30px; }
+  .webgl-ready .chapter-right .gesture-hint b { font-size: .63rem; }
+  .webgl-ready .chapter-right .gesture-hint small { font-size: .55rem; }
+  .webgl-ready .chapter-right .insert-proof { padding: 10px; font-size: .62rem; }
+  .webgl-ready .chapter-right .undo-proof span { min-height: 42px; padding: 8px; font-size: .48rem; }
 }
 
 // On very short phone screens there is not enough vertical room to show the
