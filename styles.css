@@ -420,8 +420,8 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .phone-artifact[data-state="success"] .bubble-ring { opacity: 0.902; border: 3px solid var(--forest); }
 .phone-artifact[data-state="success"] .bubble-badge { opacity: 1; background: var(--forest); }
 .phone-artifact[data-state="success"] .bubble-badge::before { content: ""; width: 7px; height: 3px; border-left: 2px solid white; border-bottom: 2px solid white; transform: translateY(-1px) rotate(-45deg); }
-.snooze-target { position: absolute; z-index: 6; left: 50%; bottom: 14px; width: 148px; height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 2px solid var(--aqua); border-radius: 24px; color: var(--lilac); opacity: 0; background: rgba(23, 10, 28, 0.95); transform: translateX(-50%) translateY(20px); transition: opacity 0.35s, transform 0.5s var(--ease-out); }
-.snooze-target b { font-size: 0.54rem; line-height: 1.15; letter-spacing: 0.05em; text-align: center; }
+.snooze-target { position: absolute; z-index: 6; left: 50%; bottom: 14px; width: 140px; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 2px solid var(--aqua); border-radius: 22px; color: var(--lilac); opacity: 0; background: rgba(23, 10, 28, 0.95); transform: translateX(-50%) translateY(20px); transition: opacity 0.35s, color 0.18s, background 0.18s, border-color 0.18s, transform 0.5s var(--ease-out); }
+.snooze-target b { font-size: 0.69rem; font-weight: 700; line-height: 1.18; letter-spacing: 0.05em; text-align: center; }
 .snooze-notification { position: absolute; z-index: 7; left: 50%; top: 90px; width: 262px; display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 8px; padding: 11px; border-radius: 18px; opacity: 0; color: var(--plum); background: #f2eaf4; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28); transform: translate(-50%, -12px); transition: opacity 0.4s, transform 0.5s var(--ease-out); }
 .snooze-notification > img { width: 27px; height: 27px; padding: 3px; border-radius: 50%; background: var(--aqua); }
 .snooze-notification span { display: flex; flex-direction: column; }
@@ -429,9 +429,11 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .snooze-notification small { color: rgba(23, 10, 28, 0.58); font-size: 0.41rem; }
 .snooze-notification em { color: var(--plum); font-size: 0.45rem; font-style: normal; font-weight: 900; }
 .phone-artifact[data-chapter="snooze"][data-phase="dock-left"] .bubble-control { transform: translateX(-218px); }
-.phone-artifact[data-chapter="snooze"][data-phase="target"] .snooze-target { opacity: 1; transform: translateX(-50%); }
-.phone-artifact[data-chapter="snooze"][data-phase="target"] .bubble-control { transform: translate(-136px, 134px) scale(0.86); }
-.phone-artifact[data-chapter="snooze"][data-phase="snoozed"] .bubble-control { opacity: 0; transform: translate(-136px, 155px) scale(0.5); }
+.phone-artifact[data-chapter="snooze"]:is([data-phase="target"], [data-phase="captured"]) .snooze-target { opacity: 1; transform: translateX(-50%); }
+.phone-artifact[data-chapter="snooze"][data-phase="target"] .bubble-control { transform: translate(-132px, 150px) scale(0.92); }
+.phone-artifact[data-chapter="snooze"][data-phase="captured"] .bubble-control { transform: translate(-132px, 162px) scale(0.86); }
+.phone-artifact[data-chapter="snooze"][data-phase="captured"] .snooze-target { border: 3px solid var(--plum); color: var(--plum); background: var(--aqua); transform: translateX(-50%) scale(1.06); }
+.phone-artifact[data-chapter="snooze"][data-phase="snoozed"] .bubble-control { opacity: 0; transform: translate(-132px, 162px) scale(0.5); }
 .phone-artifact[data-chapter="snooze"][data-phase="snoozed"] .snooze-target { opacity: 0; transform: translateX(-50%) translateY(20px); }
 .phone-artifact[data-chapter="snooze"][data-phase="snoozed"] .snooze-notification { opacity: 1; transform: translate(-50%, 0); }
 .flow-line { position: absolute; z-index: 8; left: 50%; bottom: -28px; width: 2px; height: 145px; opacity: 0; background: linear-gradient(var(--coral), var(--aqua)); transform: translateX(-50%); transition: opacity 0.4s; }

@@ -62,13 +62,14 @@ export function initPhoneStory() {
     setVisualState("ready", "idle");
     if (reduceMotion.matches) return;
 
-    later(() => setVisualState("ready", "dock-left"), 850);
-    later(() => setVisualState("ready", "target"), 1750);
-    later(() => setVisualState("ready", "snoozed"), 2750);
-    later(() => setVisualState("ready", "returned"), 4550);
+    later(() => setVisualState("ready", "dock-left"), 900);
+    later(() => setVisualState("ready", "target"), 2100);
+    later(() => setVisualState("ready", "captured"), 3300);
+    later(() => setVisualState("ready", "snoozed"), 4300);
+    later(() => setVisualState("ready", "returned"), 6200);
     later(() => {
       if (activeChapter === "snooze") playSnoozeTimeline();
-    }, 6500);
+    }, 8200);
   }
 
   function activate(chapter) {

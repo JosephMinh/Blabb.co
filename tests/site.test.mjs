@@ -129,7 +129,7 @@ assert.equal((html.match(/class="mobile-chapter-summary"/g) || []).length, 6);
 assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S]*snooze/);
 assert.match(screenTexture, /showSecond[\s\S]*phase < 0\.68/);
 assert.match(phoneScene, /textureState[\s\S]*"snoozed"/);
-assert.match(phoneScene, /bubbleTarget\.x[\s\S]*snoozeTarget\.visible/);
+assert.match(phoneScene, /function snoozeStoryFrame[\s\S]*bubbleX[\s\S]*targetVisible/);
 assert.match(phoneTimeline, /syncJourneyVisibility[\s\S]*bounds\.bottom > 0 && bounds\.top < window\.innerHeight/);
 
 // Supporting experiences in the plan are present and interactive.
@@ -150,7 +150,9 @@ assert.match(phoneScene, /Math\.PI \* 2 \/ 1\.2/);
 assert.match(phoneScene, /badgeRadius: 0\.1152/);
 assert.match(phoneScene, /badgeOffset: 0\.1984/);
 assert.match(phoneScene, /roundedPanel\(1\.526, 0\.676[\s\S]*roundedPanel\(1\.491, 0\.641/);
-assert.match(phoneScene, /bubble\.group\.visible = false;[\s\S]*snoozeTarget\.visible = false;/);
+assert.match(phoneScene, /bubble\.group\.visible = frame\.bubbleVisible;[\s\S]*snoozeTarget\.visible = frame\.targetVisible/);
+assert.match(phoneScene, /context\.font = "700 41px Nunito, sans-serif"/);
+assert.match(phoneScene, /fillText\("SNOOZE", 256, 89\)[\s\S]*fillText\("10 MIN", 256, 139\)/);
 assert.match(phoneScene, /globalCompositeOperation = "source-in"/);
 assert.match(phoneScene, /fillStyle = "#170a1c"/);
 assert.doesNotMatch(phoneScene, /bubble\.group\.rotation\.z/);

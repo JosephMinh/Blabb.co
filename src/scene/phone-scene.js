@@ -28,6 +28,45 @@ const chapterRotations = {
   snooze: [-0.06, 0.24, -0.04]
 };
 
+const mix = (from, to, progress) => from + (to - from) * progress;
+
+// Mirrors the app gesture: reveal the target as dragging begins, dock left,
+// travel into the target's centered capture halo, hold there, then snooze.
+export function snoozeStoryFrame(progress) {
+  const phase = Math.min(1, Math.max(0, progress));
+  const frame = {
+    bubbleX: 1.5,
+    bubbleY: -1.18,
+    bubbleVisible: true,
+    targetVisible: true,
+    captured: phase >= 0.48 && phase < 0.74,
+    snoozed: phase >= 0.74 && phase < 0.9
+  };
+
+  if (phase < 0.18) {
+    frame.bubbleX = mix(1.5, -1.5, phase / 0.18);
+  } else if (phase < 0.62) {
+    const travel = (phase - 0.18) / 0.44;
+    frame.bubbleX = mix(-1.5, 0, travel);
+    frame.bubbleY = mix(-1.18, -2.99, travel);
+  } else if (phase < 0.74) {
+    frame.bubbleX = 0;
+    frame.bubbleY = -2.99;
+  } else if (phase < 0.9) {
+    frame.bubbleX = 0;
+    frame.bubbleY = -2.99;
+    frame.bubbleVisible = false;
+    frame.targetVisible = false;
+  } else {
+    const returning = (phase - 0.9) / 0.1;
+    frame.bubbleX = mix(0, 1.5, returning);
+    frame.bubbleY = mix(-2.99, -1.18, returning);
+    frame.targetVisible = false;
+  }
+
+  return frame;
+}
+
 // Normalized directly from BubbleView.kt. Keeping these ratios together makes
 // every status state share the Android overlay's exact 48dp construction.
 const bubbleMetrics = Object.freeze({
@@ -221,10 +260,10 @@ function createSnoozeLabelTexture(color) {
   context.fillStyle = color;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.font = "900 52px Nunito, sans-serif";
-  context.fillText("SNOOZE", 256, 83);
-  context.font = "900 43px Nunito, sans-serif";
-  context.fillText("10 MIN", 256, 151);
+  context.font = "700 41px Nunito, sans-serif";
+  context.letterSpacing = "2px";
+  context.fillText("SNOOZE", 256, 89);
+  context.fillText("10 MIN", 256, 139);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
@@ -411,7 +450,7 @@ export async function createPhoneScene(webglScene, camera) {
   }
 
   function updateScreen(nextState, localPhase) {
-    const textureState = nextState === "snooze" && localPhase >= 0.5 && localPhase < 0.76 ? "snoozed" : nextState;
+    const textureState = nextState === "snooze" && snoozeStoryFrame(localPhase).snoozed ? "snoozed" : nextState;
     const phaseBucket = nextState === "continue" ? Math.floor(localPhase * 20) : 0;
     const key = `${textureState}-${phaseBucket}`;
     if (key === lastScreenKey) return;
@@ -515,19 +554,11 @@ export async function createPhoneScene(webglScene, camera) {
     setSnoozeTargetCaptured(snoozeTarget, false, materials);
 
     if (state === "snooze") {
-      if (phase < 0.25) bubbleTarget.x = THREE.MathUtils.lerp(1.5, -1.5, phase / 0.25);
-      else if (phase < 0.5) {
-        bubbleTarget.x = -1.5;
-        bubbleTarget.y = THREE.MathUtils.lerp(-1.18, -2.99, (phase - 0.25) / 0.25);
-        snoozeTarget.visible = true;
-        setSnoozeTargetCaptured(snoozeTarget, phase >= 0.44, materials);
-      } else if (phase < 0.76) {
-        bubbleTarget.set(-1.5, -2.99, 0.41);
-        bubble.group.visible = false;
-        snoozeTarget.visible = false;
-      } else {
-        bubbleTarget.x = THREE.MathUtils.lerp(-1.5, 1.5, (phase - 0.76) / 0.24);
-      }
+      const frame = snoozeStoryFrame(phase);
+      bubbleTarget.set(frame.bubbleX, frame.bubbleY, 0.41);
+      bubble.group.visible = frame.bubbleVisible;
+      snoozeTarget.visible = frame.targetVisible;
+      setSnoozeTargetCaptured(snoozeTarget, frame.captured, materials);
     }
 
     applyBubbleState(state, phase);

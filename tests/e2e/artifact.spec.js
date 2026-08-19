@@ -182,6 +182,40 @@ test("dense phone displays receive a crisp adaptive framebuffer", async ({ brows
   await context.close();
 });
 
+test("snooze gesture reaches and dwells over the app-accurate target", async ({ page }) => {
+  await page.goto("/");
+  const frames = await page.evaluate(async () => {
+    const { snoozeStoryFrame } = await import("/src/scene/phone-scene.js");
+    return {
+      approaching: snoozeStoryFrame(0.47),
+      captured: snoozeStoryFrame(0.65),
+      snoozed: snoozeStoryFrame(0.8),
+      returning: snoozeStoryFrame(0.95)
+    };
+  });
+
+  expect(frames.approaching.targetVisible).toBe(true);
+  expect(frames.approaching.bubbleVisible).toBe(true);
+  expect(frames.captured).toMatchObject({
+    bubbleX: 0,
+    bubbleY: -2.99,
+    bubbleVisible: true,
+    targetVisible: true,
+    captured: true,
+    snoozed: false
+  });
+  expect(frames.snoozed).toMatchObject({
+    bubbleX: 0,
+    bubbleY: -2.99,
+    bubbleVisible: false,
+    targetVisible: false,
+    snoozed: true
+  });
+  expect(frames.returning.bubbleVisible).toBe(true);
+  expect(frames.returning.bubbleX).toBeGreaterThan(0);
+  expect(frames.returning.bubbleY).toBeGreaterThan(-2.99);
+});
+
 test("a WebGL reset restores the interactive artifact without a page refresh", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
