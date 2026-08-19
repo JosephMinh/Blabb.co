@@ -209,8 +209,9 @@ test("dense phone displays receive a crisp adaptive framebuffer", async ({ brows
 test("snooze gesture reaches and dwells over the app-accurate target", async ({ page }) => {
   await page.goto("/");
   const frames = await page.evaluate(async () => {
-    const { snoozeStoryFrame } = await import("/src/scene/phone-scene.js");
+    const { appSnoozeTargetMetrics, snoozeStoryFrame } = await import("/src/scene/phone-scene.js");
     return {
+      metrics: appSnoozeTargetMetrics,
       approaching: snoozeStoryFrame(0.47),
       captured: snoozeStoryFrame(0.65),
       snoozed: snoozeStoryFrame(0.8),
@@ -220,21 +221,34 @@ test("snooze gesture reaches and dwells over the app-accurate target", async ({ 
 
   expect(frames.approaching.targetVisible).toBe(true);
   expect(frames.approaching.bubbleVisible).toBe(true);
+  expect(frames.metrics).toMatchObject({
+    widthDp: 176,
+    heightDp: 78,
+    cornerRadiusDp: 28,
+    bottomMarginDp: 22,
+    restingStrokeDp: 2,
+    capturedStrokeDp: 3,
+    textSizeSp: 14,
+    elevationDp: 12,
+    capturedScale: 1.06,
+    bubbleSizeDp: 48
+  });
+  expect(frames.metrics.bubbleScale).toBeCloseTo(0.65, 2);
   expect(frames.captured).toMatchObject({
     bubbleX: 0,
-    bubbleY: -2.99,
     bubbleVisible: true,
     targetVisible: true,
     captured: true,
     snoozed: false
   });
+  expect(frames.captured.bubbleY).toBeCloseTo(frames.metrics.centerYWorld, 5);
   expect(frames.snoozed).toMatchObject({
     bubbleX: 0,
-    bubbleY: -2.99,
     bubbleVisible: false,
     targetVisible: false,
     snoozed: true
   });
+  expect(frames.snoozed.bubbleY).toBeCloseTo(frames.metrics.centerYWorld, 5);
   expect(frames.returning.bubbleVisible).toBe(true);
   expect(frames.returning.bubbleX).toBeGreaterThan(0);
   expect(frames.returning.bubbleY).toBeGreaterThan(-2.99);

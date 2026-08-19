@@ -149,9 +149,11 @@ assert.match(phoneScene, /processingArc[\s\S]*THREE\.MathUtils\.degToRad\(245\)/
 assert.match(phoneScene, /Math\.PI \* 2 \/ 1\.2/);
 assert.match(phoneScene, /badgeRadius: 0\.1152/);
 assert.match(phoneScene, /badgeOffset: 0\.1984/);
-assert.match(phoneScene, /roundedPanel\(1\.526, 0\.676[\s\S]*roundedPanel\(1\.491, 0\.641/);
+assert.match(phoneScene, /widthDp: 176,[\s\S]*heightDp: 78,[\s\S]*cornerRadiusDp: 28/);
+assert.match(phoneScene, /bottomMarginDp: 22,[\s\S]*restingStrokeDp: 2,[\s\S]*capturedStrokeDp: 3/);
+assert.match(phoneScene, /surface\.name = "android-snooze-overlay"/);
 assert.match(phoneScene, /bubble\.group\.visible = frame\.bubbleVisible;[\s\S]*snoozeTarget\.visible = frame\.targetVisible/);
-assert.match(phoneScene, /context\.font = "700 41px Nunito, sans-serif"/);
+assert.match(phoneScene, /context\.font = `700 \$\{appSnoozeTargetMetrics\.textSizeSp \* scale\}px Nunito, sans-serif`/);
 assert.match(phoneScene, /fillText\("SNOOZE", 256, 89\)[\s\S]*fillText\("10 MIN", 256, 139\)/);
 assert.match(phoneScene, /globalCompositeOperation = "source-in"/);
 assert.match(phoneScene, /fillStyle = "#170a1c"/);

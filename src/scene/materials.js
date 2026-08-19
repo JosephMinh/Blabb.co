@@ -19,12 +19,6 @@ export function createMaterials() {
     aqua: new THREE.MeshBasicMaterial({ color: palette.aqua, toneMapped: false }),
     coral: new THREE.MeshBasicMaterial({ color: palette.coral, toneMapped: false }),
     forest: new THREE.MeshBasicMaterial({ color: palette.forest, toneMapped: false }),
-    white: new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }),
-    snooze: new THREE.MeshBasicMaterial({
-      color: palette.plum,
-      transparent: true,
-      opacity: 0.949,
-      toneMapped: false
-    })
+    white: new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })
   };
 }

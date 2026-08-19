@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { createMaterials, palette } from "./materials.js";
 import { createScreenTexture } from "./screen-texture.js";
 
@@ -30,6 +29,50 @@ const chapterRotations = {
 
 const mix = (from, to, progress) => from + (to - from) * progress;
 
+// Normalized directly from BubbleView.kt. Keeping these ratios together makes
+// every status state share the Android overlay's exact 48dp construction.
+const bubbleMetrics = Object.freeze({
+  radius: 0.32,
+  rimCenter: 0.3032,
+  rimTube: 0.0168,
+  listeningRingCenter: 0.2664,
+  stateRingCenter: 0.2688,
+  stateRingTube: 0.016,
+  badgeRadius: 0.1152,
+  badgeOffset: 0.1984
+});
+
+const phoneScreenMetrics = Object.freeze({
+  widthDp: 360,
+  heightDp: 800,
+  widthWorld: 3.122,
+  heightWorld: 7.072,
+  bottomSystemInsetDp: 48
+});
+const snoozeDpToWorld = phoneScreenMetrics.widthWorld / phoneScreenMetrics.widthDp;
+
+// Values mirrored from BubbleOverlayController.kt. The target is a flat
+// Android overlay, not a piece of phone hardware, so its radius must remain
+// independent of its visual depth/elevation.
+export const appSnoozeTargetMetrics = Object.freeze({
+  widthDp: 176,
+  heightDp: 78,
+  cornerRadiusDp: 28,
+  bottomMarginDp: 22,
+  restingStrokeDp: 2,
+  capturedStrokeDp: 3,
+  textSizeSp: 14,
+  elevationDp: 12,
+  capturedScale: 1.06,
+  bubbleSizeDp: 48,
+  widthWorld: 176 * snoozeDpToWorld,
+  heightWorld: 78 * snoozeDpToWorld,
+  centerYWorld: -phoneScreenMetrics.heightWorld / 2
+    + (phoneScreenMetrics.bottomSystemInsetDp + 22 + 78 / 2)
+      * (phoneScreenMetrics.heightWorld / phoneScreenMetrics.heightDp),
+  bubbleScale: (48 * snoozeDpToWorld) / (bubbleMetrics.radius * 2)
+});
+
 // Mirrors the app gesture: reveal the target as dragging begins, dock left,
 // travel into the target's centered capture halo, hold there, then snooze.
 export function snoozeStoryFrame(progress) {
@@ -48,49 +91,29 @@ export function snoozeStoryFrame(progress) {
   } else if (phase < 0.62) {
     const travel = (phase - 0.18) / 0.44;
     frame.bubbleX = mix(-1.5, 0, travel);
-    frame.bubbleY = mix(-1.18, -2.99, travel);
+    frame.bubbleY = mix(-1.18, appSnoozeTargetMetrics.centerYWorld, travel);
   } else if (phase < 0.74) {
     frame.bubbleX = 0;
-    frame.bubbleY = -2.99;
+    frame.bubbleY = appSnoozeTargetMetrics.centerYWorld;
   } else if (phase < 0.9) {
     frame.bubbleX = 0;
-    frame.bubbleY = -2.99;
+    frame.bubbleY = appSnoozeTargetMetrics.centerYWorld;
     frame.bubbleVisible = false;
     frame.targetVisible = false;
   } else {
     const returning = (phase - 0.9) / 0.1;
     frame.bubbleX = mix(0, 1.5, returning);
-    frame.bubbleY = mix(-2.99, -1.18, returning);
+    frame.bubbleY = mix(appSnoozeTargetMetrics.centerYWorld, -1.18, returning);
     frame.targetVisible = false;
   }
 
   return frame;
 }
 
-// Normalized directly from BubbleView.kt. Keeping these ratios together makes
-// every status state share the Android overlay's exact 48dp construction.
-const bubbleMetrics = Object.freeze({
-  radius: 0.32,
-  rimCenter: 0.3032,
-  rimTube: 0.0168,
-  listeningRingCenter: 0.2664,
-  stateRingCenter: 0.2688,
-  stateRingTube: 0.016,
-  badgeRadius: 0.1152,
-  badgeOffset: 0.1984
-});
-
 function layerForName(name) {
   if (/^(BACK_|CAMERA_)/.test(name)) return "back";
   if (/^(DISPLAY_GLASS|SELFIE_|EARPIECE)/.test(name)) return "glass";
   return "frame";
-}
-
-function roundedPanel(width, height, depth, material, radius = 0.12) {
-  const mesh = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 5, radius), material);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  return mesh;
 }
 
 // BubbleView applies a PorterDuff SRC_IN plum tint to this master bitmap.
@@ -251,62 +274,125 @@ function createTouchRings() {
   return group;
 }
 
-function createSnoozeLabelTexture(color) {
+function createSnoozeTargetTexture(captured) {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 228;
   const context = canvas.getContext("2d");
   context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = color;
+  const scale = canvas.width / appSnoozeTargetMetrics.widthDp;
+  const strokeDp = captured
+    ? appSnoozeTargetMetrics.capturedStrokeDp
+    : appSnoozeTargetMetrics.restingStrokeDp;
+  const stroke = strokeDp * scale;
+  context.beginPath();
+  context.roundRect(
+    stroke / 2,
+    stroke / 2,
+    canvas.width - stroke,
+    canvas.height - stroke,
+    appSnoozeTargetMetrics.cornerRadiusDp * scale
+  );
+  context.fillStyle = captured ? "#88e0d9" : "rgba(23, 10, 28, 0.949)";
+  context.fill();
+  context.strokeStyle = captured ? "#170a1c" : "#88e0d9";
+  context.lineWidth = stroke;
+  context.stroke();
+  context.fillStyle = captured ? "#170a1c" : "#eddfef";
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.font = "700 41px Nunito, sans-serif";
+  context.font = `700 ${appSnoozeTargetMetrics.textSizeSp * scale}px Nunito, sans-serif`;
   context.letterSpacing = "2px";
   context.fillText("SNOOZE", 256, 89);
   context.fillText("10 MIN", 256, 139);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   return texture;
 }
 
-function createSnoozeTarget(materials) {
+function createSnoozeTargetShadowTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 356;
+  const context = canvas.getContext("2d");
+  const targetScale = 512 / appSnoozeTargetMetrics.widthDp;
+  const x = (canvas.width - 512) / 2;
+  const y = (canvas.height - 228) / 2;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.save();
+  context.shadowColor = "rgba(17, 7, 21, 0.34)";
+  context.shadowBlur = appSnoozeTargetMetrics.elevationDp * targetScale * 1.2;
+  context.shadowOffsetY = appSnoozeTargetMetrics.elevationDp * targetScale * 0.45;
+  context.beginPath();
+  context.roundRect(
+    x,
+    y,
+    512,
+    228,
+    appSnoozeTargetMetrics.cornerRadiusDp * targetScale
+  );
+  context.fillStyle = "rgba(17, 7, 21, 0.2)";
+  context.fill();
+  context.restore();
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+function createSnoozeTarget() {
   const target = new THREE.Group();
   target.name = "snooze-dock";
-  // 176dp × 78dp on the app's 360dp-wide handset, 22dp above the bottom.
-  // The physical model has a slightly narrower display aspect, so preserve
-  // the target's own 176:78 silhouette rather than stretching it with it.
-  target.position.set(0, -2.99, 0.34);
-  const border = roundedPanel(1.526, 0.676, 0.06, materials.aqua, 0.243);
-  const body = roundedPanel(1.491, 0.641, 0.075, materials.snooze, 0.226);
-  body.position.z = 0.015;
-  target.add(border, body);
-  const restingLabel = createSnoozeLabelTexture("#eddfef");
-  const capturedLabel = createSnoozeLabelTexture("#170a1c");
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.43, 0.61),
+  target.position.set(0, appSnoozeTargetMetrics.centerYWorld, 0.34);
+  const restingTexture = createSnoozeTargetTexture(false);
+  const capturedTexture = createSnoozeTargetTexture(true);
+  const shadowTexture = createSnoozeTargetShadowTexture();
+  const shadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      appSnoozeTargetMetrics.widthWorld * (640 / 512),
+      appSnoozeTargetMetrics.heightWorld * (356 / 228)
+    ),
     new THREE.MeshBasicMaterial({
-      map: restingLabel,
+      map: shadowTexture,
       transparent: true,
+      depthWrite: false,
       toneMapped: false
     })
   );
-  label.position.z = 0.065;
-  target.add(label);
+  shadow.name = "android-snooze-elevation";
+  shadow.position.z = -0.01;
+  const surface = new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      appSnoozeTargetMetrics.widthWorld,
+      appSnoozeTargetMetrics.heightWorld
+    ),
+    new THREE.MeshBasicMaterial({
+      map: restingTexture,
+      transparent: true,
+      alphaTest: 0.01,
+      toneMapped: false
+    })
+  );
+  surface.name = "android-snooze-overlay";
+  surface.castShadow = true;
+  target.add(shadow, surface);
   target.visible = false;
-  target.userData = { border, body, label, restingLabel, capturedLabel, captured: false };
+  target.userData = { surface, shadow, restingTexture, capturedTexture, shadowTexture, captured: false };
   return target;
 }
 
-function setSnoozeTargetCaptured(target, captured, materials) {
+function setSnoozeTargetCaptured(target, captured) {
   if (target.userData.captured === captured) return;
   target.userData.captured = captured;
-  target.userData.border.material = captured ? materials.plum : materials.aqua;
-  target.userData.body.material = captured ? materials.aqua : materials.snooze;
-  target.userData.label.material.map = captured
-    ? target.userData.capturedLabel
-    : target.userData.restingLabel;
-  target.userData.label.material.needsUpdate = true;
-  target.scale.setScalar(captured ? 1.06 : 1);
+  target.userData.surface.material.map = captured
+    ? target.userData.capturedTexture
+    : target.userData.restingTexture;
+  target.userData.surface.material.needsUpdate = true;
+  target.scale.setScalar(captured ? appSnoozeTargetMetrics.capturedScale : 1);
 }
 
 function prepareModel(model, phone) {
@@ -416,7 +502,7 @@ export async function createPhoneScene(webglScene, camera) {
   layers.glass.add(bubble.group);
   const bubbleTarget = bubble.group.position.clone();
 
-  const snoozeTarget = createSnoozeTarget(materials);
+  const snoozeTarget = createSnoozeTarget();
   phone.add(snoozeTarget);
   const touchRings = createTouchRings();
   phone.add(touchRings);
@@ -436,6 +522,7 @@ export async function createPhoneScene(webglScene, camera) {
   let yawVelocity = 0;
   let pitchVelocity = 0;
   let dragging = false;
+  let targetBubbleScale = 1.34;
   let lastScreenKey = "";
   const targetPosition = new THREE.Vector3();
   const targetRotation = new THREE.Euler();
@@ -535,6 +622,7 @@ export async function createPhoneScene(webglScene, camera) {
       stage.dataset.phoneY = targetPosition.y.toFixed(3);
     }
     targetRotation.set(...chapterRotations[state]);
+    targetBubbleScale = state === "snooze" ? appSnoozeTargetMetrics.bubbleScale : 1.34;
     if (compact && state !== "hero") {
       targetRotation.x *= 0.82;
       targetRotation.y *= 0.72;
@@ -551,14 +639,14 @@ export async function createPhoneScene(webglScene, camera) {
     bubbleTarget.set(1.5, -1.18, 0.41);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
-    setSnoozeTargetCaptured(snoozeTarget, false, materials);
+    setSnoozeTargetCaptured(snoozeTarget, false);
 
     if (state === "snooze") {
       const frame = snoozeStoryFrame(phase);
       bubbleTarget.set(frame.bubbleX, frame.bubbleY, 0.41);
       bubble.group.visible = frame.bubbleVisible;
       snoozeTarget.visible = frame.targetVisible;
-      setSnoozeTargetCaptured(snoozeTarget, frame.captured, materials);
+      setSnoozeTargetCaptured(snoozeTarget, frame.captured);
     }
 
     applyBubbleState(state, phase);
@@ -574,6 +662,7 @@ export async function createPhoneScene(webglScene, camera) {
     targetPosition.set(compact ? 0 : -viewWidth * 0.23, compact ? -2.8 : 0, 0);
     targetRotation.set(-0.14, -0.45, -0.055);
     targetScale.setScalar(compact ? 0.58 : 0.9);
+    targetBubbleScale = 1.34;
     updateScreen("final", 1);
     bubble.group.visible = true;
     bubbleTarget.set(compact ? 1.1 : 1.46, compact ? -2.85 : -1.14, 0.41);
@@ -614,6 +703,7 @@ export async function createPhoneScene(webglScene, camera) {
     phone.rotation.y = THREE.MathUtils.lerp(phone.rotation.y, targetRotation.y + userYaw, ease);
     phone.rotation.z = THREE.MathUtils.lerp(phone.rotation.z, targetRotation.z, ease);
     bubble.group.position.lerp(bubbleTarget, ease);
+    bubble.group.scale.setScalar(THREE.MathUtils.lerp(bubble.group.scale.x, targetBubbleScale, ease));
 
     if (state === "dictate") {
       const pulsePhase = (time % 1.2) / 1.2;
