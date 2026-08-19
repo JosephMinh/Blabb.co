@@ -365,15 +365,48 @@ export async function createPhoneScene(webglScene, camera) {
     const viewWidth = viewHeight * camera.aspect;
     const xRatio = compact ? 0.5 : tablet ? 0.5 : 0.59;
     targetPosition.x = (xRatio * 2 - 1) * viewWidth * 0.5;
-    targetPosition.y = compact ? (state === "hero" ? -3.12 : 2.1) : -0.04;
     targetPosition.z = 0;
-    targetScale.setScalar(compact
-      ? Math.min(0.44, viewport.height / 1800)
-      : tablet
+    if (compact) {
+      // Mobile gets a deliberate product reveal instead of a miniaturized
+      // desktop composition: the phone peeks above the fold, grows into a
+      // large centered showcase, then clears the stage before the hero notes.
+      const showcaseScale = THREE.MathUtils.clamp(viewport.height / 1240, 0.58, 0.68);
+      if (state === "hero") {
+        const entrance = THREE.MathUtils.smoothstep(phase, 0.3, 0.62);
+        const exit = THREE.MathUtils.smoothstep(phase, 0.64, 0.86);
+        if (stage) stage.dataset.mobileMode = phase < 0.48 ? "peek" : phase < 0.7 ? "showcase" : "handoff";
+        const initialY = viewport.height <= 700 ? -5.1 : -3.92;
+        const showcaseY = THREE.MathUtils.lerp(initialY, 0.12, entrance);
+        targetPosition.y = THREE.MathUtils.lerp(showcaseY, 3.8, exit);
+        targetScale.setScalar(
+          THREE.MathUtils.lerp(showcaseScale * 0.78, showcaseScale, entrance)
+          * THREE.MathUtils.lerp(1, 0.7, exit)
+        );
+      } else {
+        if (stage) stage.dataset.mobileMode = "story";
+        targetPosition.y = 1.18;
+        targetScale.setScalar(Math.min(0.62, showcaseScale * 0.92));
+      }
+    } else {
+      if (stage) delete stage.dataset.mobileMode;
+      targetPosition.y = -0.04;
+      targetScale.setScalar(tablet
         ? Math.min(0.74, viewport.height / 1080)
         : Math.min(0.82, viewport.height / 1120));
-    if (state === "hero") targetScale.multiplyScalar(compact ? 0.45 : 0.78);
+      if (state === "hero") targetScale.multiplyScalar(0.78);
+    }
+    if (stage) {
+      stage.dataset.phoneScale = targetScale.x.toFixed(3);
+      stage.dataset.phoneY = targetPosition.y.toFixed(3);
+    }
     targetRotation.set(...chapterRotations[state]);
+    // Touch scrolling already supplies the easing on compact layouts. Apply
+    // the composed position immediately so the phone follows the viewport
+    // instead of lagging behind a quick swipe by several frames.
+    if (compact) {
+      phone.position.copy(targetPosition);
+      phone.scale.copy(targetScale);
+    }
 
     bubbleTarget.set(1.5, -1.18, 0.41);
     bubble.group.visible = true;

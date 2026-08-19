@@ -360,7 +360,7 @@ html.artifact-dragging body {
   .artifact-stage::after { width: 130vw; }
   .artifact-poster { width: min(50vw, 280px); }
   .artifact-drag-hint {
-    left: 71%;
+    left: 50%;
     top: auto;
     bottom: 15vh;
     width: 132px;
@@ -368,6 +368,10 @@ html.artifact-dragging body {
   }
   .desktop-hint { display: none; }
   .touch-hint { display: inline; }
+  html[data-artifact-chapter="hero"] .artifact-stage:not([data-mobile-mode="showcase"]) .artifact-drag-hint {
+    visibility: hidden;
+    opacity: 0;
+  }
   html:not([data-artifact-chapter="hero"]) .artifact-drag-hint { visibility: hidden; opacity: 0; }
   .webgl-ready .hero { min-height: auto; align-items: start; padding-bottom: 70px; }
   .webgl-ready .hero-notes { margin-top: 500px; }

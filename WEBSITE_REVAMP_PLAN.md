@@ -54,9 +54,13 @@ uses:
   soft cast shadows with a focused 2048px desktop map and a lighter 1024px
   compact-device map, CSS atmosphere, and transparent direct rendering that
   cannot cover the semantic walkthrough.
-- Full mobile camera blocking. The hero artifact rises below the readable copy
-  and actions, then expands into the same persistent phone for the six chapters.
-- Compact walkthroughs park a smaller phone in the upper demonstration area;
+- Full mobile camera blocking. The hero artifact deliberately peeks above the
+  fold, expands into a large centered scroll-controlled showcase, then clears
+  the stage before the hero notes enter.
+- On WebGL-capable compact devices, the hero's `See it work` action lands on
+  that interactive showcase; fallback and desktop layouts still continue to
+  the semantic walkthrough.
+- Compact walkthroughs park a readable phone in the upper demonstration area;
   all six chapter explanations remain foreground-readable without relying on a
   reveal observer.
 - Direct mouse and horizontal touch rotation with damped inertia, a restrained

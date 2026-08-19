@@ -75,4 +75,18 @@ export function initShell() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeMenu();
   });
+
+  const mobileShowcaseLink = document.querySelector("[data-mobile-showcase]");
+  mobileShowcaseLink?.addEventListener("click", (event) => {
+    const compact = window.matchMedia("(max-width: 880px)").matches;
+    const webglReady = document.documentElement.classList.contains("webgl-ready");
+    const hero = document.querySelector(".hero");
+    if (!compact || !webglReady || !hero) return;
+    event.preventDefault();
+    const showcaseOffset = Math.min(560, Math.max(460, hero.offsetHeight * 0.35));
+    window.scrollTo({
+      top: hero.offsetTop + showcaseOffset,
+      behavior: reduceMotion ? "auto" : "smooth"
+    });
+  });
 }

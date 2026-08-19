@@ -76,7 +76,14 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 30_000 });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-model-ready", "true");
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-mobile-mode", "peek");
   await expect(page.locator(".phone-artifact")).toHaveCSS("opacity", "0");
+  const heroPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
+  expect(heroPhoneScale).toBeGreaterThan(0.5);
+
+  await page.locator("[data-mobile-showcase]").click();
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-mobile-mode", "showcase");
+  await expect(page.locator(".artifact-drag-hint")).toHaveCSS("opacity", "0.76");
 
   await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
     document.documentElement.style.scrollBehavior = "auto";
@@ -85,6 +92,8 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
+  const storyPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
+  expect(storyPhoneScale).toBeGreaterThan(0.58);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy')).toHaveCount(2);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy').first()).toHaveCSS("opacity", "1");
 

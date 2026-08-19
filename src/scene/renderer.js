@@ -258,7 +258,10 @@ export async function initArtifact() {
   const journey = document.querySelector(".journey");
   if (journey && window.scrollY <= journey.offsetHeight) stage.classList.add("is-visible");
   gsap.ticker.add(render);
-  render(performance.now() / 1000);
+  // Use the ticker's clock for the eager first frame as well. Mixing in
+  // performance.now() leaves the budgeted test/software path waiting for its
+  // much smaller ticker clock to catch up before it can draw another frame.
+  render(gsap.ticker.time);
 
   window.addEventListener("pagehide", () => {
     timeline.destroy();
