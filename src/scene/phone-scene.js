@@ -50,6 +50,7 @@ const phoneScreenMetrics = Object.freeze({
   bottomSystemInsetDp: 48
 });
 const snoozeDpToWorld = phoneScreenMetrics.widthWorld / phoneScreenMetrics.widthDp;
+const bubbleRestPosition = Object.freeze({ x: 1.58, y: -0.5, z: 0.41 });
 
 // Values mirrored from BubbleOverlayController.kt. The target is a flat
 // Android overlay, not a piece of phone hardware, so its radius must remain
@@ -78,8 +79,8 @@ export const appSnoozeTargetMetrics = Object.freeze({
 export function snoozeStoryFrame(progress) {
   const phase = Math.min(1, Math.max(0, progress));
   const frame = {
-    bubbleX: 1.5,
-    bubbleY: -1.18,
+    bubbleX: bubbleRestPosition.x,
+    bubbleY: bubbleRestPosition.y,
     bubbleVisible: true,
     targetVisible: true,
     captured: phase >= 0.48 && phase < 0.74,
@@ -87,11 +88,11 @@ export function snoozeStoryFrame(progress) {
   };
 
   if (phase < 0.18) {
-    frame.bubbleX = mix(1.5, -1.5, phase / 0.18);
+    frame.bubbleX = mix(bubbleRestPosition.x, -bubbleRestPosition.x, phase / 0.18);
   } else if (phase < 0.62) {
     const travel = (phase - 0.18) / 0.44;
-    frame.bubbleX = mix(-1.5, 0, travel);
-    frame.bubbleY = mix(-1.18, appSnoozeTargetMetrics.centerYWorld, travel);
+    frame.bubbleX = mix(-bubbleRestPosition.x, 0, travel);
+    frame.bubbleY = mix(bubbleRestPosition.y, appSnoozeTargetMetrics.centerYWorld, travel);
   } else if (phase < 0.74) {
     frame.bubbleX = 0;
     frame.bubbleY = appSnoozeTargetMetrics.centerYWorld;
@@ -102,8 +103,8 @@ export function snoozeStoryFrame(progress) {
     frame.targetVisible = false;
   } else {
     const returning = (phase - 0.9) / 0.1;
-    frame.bubbleX = mix(0, 1.5, returning);
-    frame.bubbleY = mix(appSnoozeTargetMetrics.centerYWorld, -1.18, returning);
+    frame.bubbleX = mix(0, bubbleRestPosition.x, returning);
+    frame.bubbleY = mix(appSnoozeTargetMetrics.centerYWorld, bubbleRestPosition.y, returning);
     frame.targetVisible = false;
   }
 
@@ -145,18 +146,14 @@ function createBubble(materials, logoTexture) {
   profile.scale.set(1, 1, 0.24);
   group.add(profile);
 
-  const shadow = new THREE.Mesh(
-    new THREE.CircleGeometry(0.35, 64),
-    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25, depthWrite: false })
-  );
-  shadow.position.set(0.055, -0.055, -0.1);
-  profile.add(shadow);
-
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(bubbleMetrics.radius, bubbleMetrics.radius, 0.16, 64, 2),
     materials.aqua
   );
   body.rotation.x = Math.PI / 2;
+  // Let the scene light cast the bubble's real silhouette onto the phone.
+  // A separate flat shadow disc becomes visible as a dark circle at oblique
+  // viewing angles, especially now that the bubble has a thin profile.
   body.castShadow = true;
   profile.add(body);
 
@@ -497,7 +494,7 @@ export async function createPhoneScene(webglScene, camera) {
   layers.glass.add(screenMesh);
 
   const bubble = createBubble(materials, createBubbleLogoTexture(logoTexture.image));
-  bubble.group.position.set(1.5, -1.18, 0.41);
+  bubble.group.position.set(bubbleRestPosition.x, bubbleRestPosition.y, bubbleRestPosition.z);
   bubble.group.scale.setScalar(1.34);
   layers.glass.add(bubble.group);
   const bubbleTarget = bubble.group.position.clone();
@@ -636,14 +633,14 @@ export async function createPhoneScene(webglScene, camera) {
       phone.scale.copy(targetScale);
     }
 
-    bubbleTarget.set(1.5, -1.18, 0.41);
+    bubbleTarget.set(bubbleRestPosition.x, bubbleRestPosition.y, bubbleRestPosition.z);
     bubble.group.visible = true;
     snoozeTarget.visible = false;
     setSnoozeTargetCaptured(snoozeTarget, false);
 
     if (state === "snooze") {
       const frame = snoozeStoryFrame(phase);
-      bubbleTarget.set(frame.bubbleX, frame.bubbleY, 0.41);
+      bubbleTarget.set(frame.bubbleX, frame.bubbleY, bubbleRestPosition.z);
       bubble.group.visible = frame.bubbleVisible;
       snoozeTarget.visible = frame.targetVisible;
       setSnoozeTargetCaptured(snoozeTarget, frame.captured);
@@ -665,7 +662,11 @@ export async function createPhoneScene(webglScene, camera) {
     targetBubbleScale = 1.34;
     updateScreen("final", 1);
     bubble.group.visible = true;
-    bubbleTarget.set(compact ? 1.1 : 1.46, compact ? -2.85 : -1.14, 0.41);
+    bubbleTarget.set(
+      compact ? 1.1 : bubbleRestPosition.x,
+      compact ? -2.85 : bubbleRestPosition.y,
+      bubbleRestPosition.z
+    );
     applyBubbleState("insert", 1);
   }
 

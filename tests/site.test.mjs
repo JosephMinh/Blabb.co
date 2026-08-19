@@ -106,6 +106,8 @@ assert.match(screenTexture, /function drawStatusIcons/);
 assert.match(screenTexture, /roundedRect\(context, 687, 35, 14, 21/);
 assert.match(css, /\.status-battery \{[^}]*width: 8px; height: 13px/);
 assert.match(screenTexture, /opticallyCenteredText\(context, "M", 83, 143/);
+assert.match(screenTexture, /roundedRect\(context, 628, 982, 76, 76, 38, colors\.aqua\)/);
+assert.match(css, /\.send-button \{[^}]*color: var\(--plum\); background: var\(--aqua\)/);
 
 // Public copy describes what each visual signal means, without internal palette names.
 const renderedCopy = html
@@ -286,6 +288,10 @@ assert.match(css, /--text-on-dark-muted: rgba\(237, 223, 239, 0\.72\)/);
 assert.match(css, /--text-on-light-muted: rgba\(23, 10, 28, 0\.78\)/);
 assert.match(phoneScene, /CylinderGeometry\(bubbleMetrics\.radius, bubbleMetrics\.radius, 0\.16[\s\S]*materials\.aqua/);
 assert.doesNotMatch(phoneScene, /bubble\.body\.material\.emissiveIntensity/);
+assert.doesNotMatch(phoneScene, /CircleGeometry\(0\.35[\s\S]*opacity: 0\.25/, 'Bubble must not use a flat circular fake shadow');
+assert.match(phoneScene, /body\.castShadow = true/);
+assert.match(phoneScene, /bubbleRestPosition = Object\.freeze\(\{ x: 1\.58, y: -0\.5, z: 0\.41 \}\)/);
+assert.match(phoneScene, /bubbleTarget\.set\(bubbleRestPosition\.x, bubbleRestPosition\.y, bubbleRestPosition\.z\)/);
 assert.match(phoneScene, /double|TouchRings|touchRings/i);
 assert.match(phoneScene, /function rotateBy/);
 assert.match(phoneScene, /phone-interaction-proxy/);

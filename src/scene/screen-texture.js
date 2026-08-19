@@ -251,8 +251,8 @@ export function createScreenTexture(logoImage) {
     if (state !== "snoozed") {
       roundedRect(context, cursorX, cursorY, 3, 34, 2, colors.ink);
     }
-    roundedRect(context, 638, 990, 66, 66, 33, colors.ink);
-    text(context, "↑", 671, 1022, 34, 950, colors.paper, "center");
+    roundedRect(context, 628, 982, 76, 76, 38, colors.aqua);
+    text(context, "↑", 666, 1019, 38, 950, colors.ink, "center");
 
     drawKeyboard(context);
     context.restore();
