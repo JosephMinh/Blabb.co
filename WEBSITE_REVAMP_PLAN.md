@@ -51,7 +51,8 @@ uses:
   coral, plum, and forest remain the exact canonical sRGB colors under studio
   lighting and at every rotation.
 - A PMREM studio environment, ACES tone mapping, key/aqua/coral rim lights,
-  soft cast shadows, CSS atmosphere, and transparent direct rendering that
+  soft cast shadows with a focused 2048px desktop map and a lighter 1024px
+  compact-device map, CSS atmosphere, and transparent direct rendering that
   cannot cover the semantic walkthrough.
 - Full mobile camera blocking. The hero artifact rises below the readable copy
   and actions, then expands into the same persistent phone for the six chapters.

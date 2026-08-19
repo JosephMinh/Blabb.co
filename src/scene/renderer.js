@@ -59,7 +59,16 @@ export async function initArtifact() {
   key.position.set(-4.8, 7.2, 9.5);
   key.target.position.set(0, 0, 0);
   key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
+  // Keep the phone's long cast shadow smooth where it crosses light surfaces.
+  // Desktop GPUs get a denser map; compact/coarse-pointer devices retain the
+  // lighter map because the handset occupies far fewer screen pixels there.
+  const compactShadows = window.matchMedia("(max-width: 880px), (pointer: coarse)").matches;
+  const shadowMapSize = compactShadows ? 1024 : 2048;
+  key.shadow.mapSize.set(shadowMapSize, shadowMapSize);
+  key.shadow.radius = compactShadows ? 2.5 : 7;
+  key.shadow.camera.near = 2;
+  key.shadow.camera.far = 24;
+  key.shadow.focus = 0.82;
   key.shadow.bias = -0.00025;
   scene.add(key, key.target);
   const aquaRim = new THREE.PointLight(0x88e0d9, 18, 19, 1.7);
