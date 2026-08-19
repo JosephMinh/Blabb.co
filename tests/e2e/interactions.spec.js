@@ -58,7 +58,7 @@ test("supporting copy stays readable in the brand palette", async ({ page }) => 
   });
 
   expect(desktop.hero.size).toBeGreaterThanOrEqual(17.5);
-  expect(desktop.chapter.size).toBeGreaterThanOrEqual(17.5);
+  expect(desktop.chapter.size).toBeGreaterThanOrEqual(19.5);
   expect(desktop.tools.size).toBeGreaterThanOrEqual(16.5);
   expect(desktop.promise.size).toBeGreaterThanOrEqual(13.5);
   expect(desktop.faqQuestion.size).toBeGreaterThanOrEqual(16);

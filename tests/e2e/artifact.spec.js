@@ -60,14 +60,17 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
       const layout = await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
         const title = element.querySelector(".chapter-left").getBoundingClientRect();
         const supportingCopy = element.querySelector(".chapter-right").getBoundingClientRect();
+        const storyIndex = document.querySelector(".story-index").getBoundingClientRect();
         return {
           titleTop: title.top,
           supportingBottom: supportingCopy.bottom,
           supportingRight: supportingCopy.right,
+          storyIndexLeft: storyIndex.left,
           artifactCenter: innerWidth * 0.58
         };
       });
       expect(layout.supportingRight).toBeLessThan(layout.artifactCenter);
+      expect(layout.supportingRight).toBeLessThan(layout.storyIndexLeft);
       expect(layout.supportingBottom).toBeLessThan(layout.titleTop);
     }
   }

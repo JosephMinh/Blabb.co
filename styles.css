@@ -507,13 +507,43 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
     grid-row: 1;
     align-self: start;
     justify-self: start;
+    width: min(100%, 430px);
   }
+  .chapter-copy.chapter-right > p:not(.step-label):not(.fine-print) {
+    margin: 0;
+    padding-left: 18px;
+    border-left: 3px solid var(--aqua);
+    color: var(--lilac);
+    font-size: clamp(1.18rem, 1.55vw, 1.42rem);
+    font-weight: 750;
+    line-height: 1.52;
+  }
+  :is(.chapter-dictate, .chapter-process) .chapter-copy.chapter-right > p:not(.step-label):not(.fine-print) { border-left-color: var(--coral); }
+  :is(.chapter-insert, .chapter-continue) .chapter-copy.chapter-right > p:not(.step-label):not(.fine-print) { border-left-color: var(--forest); }
+  .chapter-specs { margin: 28px 0 22px; }
+  .chapter-specs > div { grid-template-columns: 92px 1fr; padding-block: 14px; }
+  .chapter-specs dt { font-size: 0.72rem; }
+  .chapter-specs dd { font-size: 0.96rem; font-weight: 750; }
+  .fine-print { font-size: 0.8rem; line-height: 1.55; }
+  .gesture-hint { margin-block: 24px; padding: 15px; }
+  .gesture-hint b { font-size: 0.92rem; }
+  .gesture-hint small { font-size: 0.8rem; line-height: 1.45; }
+  .insert-proof { margin-block: 24px; padding: 17px; font-size: 0.92rem; }
+  .undo-proof { margin-block: 24px; }
+  .undo-proof span { font-size: 0.76rem; }
+  .replay-button { font-size: 0.88rem; }
+  .webgl-ready .journey .story-index { left: 20px; }
   .chapter-left {
     grid-column: 1;
     grid-row: 2;
     align-self: end;
     padding-bottom: 0;
   }
+}
+
+@media (min-width: 1181px) {
+  .chapter-copy h2 { font-size: clamp(4.6rem, 6.3vw, 7.2rem); }
+  .step-label { margin-bottom: 22px; font-size: 0.84rem; }
 }
 
 /* Bubble / Voice Input mode switch */
