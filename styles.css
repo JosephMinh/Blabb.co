@@ -494,6 +494,28 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .replay-button span { display: inline-block; transition: transform 0.4s; }
 .chapter-state-card { display: none; }
 
+/* Keep the supporting walkthrough copy in the open space opposite the phone. */
+@media (min-width: 881px) {
+  .story-chapter {
+    min-height: max(760px, 100svh);
+    grid-template-rows: auto 1fr;
+    align-items: stretch;
+    row-gap: clamp(22px, 3vh, 38px);
+  }
+  .chapter-right {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: start;
+  }
+  .chapter-left {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    padding-bottom: 0;
+  }
+}
+
 /* Bubble / Voice Input mode switch */
 
 .mode-section { color: var(--plum); background: var(--paper); }
