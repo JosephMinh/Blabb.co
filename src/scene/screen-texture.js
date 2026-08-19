@@ -64,6 +64,27 @@ function opticallyCenteredText(context, value, centerX, centerY, size, weight = 
   context.restore();
 }
 
+function drawSendIcon(context, centerX, centerY, size = 56) {
+  // Google's filled Material "send" glyph uses a 24dp viewport. Keeping the
+  // original path makes the control read as Android even after texture
+  // minification and oblique projection onto the phone.
+  const scale = size / 24;
+  context.save();
+  context.translate(centerX - 12.5 * scale, centerY - 12 * scale);
+  context.scale(scale, scale);
+  context.beginPath();
+  context.moveTo(2.01, 21);
+  context.lineTo(23, 12);
+  context.lineTo(2.01, 3);
+  context.lineTo(2, 10);
+  context.lineTo(17, 12);
+  context.lineTo(2, 14);
+  context.closePath();
+  context.fillStyle = colors.ink;
+  context.fill();
+  context.restore();
+}
+
 function drawStatusIcons(context) {
   context.save();
   context.fillStyle = colors.ink;
@@ -217,7 +238,7 @@ export function createScreenTexture(logoImage) {
     context.fillRect(0, 940, 768, 170);
     context.fillStyle = colors.lilac;
     context.fillRect(0, 940, 768, 2);
-    roundedRect(context, 50, 972, 574, 104, 27, colors.white, "#d4c9d6", 3);
+    roundedRect(context, 50, 972, 562, 104, 52, colors.white, "#d4c9d6", 3);
 
     const showFirst = ["insert", "continue", "undo", "snooze", "snoozed", "final"].includes(state);
     const showSecond = state === "continue" && phase < 0.68;
@@ -251,8 +272,8 @@ export function createScreenTexture(logoImage) {
     if (state !== "snoozed") {
       roundedRect(context, cursorX, cursorY, 3, 34, 2, colors.ink);
     }
-    roundedRect(context, 628, 982, 76, 76, 38, colors.aqua);
-    text(context, "↑", 666, 1019, 38, 950, colors.ink, "center");
+    roundedRect(context, 620, 982, 84, 84, 42, colors.aqua);
+    drawSendIcon(context, 662, 1024);
 
     drawKeyboard(context);
     context.restore();
