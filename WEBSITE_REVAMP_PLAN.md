@@ -7,7 +7,7 @@ layout, and scroll choreography of Contra's Project Cost Calculator:
 
 <https://contra.com/project-rate-hiring-calculator/>
 
-The website must borrow the reference site's visual grammar—not its content or
+The website must borrow the reference site's visual grammar, not its content or
 branding. Blabb's actual Android app, interaction model, colors, terminology,
 privacy guarantees, and current behavior remain the source of truth.
 
@@ -20,7 +20,7 @@ visitor moves through the site, the same phone will demonstrate dictation, local
 processing, insertion, continued dictation, exact double-tap undo, bubble
 movement, and ten-minute snooze.
 
-## Implementation record — 2026-08-18
+## Implementation record (2026-08-18)
 
 The current artifact replaces the first procedural/CSS3D prototype with an
 original, reproducible Blender-built Android handset. The production scene now
@@ -245,7 +245,7 @@ Primary headline:
 Supporting copy:
 
 > A private voice bubble that works beside the keyboard you already use. Tap,
-> talk, and your words appear—without sending your voice to the cloud.
+> talk, and your words appear without sending your voice to the cloud.
 
 Actions:
 
@@ -272,12 +272,12 @@ Central visual:
 The assembled phone becomes sticky for a sequence of full-viewport chapters.
 The phone remains the same object while its UI and the bubble state change.
 
-A desktop step counter displays `STEP 01 — 06`. Mobile uses a six-segment
+A desktop step counter displays `STEP 01 / 06`. Mobile uses a six-segment
 progress bar paired with these exact labels: `01 · FOCUS`, `02 · DICTATE`,
 `03 · PROCESS LOCALLY`, `04 · INSERT`, `05 · CONTINUE / UNDO`, and
 `06 · MOVE / SNOOZE`.
 
-#### Step 01 — Focus
+#### Step 01: Focus
 
 Headline: `Wherever you type.`
 
@@ -287,7 +287,7 @@ Headline: `Wherever you type.`
 - Explain that the bubble appears only while a safe, compatible text field and
   keyboard surface are active.
 
-#### Step 02 — Dictate
+#### Step 02: Dictate
 
 Headline: `Tap. Talk.`
 
@@ -298,7 +298,7 @@ Headline: `Tap. Talk.`
 - Demonstrate push-to-talk with a brief press-and-hold affordance.
 - Do not insert or preview words during this step.
 
-#### Step 03 — Process locally
+#### Step 03: Process locally
 
 Headline: `Processed right here.`
 
@@ -310,7 +310,7 @@ Headline: `Processed right here.`
   disassembles the physical phone.
 - Then transition from processing to inserting.
 
-#### Step 04 — Insert
+#### Step 04: Insert
 
 Headline: `Your words, at the cursor.`
 
@@ -319,9 +319,9 @@ Headline: `Your words, at the cursor.`
 - Transition the bubble to the forest-green verified success ring/check.
 - Clearly distinguish final insertion from the previous listening state.
 
-#### Step 05 — Continue or undo
+#### Step 05: Continue or undo
 
-Headline: `Keep going—or take it back.`
+Headline: `Keep going. Or take it back.`
 
 - First demonstrate a single tap on the green check starting another dictation.
 - Return to success after inserting a short second phrase.
@@ -330,7 +330,7 @@ Headline: `Keep going—or take it back.`
 - Keep the earlier text untouched so exact undo is visually obvious.
 - Avoid generic labels such as `undo all`; the behavior is transaction-specific.
 
-#### Step 06 — Move or snooze
+#### Step 06: Move or snooze
 
 Headline: `There when you want it.`
 
@@ -783,7 +783,7 @@ Deliver:
 
 ## Implementation phases
 
-### Phase 1 — Product storyboard and wireframe
+### Phase 1: Product storyboard and wireframe
 
 - Lock the storyboard to the six states and lifecycle defined in this plan.
 - Use this exact spoken phrase for the transcript demonstration: `hey um send
@@ -796,14 +796,14 @@ Deliver:
 - Record the Android requirement, private-beta status, model size, and waitlist
   destination. Confirm that no private repository or APK URL enters public HTML.
 
-### Phase 2 — Visual foundation
+### Phase 2: Visual foundation
 
 - Introduce the expanded tokens and editorial type hierarchy.
 - Build the floating header, buttons, technical labels, and panel primitives.
 - Establish dark, light, and gradient section treatments.
 - Implement responsive spacing and accessibility foundations.
 
-### Phase 3 — Phone artifact
+### Phase 3: Phone artifact
 
 - Build the mandatory Three.js/WebGL phone artifact, including the continuous
   shell, keyboard, field, local-processing states, bubble states, materials,
@@ -813,28 +813,28 @@ Deliver:
 - Do not proceed to release with a flat DOM/CSS mockup standing in for the 3D
   artifact.
 
-### Phase 4 — Scroll story
+### Phase 4: Scroll story
 
 - Implement Focus, Dictate, Process, Insert, Continue/Undo, and Snooze.
 - Add the step counter, scroll prompts, and phone continuity.
 - Test forward and reverse scrolling at different speeds.
 - Ensure animation state cannot contradict visible copy.
 
-### Phase 5 — Supporting experiences
+### Phase 5: Supporting experiences
 
 - Build the Bubble/Voice Input mode switch.
 - Build the privacy results panel.
 - Build the bubble controls laboratory and transcript tools demo.
 - Add the use-case carousel, privacy section, FAQ, and final CTA.
 
-### Phase 6 — Product-truth audit
+### Phase 6: Product-truth audit
 
 - Compare every claim with the current Android repository.
 - Remove stale references to live preview or retired models.
 - Validate permissions, recovery, secure-field, and compatibility language.
 - Validate private-beta and waitlist language and scan for private URLs.
 
-### Phase 7 — Quality and release
+### Phase 7: Quality and release
 
 - Test current Chrome, Firefox, and WebKit with Playwright at 1440×1000,
   1024×1366, 390×844, and 320×568.

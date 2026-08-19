@@ -26,10 +26,10 @@ const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 const scripts = [entryScript, renderer, phoneScene, phoneTimeline, phoneStory, bubbleDemo, transcriptDemo, useCases, waitlist].join('\n');
 
 // Metadata, publishing, and essential local assets.
-assert.match(html, /<title>Blabb — Private offline voice typing for Android<\/title>/);
+assert.match(html, /<title>Blabb: Private offline voice typing for Android<\/title>/);
 assert.match(html, /rel="canonical" href="https:\/\/blabb\.co\/"/);
 assert.match(html, /property="og:image" content="https:\/\/blabb\.co\/assets\/og\.png"/);
-assert.match(html, /property="og:image:alt" content="Blabb — Voice typing\. On your device\."/);
+assert.match(html, /property="og:image:alt" content="Blabb\. Voice typing\. On your device\."/);
 assert.match(html, /name="twitter:image" content="https:\/\/blabb\.co\/assets\/og\.png"/);
 assert.match(html, /href="privacy\/"/);
 assert.match(html, /href="terms\/"/);
@@ -106,6 +106,9 @@ const renderedCopy = html
   .replace(/<style[\s\S]*?<\/style>/gi, ' ')
   .replace(/<[^>]+>/g, ' ');
 assert.doesNotMatch(renderedCopy, /\b(?:aqua|coral|forest(?: green)?|plum|lilac)\b/i);
+[html, privacyHtml, termsHtml, notFoundHtml, packageJson.description].forEach((copy) => {
+  assert.doesNotMatch(copy, /—|&mdash;|&#(?:8212|x2014);/i, 'Public copy must not use em dashes');
+});
 assert.match(html, /keyboard you already use/i);
 assert.match(html, /without sending your voice to the cloud/i);
 assert.match(html, /Private beta/);
@@ -194,7 +197,7 @@ assert.match(html, /No tracking machinery/);
 assert.match(html, /Secure fields stay silent/);
 assert.match(html, /Insertion is verified/);
 assert.match(html, /At most one Keystore-encrypted transcript, expiring after ten minutes/);
-assert.match(html, /Bounded pseudonymous evidence—not raw text or app history/);
+assert.match(html, /Bounded pseudonymous evidence\. Never raw text or app history/);
 
 // All practical FAQ items from the plan ship in readable HTML.
 const faqQuestions = [
