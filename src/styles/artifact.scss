@@ -51,9 +51,10 @@
 }
 
 .artifact-drag-hint {
+  --drag-hint-transform: translateY(-50%);
   position: absolute;
   z-index: 2;
-  left: calc(var(--artifact-x) + min(13vw, 188px));
+  left: calc(var(--artifact-x) + min(21vw, 310px));
   top: calc(var(--artifact-y) + min(36vh, 330px));
   display: flex;
   align-items: center;
@@ -63,7 +64,7 @@
   font: 900 0.68rem/1 "Nunito", sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  transform: translate(-50%, -50%);
+  transform: var(--drag-hint-transform);
   transition: opacity 0.35s, transform 0.35s;
 }
 
@@ -92,7 +93,7 @@
 
 .webgl-ready .artifact-stage.is-visible .artifact-drag-hint { opacity: 0.76; }
 .artifact-stage.is-hovered .artifact-drag-hint,
-.artifact-stage.is-dragging .artifact-drag-hint { opacity: 1; transform: translate(-50%, -50%) scale(1.035); }
+.artifact-stage.is-dragging .artifact-drag-hint { opacity: 1; transform: var(--drag-hint-transform) scale(1.035); }
 .artifact-stage.is-dragging .artifact-drag-hint::before { color: #170a1c; background: #88e0d9; }
 .artifact-stage.is-dragging .artifact-drag-hint::after { background: #170a1c; }
 .artifact-stage.is-final .artifact-drag-hint { display: none; }
@@ -360,6 +361,7 @@ html.artifact-dragging body {
   .artifact-stage::after { width: 130vw; }
   .artifact-poster { width: min(50vw, 280px); }
   .artifact-drag-hint {
+    --drag-hint-transform: translate(-50%, -50%);
     left: 50%;
     top: auto;
     bottom: 15vh;

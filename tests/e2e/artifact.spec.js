@@ -166,6 +166,30 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   expect(shortStoryType.spec).toBeGreaterThanOrEqual(10);
 });
 
+test("desktop rotation hint stays beside the phone and inside the viewport", async ({ page }) => {
+  await page.goto("/");
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1280, height: 720 },
+    { width: 1024, height: 768 }
+  ]) {
+    await page.setViewportSize(viewport);
+    const hint = await page.locator(".artifact-drag-hint").boundingBox();
+    expect(hint).not.toBeNull();
+
+    const phoneCenter = viewport.width * (viewport.width <= 1180 ? 0.58 : 0.59);
+    const minimumSideOffset = Math.min(viewport.width * 0.195, 285);
+    expect(hint.x).toBeGreaterThanOrEqual(phoneCenter + minimumSideOffset);
+    expect(hint.x + hint.width).toBeLessThanOrEqual(viewport.width);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(400);
+  const mobileHint = await page.locator(".artifact-drag-hint").boundingBox();
+  expect(mobileHint).not.toBeNull();
+  expect(mobileHint.x + mobileHint.width / 2).toBeCloseTo(195, 0);
+});
+
 test("dense phone displays receive a crisp adaptive framebuffer", async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
