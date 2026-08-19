@@ -78,6 +78,28 @@ test("supporting copy stays readable in the brand palette", async ({ page }) => 
   expect(mobile.overflow).toBeLessThanOrEqual(0);
 });
 
+test("the hero accent stays clear of the introductory copy", async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1280, height: 720 },
+    { width: 390, height: 844 }
+  ]) {
+    await page.setViewportSize(viewport);
+    const spacing = await page.evaluate(() => {
+      const emphasis = document.querySelector(".hero h1 em");
+      const lede = document.querySelector(".hero-lede");
+      const emphasisBox = emphasis.getBoundingClientRect();
+      const ledeBox = lede.getBoundingClientRect();
+      const accent = getComputedStyle(emphasis, "::after");
+      const accentBottom = emphasisBox.bottom - Number.parseFloat(accent.bottom);
+
+      return ledeBox.top - accentBottom;
+    });
+
+    expect(spacing).toBeGreaterThanOrEqual(12);
+  }
+});
+
 test("the snooze target follows the app's drag, capture, and release lifecycle", async ({ page }) => {
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
   await page.locator("#controls").scrollIntoViewIfNeeded();

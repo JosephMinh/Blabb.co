@@ -271,7 +271,7 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
   text-wrap: balance;
 }
 .hero h1 em { position: relative; color: var(--aqua); }
-.hero h1 em::after { content: ""; position: absolute; left: 2%; right: -3%; bottom: -7%; height: 5px; border-radius: 5px; background: var(--coral); transform: rotate(-1.5deg) scaleX(0.75); transform-origin: left; }
+.hero h1 em::after { content: ""; position: absolute; left: 2%; right: -3%; bottom: 7%; height: 5px; border-radius: 5px; background: var(--coral); transform: rotate(-1.5deg) scaleX(0.75); transform-origin: left; }
 .hero-lede { max-width: 620px; margin: 42px 0 30px; color: var(--text-on-dark); font-size: clamp(1.1rem, 1.3vw, 1.28rem); line-height: 1.65; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .build-note { display: flex; flex-wrap: wrap; gap: 0; margin: 18px 0 0; color: var(--text-on-dark-muted); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; }
