@@ -84,6 +84,8 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await page.locator("[data-mobile-showcase]").click();
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-mobile-mode", "showcase");
   await expect(page.locator(".artifact-drag-hint")).toHaveCSS("opacity", "0.76");
+  const showcasePhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
+  expect(showcasePhoneScale).toBeGreaterThanOrEqual(0.75);
 
   await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
     document.documentElement.style.scrollBehavior = "auto";
@@ -93,13 +95,29 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
   const storyPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
-  expect(storyPhoneScale).toBeGreaterThan(0.58);
+  expect(storyPhoneScale).toBeGreaterThanOrEqual(0.65);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy')).toHaveCount(2);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy').first()).toHaveCSS("opacity", "1");
 
   await page.setViewportSize({ width: 320, height: 568 });
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "0");
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-state-card')).toBeVisible();
+});
+
+test("dense phone displays receive a crisp adaptive framebuffer", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 3
+  });
+  const page = await context.newPage();
+  await page.goto("/");
+  const ratio = await page.evaluate(async () => {
+    const { artifactPixelRatio } = await import("/src/scene/capability-policy.js");
+    return artifactPixelRatio();
+  });
+  expect(ratio).toBeGreaterThanOrEqual(1.75);
+  expect(ratio).toBeLessThanOrEqual(2);
+  await context.close();
 });
 
 test("a WebGL reset restores the interactive artifact without a page refresh", async ({ page }) => {

@@ -309,7 +309,6 @@ export async function createPhoneScene(webglScene, camera) {
   let pitchVelocity = 0;
   let dragging = false;
   let lastScreenKey = "";
-  let lastCursorBeat = -1;
   const targetPosition = new THREE.Vector3();
   const targetRotation = new THREE.Euler();
   const targetScale = new THREE.Vector3(1, 1, 1);
@@ -370,7 +369,7 @@ export async function createPhoneScene(webglScene, camera) {
       // Mobile gets a deliberate product reveal instead of a miniaturized
       // desktop composition: the phone peeks above the fold, grows into a
       // large centered showcase, then clears the stage before the hero notes.
-      const showcaseScale = THREE.MathUtils.clamp(viewport.height / 1240, 0.58, 0.68);
+      const showcaseScale = THREE.MathUtils.clamp(viewport.height / 1110, 0.62, 0.76);
       if (state === "hero") {
         const entrance = THREE.MathUtils.smoothstep(phase, 0.3, 0.62);
         const exit = THREE.MathUtils.smoothstep(phase, 0.64, 0.86);
@@ -385,7 +384,7 @@ export async function createPhoneScene(webglScene, camera) {
       } else {
         if (stage) stage.dataset.mobileMode = "story";
         targetPosition.y = 1.18;
-        targetScale.setScalar(Math.min(0.62, showcaseScale * 0.92));
+        targetScale.setScalar(Math.min(0.66, showcaseScale * 0.9));
       }
     } else {
       if (stage) delete stage.dataset.mobileMode;
@@ -471,24 +470,20 @@ export async function createPhoneScene(webglScene, camera) {
       pitchVelocity *= inertia;
     }
 
-    phone.position.lerp(targetPosition, ease);
+    const float = viewport.width <= 880 ? 0 : Math.sin(time * 0.82) * 0.035;
+    phone.position.x = THREE.MathUtils.lerp(phone.position.x, targetPosition.x, ease);
+    phone.position.y = THREE.MathUtils.lerp(phone.position.y, targetPosition.y + float, ease);
+    phone.position.z = THREE.MathUtils.lerp(phone.position.z, targetPosition.z, ease);
     phone.scale.lerp(targetScale, ease);
     phone.rotation.x = THREE.MathUtils.lerp(phone.rotation.x, targetRotation.x + userPitch, ease);
     phone.rotation.y = THREE.MathUtils.lerp(phone.rotation.y, targetRotation.y + userYaw, ease);
     phone.rotation.z = THREE.MathUtils.lerp(phone.rotation.z, targetRotation.z, ease);
     bubble.group.position.lerp(bubbleTarget, ease);
 
-    const float = Math.sin(time * 0.82) * 0.035;
-    phone.position.y += float;
     bubble.group.rotation.z = Math.sin(time * 0.9) * 0.03;
     if (state === "dictate") bubble.stateRing.scale.setScalar(1 + Math.sin(time * 9) * 0.035);
     if (bubble.processingArc.visible) bubble.processingArc.rotation.z -= delta * 3.1;
     updateTouchRings(time);
-    const cursorBeat = Math.floor(time * 2);
-    if (cursorBeat !== lastCursorBeat) {
-      lastCursorBeat = cursorBeat;
-      screen.render();
-    }
   }
 
   function resize(width, height) {

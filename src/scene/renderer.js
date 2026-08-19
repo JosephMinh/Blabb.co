@@ -114,6 +114,8 @@ export async function initArtifact() {
     const ratio = softwareRenderer ? 0.5 : automated ? 1 : artifactPixelRatio();
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
+    canvas.dataset.pixelRatio = ratio.toFixed(2);
+    canvas.dataset.bufferSize = `${canvas.width}x${canvas.height}`;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     controller.resize(width, height);

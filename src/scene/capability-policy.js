@@ -14,6 +14,14 @@ export function canRunArtifact() {
 }
 
 export function artifactPixelRatio() {
-  const compact = window.matchMedia("(max-width: 1180px)").matches;
-  return Math.min(window.devicePixelRatio || 1, compact ? 1.25 : 1.5);
+  const deviceRatio = window.devicePixelRatio || 1;
+  const phone = window.matchMedia("(max-width: 880px)").matches;
+  const tablet = window.matchMedia("(max-width: 1180px)").matches;
+  const memory = navigator.deviceMemory || 4;
+
+  // The model is small enough for a dense phone framebuffer. Keep a modest
+  // guardrail for lower-memory devices, but do not turn 2x/3x phone screens
+  // into a visibly soft 1.25x canvas.
+  if (phone) return Math.min(deviceRatio, memory <= 4 ? 1.75 : 2);
+  return Math.min(deviceRatio, tablet ? 1.5 : 1.75);
 }

@@ -181,7 +181,9 @@ export function createScreenTexture() {
       text(context, secondInsertion, secondX, insertionLineY, 22, 800);
       cursorX = secondX + secondWidth + 7;
     }
-    if (Math.floor(performance.now() / 520) % 2 === 0 && state !== "snoozed") {
+    // Keep the caret stable. Re-uploading this full 768x1600 canvas merely to
+    // blink a three-pixel cursor can flash on tiled mobile GPUs.
+    if (state !== "snoozed") {
       roundedRect(context, cursorX, cursorY, 3, 34, 2, colors.ink);
     }
     roundedRect(context, 674, 990, 66, 66, 33, colors.ink);
