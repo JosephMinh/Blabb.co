@@ -88,11 +88,12 @@ function drawStatusIcons(context) {
   context.arc(656, 54, 2.4, 0, Math.PI * 2);
   context.fill();
 
-  // Outlined battery, filled to roughly 70%, with the positive terminal.
+  // Vertical Android-style battery, filled upward from the bottom to roughly
+  // 70%, with the positive terminal centered above the outline.
   context.lineWidth = 2.5;
-  roundedRect(context, 678, 39, 22, 16, 3, null, colors.ink, 2.5);
-  roundedRect(context, 681, 42, 12, 10, 1.5, colors.ink);
-  roundedRect(context, 702, 44, 3, 6, 1.5, colors.ink);
+  roundedRect(context, 687, 35, 14, 21, 3, null, colors.ink, 2.5);
+  roundedRect(context, 690, 42, 8, 11, 1.5, colors.ink);
+  roundedRect(context, 691, 31, 6, 4, 1.5, colors.ink);
   context.restore();
 }
 

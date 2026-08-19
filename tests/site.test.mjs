@@ -103,6 +103,8 @@ assert.match(html, /class="date-chip">Today</);
 assert.match(html, /status-signal[\s\S]*status-wifi[\s\S]*status-battery/);
 assert.match(screenTexture, /text\(context, "Today"/);
 assert.match(screenTexture, /function drawStatusIcons/);
+assert.match(screenTexture, /roundedRect\(context, 687, 35, 14, 21/);
+assert.match(css, /\.status-battery \{[^}]*width: 8px; height: 13px/);
 assert.match(screenTexture, /opticallyCenteredText\(context, "M", 83, 143/);
 
 // Public copy describes what each visual signal means, without internal palette names.
