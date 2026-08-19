@@ -455,14 +455,14 @@ export async function createPhoneScene(webglScene, camera) {
     const viewWidth = viewHeight * camera.aspect;
     // Mobile story chapters use an editorial two-layer composition: copy on
     // the left, handset on the right. The hero remains centered.
-    const xRatio = compact ? (state === "hero" ? 0.5 : 0.6) : tablet ? 0.5 : 0.59;
+    const xRatio = compact ? (state === "hero" ? 0.5 : 0.6) : tablet ? 0.58 : 0.59;
     targetPosition.x = (xRatio * 2 - 1) * viewWidth * 0.5;
     targetPosition.z = 0;
     if (compact) {
       // Mobile gets a deliberate product reveal instead of a miniaturized
       // desktop composition: the phone peeks above the fold, grows into a
       // large centered showcase, then clears the stage before the hero notes.
-      const showcaseScale = THREE.MathUtils.clamp(viewport.height / 1110, 0.62, 0.76);
+      const showcaseScale = THREE.MathUtils.clamp(viewport.height / 980, 0.68, 0.82);
       if (state === "hero") {
         const entrance = THREE.MathUtils.smoothstep(phase, 0.3, 0.62);
         const exit = THREE.MathUtils.smoothstep(phase, 0.64, 0.86);
@@ -476,15 +476,18 @@ export async function createPhoneScene(webglScene, camera) {
         );
       } else {
         if (stage) stage.dataset.mobileMode = "story";
-        targetPosition.y = 1.18;
-        targetScale.setScalar(0.66);
+        targetPosition.y = 0.56;
+        targetScale.setScalar(0.74);
       }
     } else {
       if (stage) delete stage.dataset.mobileMode;
       targetPosition.y = -0.04;
+      // The story copy now occupies the left rail, so let the handset use the
+      // open center/right stage. Viewport-height divisors keep its full shell
+      // and shadow inside short laptop screens.
       targetScale.setScalar(tablet
-        ? Math.min(0.74, viewport.height / 1080)
-        : Math.min(0.82, viewport.height / 1120));
+        ? Math.min(0.86, viewport.height / 900)
+        : Math.min(0.92, viewport.height / 880));
       if (state === "hero") targetScale.multiplyScalar(0.78);
     }
     if (stage) {

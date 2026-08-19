@@ -54,6 +54,9 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
     }));
     expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client);
     if (viewport.width > 880) {
+      const phoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
+      expect(phoneScale).toBeGreaterThanOrEqual(0.85);
+      expect(phoneScale).toBeLessThanOrEqual(0.92);
       const layout = await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
         const title = element.querySelector(".chapter-left").getBoundingClientRect();
         const supportingCopy = element.querySelector(".chapter-right").getBoundingClientRect();
@@ -92,7 +95,8 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-mobile-mode", "showcase");
   await expect(page.locator(".artifact-drag-hint")).toHaveCSS("opacity", "0.76");
   const showcasePhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
-  expect(showcasePhoneScale).toBeGreaterThanOrEqual(0.75);
+  expect(showcasePhoneScale).toBeGreaterThanOrEqual(0.8);
+  expect(showcasePhoneScale).toBeLessThanOrEqual(0.82);
 
   await page.locator('.story-chapter[data-step="02"]').evaluate((element) => {
     document.documentElement.style.scrollBehavior = "auto";
@@ -102,7 +106,9 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", "dictate");
   const storyPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
-  expect(storyPhoneScale).toBeGreaterThanOrEqual(0.65);
+  expect(storyPhoneScale).toBeGreaterThanOrEqual(0.74);
+  const storyPhoneY = Number(await page.locator("#artifact-stage").getAttribute("data-phone-y"));
+  expect(storyPhoneY).toBeLessThanOrEqual(0.56);
   const storyPhoneX = Number(await page.locator("#artifact-stage").getAttribute("data-phone-x"));
   expect(storyPhoneX).toBeGreaterThan(0);
   await expect(page.locator('.story-chapter[data-step="02"] .chapter-copy')).toHaveCount(2);
@@ -144,7 +150,9 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   await expect(page.locator("#artifact-stage")).toHaveClass(/is-visible/);
   await expect(page.locator("#artifact-stage")).toHaveCSS("opacity", "1");
   const shortPhoneScale = Number(await page.locator("#artifact-stage").getAttribute("data-phone-scale"));
-  expect(shortPhoneScale).toBeGreaterThanOrEqual(0.65);
+  expect(shortPhoneScale).toBeGreaterThanOrEqual(0.74);
+  const shortPhoneY = Number(await page.locator("#artifact-stage").getAttribute("data-phone-y"));
+  expect(shortPhoneY).toBeLessThanOrEqual(0.56);
   await expect(page.locator('.story-chapter[data-step="06"] .mobile-chapter-summary')).toBeVisible();
   await expect(page.locator('.story-chapter[data-step="06"] .chapter-state-card')).toBeHidden();
   const shortStoryType = await page.locator('.story-chapter[data-step="06"]').evaluate((element) => ({
