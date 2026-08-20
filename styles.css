@@ -671,6 +671,7 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 /* Interactive bubble laboratory */
 
 .bubble-lab { display: grid; grid-template-columns: 0.65fr 1.35fr; gap: 40px 8vw; background: var(--lilac); }
+.lab-heading-rail { min-width: 0; }
 .lab-heading { align-self: start; position: sticky; top: 120px; }
 .lab-heading h2 { font-size: clamp(3.5rem, 6vw, 6.8rem); }
 .lab-heading h2 em { color: var(--coral-ink); }
@@ -725,6 +726,11 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .gesture-list span { color: var(--plum); font-family: var(--mono); font-size: 0.62rem; }
 .gesture-list b { margin-top: auto; font-size: 0.86rem; }
 .gesture-list p { margin: 4px 0 0; color: var(--text-on-light-muted); font-size: 0.72rem; }
+
+@media (min-width: 881px) {
+  .lab-heading-rail { grid-column: 1; grid-row: 1; }
+  .lab-console { grid-column: 2; grid-row: 1; }
+}
 
 /* Dictation tools */
 

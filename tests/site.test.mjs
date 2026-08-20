@@ -250,6 +250,8 @@ assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/c
 assert.match(html, /artifact-drag-hint/);
 assert.match(html, /artifact-drag-icon/);
 assert.match(artifactStyles, /\.artifact-drag-icon\s*\{[^}]*flex:\s*0 0 30px[^}]*aspect-ratio:\s*1/);
+assert.match(html, /class="lab-heading-rail"/);
+assert.match(css, /\.lab-heading-rail\s*\{[^}]*min-width:\s*0/);
 assert.doesNotMatch([html, css, phoneStory, phoneScene, artifactStyles].join('\n'), /state-readout/);
 assert.match(renderer, /new THREE\.WebGLRenderer/);
 assert.match(renderer, /RoomEnvironment/);

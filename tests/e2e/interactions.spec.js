@@ -100,6 +100,29 @@ test("the hero accent stays clear of the introductory copy", async ({ page }) =>
   }
 });
 
+test("the sticky bubble lab heading clears the gesture controls", async ({ page }) => {
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 768 }
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.locator(".gesture-list").evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      scrollTo(0, bounds.top + scrollY - 410);
+    });
+
+    const clearance = await page.evaluate(() => {
+      const heading = document.querySelector(".lab-heading").getBoundingClientRect();
+      const gestures = document.querySelector(".gesture-list").getBoundingClientRect();
+      return gestures.top - heading.bottom;
+    });
+
+    expect(clearance).toBeGreaterThanOrEqual(39);
+  }
+});
+
 test("the snooze target follows the app's drag, capture, and release lifecycle", async ({ page }) => {
   await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
   await page.locator("#controls").scrollIntoViewIfNeeded();
