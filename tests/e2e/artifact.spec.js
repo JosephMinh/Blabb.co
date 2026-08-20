@@ -164,6 +164,12 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   }));
   expect(shortStoryType.summary).toBeGreaterThanOrEqual(12);
   expect(shortStoryType.spec).toBeGreaterThanOrEqual(10);
+
+  await page.locator(".mode-section").evaluate((element) => {
+    scrollTo(0, element.offsetTop + 120);
+  });
+  await expect(page.locator("#artifact-stage")).not.toHaveClass(/is-visible/);
+  await expect(page.locator("#artifact-stage")).toHaveCSS("visibility", "hidden");
 });
 
 test("desktop rotation hint stays beside the phone and inside the viewport", async ({ page }) => {

@@ -24,9 +24,17 @@ export function createPhoneTimeline(controller, stage) {
   });
 
   const syncJourneyVisibility = () => {
+    if (stage.classList.contains("is-final")) return;
     const bounds = journey.getBoundingClientRect();
-    stage.classList.toggle("is-visible", bounds.bottom > 0 && bounds.top < window.innerHeight);
+    const exitClearance = Math.min(96, window.innerHeight * 0.14);
+    stage.classList.toggle("is-visible", bounds.bottom > exitClearance && bounds.top < window.innerHeight);
   };
+
+  // ScrollTrigger owns the animation progress, but fast touch scrolling can
+  // cross its end boundary without a final visibility callback. Keep the
+  // fixed canvas handoff tied directly to the journey's rendered bounds so it
+  // can never float over the product sections that follow.
+  window.addEventListener("scroll", syncJourneyVisibility, { passive: true });
 
   const storyTrigger = ScrollTrigger.create({
     trigger: journey,
@@ -71,7 +79,7 @@ export function createPhoneTimeline(controller, stage) {
     if (!finalActive) return;
     finalActive = false;
     stage.classList.remove("is-final");
-    if (!storyTrigger.isActive) stage.classList.remove("is-visible");
+    syncJourneyVisibility();
   }, { threshold: 0.08 }) : null;
   if (finalCta) finalObserver.observe(finalCta);
 
@@ -103,6 +111,7 @@ export function createPhoneTimeline(controller, stage) {
     destroy() {
       storyTrigger.kill();
       finalObserver?.disconnect();
+      window.removeEventListener("scroll", syncJourneyVisibility);
       lenis?.destroy();
     }
   };

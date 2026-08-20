@@ -38,6 +38,10 @@ assert.match(privacyHtml, /rel="canonical" href="https:\/\/blabb\.co\/privacy\/"
 assert.match(privacyHtml, /The Blabb developer does not receive that information from these downloads/);
 assert.match(termsHtml, /rel="canonical" href="https:\/\/blabb\.co\/terms\/"/);
 assert.match(notFoundHtml, /name="robots" content="noindex"/);
+assert.match(notFoundHtml, /href="\/styles\.css"/);
+assert.match(notFoundHtml, /src="\/assets\/blabb-mark\.png"/);
+assert.match(notFoundHtml, /href="\/privacy\/"/);
+assert.match(notFoundHtml, /href="\/terms\/"/);
 assert.match(readFileSync('sitemap.xml', 'utf8'), /https:\/\/blabb\.co\/(?:<|\s)[\s\S]*https:\/\/blabb\.co\/privacy\/[\s\S]*https:\/\/blabb\.co\/terms\//);
 assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/sitemap\.xml/);
 [
@@ -156,7 +160,8 @@ assert.match(phoneScene, /dictate[\s\S]*process[\s\S]*insert[\s\S]*continue[\s\S
 assert.match(screenTexture, /showSecond[\s\S]*phase < 0\.68/);
 assert.match(phoneScene, /textureState[\s\S]*"snoozed"/);
 assert.match(phoneScene, /function snoozeStoryFrame[\s\S]*bubbleX[\s\S]*targetVisible/);
-assert.match(phoneTimeline, /syncJourneyVisibility[\s\S]*bounds\.bottom > 0 && bounds\.top < window\.innerHeight/);
+assert.match(phoneTimeline, /syncJourneyVisibility[\s\S]*exitClearance[\s\S]*bounds\.bottom > exitClearance/);
+assert.match(phoneTimeline, /addEventListener\("scroll", syncJourneyVisibility/);
 
 // Supporting experiences in the plan are present and interactive.
 ['modes', 'privacy', 'controls', 'tools', 'contexts', 'privacy-promise', 'questions'].forEach((id) => {
@@ -239,6 +244,8 @@ assert.match(html, /<noscript>/);
 assert.match(html, /role="tablist"/);
 assert.match(html, /aria-live="polite"/);
 assert.match(css, /prefers-reduced-motion: reduce/);
+assert.match(css, /--font:\s*"Nunito", system-ui, sans-serif/);
+assert.match(css, /\.mobile-menu \{[^}]*background:\s*var\(--paper\)/);
 assert.match(css, /\.chapter-state-card/);
 assert.match(css, /\.js\.enhanced \.reveal/);
 assert.match(css, /\.js\.enhanced \.chapter-copy\.reveal\s*\{[^}]*opacity:\s*1[^}]*transform:\s*none/);

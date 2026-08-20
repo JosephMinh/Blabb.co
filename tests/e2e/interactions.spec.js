@@ -37,6 +37,22 @@ test("mobile menu is keyboard reachable and dismisses with Escape", async ({ pag
   await page.locator("#menu-button").focus();
   await page.keyboard.press("Enter");
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#mobile-menu")).toHaveCSS("background-color", "rgb(255, 250, 255)");
+  const mobileHeaderTargets = await page.evaluate(() => {
+    const bounds = (selector) => {
+      const rect = document.querySelector(selector).getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    };
+    return {
+      brand: bounds(".site-header .brand"),
+      download: bounds(".header-download"),
+      menu: bounds("#menu-button")
+    };
+  });
+  Object.values(mobileHeaderTargets).forEach(({ width, height }) => {
+    expect(width).toBeGreaterThanOrEqual(44);
+    expect(height).toBeGreaterThanOrEqual(44);
+  });
   await page.keyboard.press("Escape");
   await expect(page.locator("#menu-button")).toHaveAttribute("aria-expanded", "false");
 });

@@ -28,6 +28,7 @@
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --shadow: 0 30px 90px rgba(17, 7, 21, 0.22);
+  --font: "Nunito", system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -38,7 +39,7 @@ body {
   overflow-x: clip;
   background: var(--near-black);
   color: var(--plum);
-  font-family: "Nunito", system-ui, sans-serif;
+  font-family: var(--font);
   font-weight: 650;
   text-rendering: optimizeLegibility;
 }
@@ -1013,12 +1014,12 @@ footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 
   .section-pad { padding-block: 100px; }
   .site-header { top: 10px; width: calc(100vw - 20px); grid-template-columns: auto 1fr auto; gap: 8px; min-height: 58px; padding: 7px 8px 7px 11px; }
   .site-header .brand-name, .desktop-nav { display: none; }
-  .site-header .brand { width: max-content; }
-  .header-download { justify-self: end; width: 42px; min-height: 42px; padding: 0; font-size: 1rem; }
+  .site-header .brand { min-width: 44px; min-height: 44px; justify-content: center; }
+  .header-download { justify-self: end; width: 44px; min-height: 44px; padding: 0; font-size: 1rem; }
   .header-download-label { display: none; }
-  .menu-button { justify-self: end; min-width: 88px; min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; border: 0; border-radius: 100px; color: var(--plum); background: var(--aqua); cursor: pointer; font-size: 0.76rem; font-weight: 900; }
+  .menu-button { justify-self: end; min-width: 88px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; border: 0; border-radius: 100px; color: var(--plum); background: var(--aqua); cursor: pointer; font-size: 0.76rem; font-weight: 900; }
   .menu-button i { position: relative; width: 14px; height: 8px; border-top: 2px solid currentColor; border-bottom: 2px solid currentColor; }
-  .mobile-menu { position: absolute; left: -1px; right: -1px; top: calc(100% + 8px); display: grid; visibility: hidden; padding: 12px; border: 1px solid rgba(23, 10, 28, 0.12); border-radius: 25px; opacity: 0; color: var(--plum); background: rgba(255, 250, 255, 0.97); box-shadow: 0 25px 60px rgba(17, 7, 21, 0.2); transform: translateY(-10px); transition: opacity 0.25s, transform 0.25s, visibility 0.25s; }
+  .mobile-menu { position: absolute; left: -1px; right: -1px; top: calc(100% + 8px); display: grid; visibility: hidden; padding: 12px; border: 1px solid rgba(23, 10, 28, 0.12); border-radius: 25px; opacity: 0; color: var(--plum); background: var(--paper); box-shadow: 0 25px 60px rgba(17, 7, 21, 0.2); transform: translateY(-10px); transition: opacity 0.25s, transform 0.25s, visibility 0.25s; }
   .mobile-menu.is-open { visibility: visible; opacity: 1; transform: none; }
   .mobile-menu a { padding: 15px; border-bottom: 1px solid var(--line-dark); font-size: 0.85rem; font-weight: 900; }
   .mobile-menu a:last-child { margin-top: 8px; border: 0; border-radius: 100px; text-align: center; background: var(--aqua); }

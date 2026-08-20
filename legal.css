@@ -134,7 +134,8 @@
 @media (max-width: 660px) {
   .legal-header { width: calc(100% - 20px); min-height: 58px; margin-top: 10px; padding: 7px 8px 7px 11px; }
   .legal-header .brand-name { display: none; }
-  .legal-back { min-height: 42px; }
+  .legal-header .brand { min-width: 44px; min-height: 44px; justify-content: center; }
+  .legal-back { min-height: 44px; }
   .legal-main { width: min(100% - 40px, 820px); padding-top: 74px; }
   .legal-main h1 { font-size: clamp(3.5rem, 18vw, 5.2rem); }
   .legal-main p, .legal-main li { font-size: 0.94rem; }
