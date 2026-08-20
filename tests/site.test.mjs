@@ -248,6 +248,8 @@ assert.match(html, /href="#story" data-mobile-showcase/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /mobileShowcaseLink[\s\S]*hero\.offsetHeight \* 0\.35/);
 assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/canvas>/);
 assert.match(html, /artifact-drag-hint/);
+assert.match(html, /artifact-drag-icon/);
+assert.match(artifactStyles, /\.artifact-drag-icon\s*\{[^}]*flex:\s*0 0 30px[^}]*aspect-ratio:\s*1/);
 assert.doesNotMatch([html, css, phoneStory, phoneScene, artifactStyles].join('\n'), /state-readout/);
 assert.match(renderer, /new THREE\.WebGLRenderer/);
 assert.match(renderer, /RoomEnvironment/);

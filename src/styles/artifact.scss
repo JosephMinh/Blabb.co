@@ -68,24 +68,22 @@
   transition: opacity 0.35s, transform 0.35s;
 }
 
-.artifact-drag-hint::before {
-  content: "";
+.artifact-drag-icon {
+  position: relative;
+  flex: 0 0 30px;
   width: 30px;
   height: 30px;
-  display: grid;
-  place-items: center;
+  box-sizing: border-box;
+  aspect-ratio: 1;
   border: 1px solid rgba(136, 224, 217, 0.66);
   border-radius: 50%;
   background: rgba(23, 10, 28, 0.68);
 }
 
-.artifact-drag-hint::after {
+.artifact-drag-icon::after {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 7px;
-  width: 16px;
-  height: 16px;
+  inset: 7px;
   background: #88e0d9;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -94,8 +92,8 @@
 .webgl-ready .artifact-stage.is-visible .artifact-drag-hint { opacity: 0.76; }
 .artifact-stage.is-hovered .artifact-drag-hint,
 .artifact-stage.is-dragging .artifact-drag-hint { opacity: 1; transform: var(--drag-hint-transform) scale(1.035); }
-.artifact-stage.is-dragging .artifact-drag-hint::before { color: #170a1c; background: #88e0d9; }
-.artifact-stage.is-dragging .artifact-drag-hint::after { background: #170a1c; }
+.artifact-stage.is-dragging .artifact-drag-icon { background: #88e0d9; }
+.artifact-stage.is-dragging .artifact-drag-icon::after { background: #170a1c; }
 .artifact-stage.is-final .artifact-drag-hint { display: none; }
 .touch-hint { display: none; }
 .webgl-ready body { touch-action: pan-y pinch-zoom; }
@@ -365,8 +363,10 @@ html.artifact-dragging body {
     left: 50%;
     top: auto;
     bottom: 15vh;
-    width: 132px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
     font-size: 0.61rem;
+    white-space: nowrap;
   }
   .desktop-hint { display: none; }
   .touch-hint { display: inline; }

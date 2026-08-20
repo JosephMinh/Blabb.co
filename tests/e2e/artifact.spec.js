@@ -188,6 +188,11 @@ test("desktop rotation hint stays beside the phone and inside the viewport", asy
   const mobileHint = await page.locator(".artifact-drag-hint").boundingBox();
   expect(mobileHint).not.toBeNull();
   expect(mobileHint.x + mobileHint.width / 2).toBeCloseTo(195, 0);
+
+  const mobileIcon = await page.locator(".artifact-drag-icon").boundingBox();
+  expect(mobileIcon).not.toBeNull();
+  expect(mobileIcon.width).toBeCloseTo(30, 1);
+  expect(mobileIcon.height).toBeCloseTo(30, 1);
 });
 
 test("dense phone displays receive a crisp adaptive framebuffer", async ({ browser }) => {
