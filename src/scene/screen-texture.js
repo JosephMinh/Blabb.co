@@ -69,8 +69,12 @@ function drawSendIcon(context, centerX, centerY, size = 56) {
   // original path makes the control read as Android even after texture
   // minification and oblique projection onto the phone.
   const scale = size / 24;
+  // The plane's bounds are symmetrical, but its filled mass sits toward the
+  // two tail fins. A restrained rightward correction centers what the eye
+  // sees without pushing the arrow tip against the button edge.
+  const opticalOffsetX = size * 0.055;
   context.save();
-  context.translate(centerX - 12.5 * scale, centerY - 12 * scale);
+  context.translate(centerX + opticalOffsetX - 12.5 * scale, centerY - 12 * scale);
   context.scale(scale, scale);
   context.beginPath();
   context.moveTo(2.01, 21);

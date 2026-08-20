@@ -107,10 +107,12 @@ assert.match(screenTexture, /roundedRect\(context, 687, 35, 14, 21/);
 assert.match(css, /\.status-battery \{[^}]*width: 8px; height: 13px/);
 assert.match(screenTexture, /opticallyCenteredText\(context, "M", 83, 143/);
 assert.match(screenTexture, /function drawSendIcon/);
+assert.match(screenTexture, /const opticalOffsetX = size \* 0\.055/);
 assert.match(screenTexture, /roundedRect\(context, 620, 982, 84, 84, 42, colors\.aqua\)/);
 assert.match(screenTexture, /drawSendIcon\(context, 662, 1024\)/);
 assert.match(html, /class="send-button"><svg viewBox="0 0 24 24"/);
 assert.match(css, /\.send-button \{[^}]*color: var\(--plum\); background: var\(--aqua\)/);
+assert.match(css, /\.send-button svg \{[^}]*translateX\(0\.8px\)/);
 
 // Public copy describes what each visual signal means, without internal palette names.
 const renderedCopy = html
