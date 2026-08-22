@@ -884,20 +884,38 @@ h1 em, h2 em, .chapter-copy h2 em { color: var(--coral); font-style: italic; fon
 .cta-copy h2 em { color: var(--plum); }
 .cta-copy > p:not(.section-kicker):not(.cta-meta) { margin: 30px 0; font-size: 1.05rem; }
 .waitlist-form { width: min(100%, 600px); margin-top: 30px; }
+.waitlist-platform { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 12px; padding: 0; border: 0; }
+.waitlist-platform legend { width: 100%; margin-bottom: 9px; color: var(--plum); font: 800 0.76rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.platform-option { position: relative; cursor: pointer; }
+.platform-option > input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.platform-card { min-height: 78px; display: grid; grid-template-columns: 42px 1fr 24px; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid rgba(78, 22, 91, 0.28); border-radius: 22px; color: var(--plum); background: rgba(255, 250, 255, 0.42); transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s; }
+.platform-card > span { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.platform-card b { font-size: 0.98rem; line-height: 1.1; }
+.platform-card small { color: var(--text-on-light-muted); font: 700 0.68rem/1.2 var(--mono); letter-spacing: 0.03em; text-transform: uppercase; }
+.platform-card > em { width: 23px; height: 23px; display: grid; place-items: center; border: 2px solid rgba(78, 22, 91, 0.28); border-radius: 50%; color: transparent; font-size: 0.75rem; font-style: normal; }
+.platform-option:hover .platform-card { border-color: var(--plum); transform: translateY(-1px); }
+.platform-option > input:focus-visible + .platform-card { box-shadow: 0 0 0 4px rgba(136, 224, 217, 0.78); }
+.platform-option > input:checked + .platform-card { border-color: var(--plum); background: var(--paper); box-shadow: 0 12px 30px rgba(23, 10, 28, 0.12); }
+.platform-option > input:checked + .platform-card > em { border-color: var(--plum); color: var(--paper); background: var(--plum); }
+.platform-icon { position: relative; width: 40px; height: 40px; display: block; border-radius: 13px; color: var(--plum); background: var(--aqua); }
+.platform-icon-android::before { content: ""; position: absolute; left: 8px; right: 8px; top: 12px; height: 16px; border-radius: 10px 10px 5px 5px; background: currentColor; }
+.platform-icon-android::after { content: "••"; position: absolute; left: 0; right: 0; top: 9px; color: var(--aqua); font: 900 0.72rem/1 var(--font); letter-spacing: 5px; text-align: center; text-indent: 5px; }
+.platform-icon-iphone { background: var(--lilac); }
+.platform-icon-iphone::before { content: ""; position: absolute; left: 12px; top: 5px; width: 16px; height: 28px; border: 2px solid currentColor; border-radius: 5px; }
+.platform-icon-iphone::after { content: ""; position: absolute; left: 18px; top: 8px; width: 5px; height: 2px; border-radius: 2px; background: currentColor; }
 .waitlist-field { display: flex; align-items: center; gap: 8px; padding: 7px; border: 2px solid var(--plum); border-radius: 999px; background: var(--paper); box-shadow: 0 18px 50px rgba(23, 10, 28, 0.14); }
 .waitlist-field input { min-width: 0; flex: 1; border: 0; outline: 0; padding: 0 15px; color: var(--plum); background: transparent; font: 800 1rem/1 var(--font); }
 .waitlist-field input::placeholder { color: rgba(23, 10, 28, 0.45); }
 .waitlist-field input:focus-visible { border-radius: 999px; box-shadow: 0 0 0 3px rgba(136, 224, 217, 0.75); }
 .waitlist-field button { min-height: 56px; border: 0; white-space: nowrap; }
 .waitlist-field button i { font-style: normal; }
-.waitlist-form[data-state="paused"] .waitlist-field { border-color: rgba(78, 22, 91, 0.42); box-shadow: none; }
-.waitlist-form[data-state="paused"] input:disabled { color: rgba(23, 10, 28, 0.58); opacity: 1; }
-.waitlist-form[data-state="paused"] button:disabled { cursor: not-allowed; opacity: 0.72; }
+.waitlist-form[data-state="submitting"] button, .waitlist-form[data-state="success"] button { cursor: wait; }
 .waitlist-form[data-state="success"] .waitlist-field { border-color: var(--forest); }
 .waitlist-form[data-state="success"] button { background: var(--forest); }
 .waitlist-consent { margin: 12px 8px 0 !important; color: var(--text-on-light-muted); font-size: 0.76rem !important; line-height: 1.55; }
 .waitlist-consent a { border-bottom: 1px solid currentColor; }
 .waitlist-status { min-height: 1.3em; margin: 8px 8px 0 !important; color: var(--plum); font-size: 0.8rem !important; font-weight: 900; }
+.waitlist-form[data-state="success"] .waitlist-status { color: var(--forest); }
 .waitlist-form[data-state="error"] .waitlist-status { color: #6f2211; }
 .waitlist-honey { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
 .cta-meta { display: flex; flex-wrap: wrap; gap: 0; margin: 22px 0 0; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -1141,10 +1159,12 @@ footer { padding: 65px max(var(--page-pad), calc((100vw - var(--content)) / 2)) 
   .fail-safe-grid p:last-child { border-bottom: 0 !important; }
   .faq-list summary { font-size: 0.95rem; }
   .faq-list details p { margin-right: 20px; }
-  .cta-art { min-height: 440px; transform: scale(0.8); margin: -30px -70px; }
+  .cta-art { min-height: 440px; transform: scale(0.8); margin: 20px -70px -30px; }
   .cta-bubble { left: 61%; }
   .cta-actions { flex-direction: column; }
   .cta-actions .button { width: 100%; }
+  .waitlist-platform { grid-template-columns: 1fr; }
+  .platform-card { min-height: 70px; }
   .waitlist-field { display: grid; grid-template-columns: 1fr; border-radius: 28px; }
   .waitlist-field input { min-height: 54px; text-align: center; }
   .waitlist-field button { width: 100%; }

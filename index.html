@@ -454,7 +454,7 @@
         <div class="faq-heading reveal">
           <p class="section-kicker">SETUP REALITIES <span>/</span> NO SURPRISES</p>
           <h2 id="faq-title">Before you<br /><em>join.</em></h2>
-          <p>Blabb is preparing for private Android testing. Here is the practical detail that matters before early access.</p>
+          <p>Blabb is preparing for private Android testing, with a separate list for people interested in iPhone. Here is the practical detail that matters before early access.</p>
           <a class="quiet-link dark-link" href="#waitlist">Get an early-access invite ↘</a>
         </div>
         <div class="faq-list reveal">
@@ -467,7 +467,7 @@
           <details><summary><span><i>07</i>Does the bubble work in every text field?</span><b aria-hidden="true">+</b></summary><p>No universal claim. It appears only when Blabb can identify a safe, compatible field and keyboard surface. For custom editors without a safe target, Blabb can offer its optional Voice Input route.</p></details>
           <details><summary><span><i>08</i>What is Blabb Voice Input?</span><b aria-hidden="true">+</b></summary><p>It is an optional voice-only input route for custom editors and Android’s speech-recognition integrations. It uses the same local model and leaves your ordinary keyboard available; Blabb never enables or selects it on its own.</p></details>
           <details><summary><span><i>09</i>What should Samsung users change?</span><b aria-hidden="true">+</b></summary><p>Set Settings → Apps → Blabb → Battery to Unrestricted, then add Blabb under Battery → Background usage limits → Never sleeping apps. This helps One UI keep text-field detection available.</p></details>
-          <details><summary><span><i>10</i>When can I try Blabb?</span><b aria-hidden="true">+</b></summary><p>Blabb is preparing for a private Android beta. Join the waitlist and you’ll receive availability and early-access updates by email.</p></details>
+          <details><summary><span><i>10</i>When can I try Blabb?</span><b aria-hidden="true">+</b></summary><p>Blabb is preparing for a private Android beta. Choose Android on the waitlist for early-access updates, or choose iPhone to tell us you want Blabb there too.</p></details>
         </div>
       </section>
 
@@ -477,18 +477,31 @@
           <span class="cta-bubble"><img src="assets/blabb-mark.png" alt="" /></span>
         </div>
         <div class="cta-copy reveal">
-          <p class="section-kicker">PRIVATE BETA / ANDROID</p>
+          <p class="section-kicker">EARLY ACCESS / YOUR PLATFORM</p>
           <h2 id="cta-title">Your thumbs can<br /><em>thank you later.</em></h2>
-          <p>Waitlist signups are temporarily paused while we connect a private signup endpoint.</p>
-          <div class="waitlist-form" data-state="paused" aria-label="Waitlist signups are paused">
+          <p>Choose your phone, then join the list for meaningful beta, availability, and launch updates.</p>
+          <form class="waitlist-form" action="/api/waitlist" method="post" data-waitlist-form data-state="idle">
+            <fieldset class="waitlist-platform">
+              <legend>Choose your phone</legend>
+              <label class="platform-option">
+                <input type="radio" name="platform" value="android" checked />
+                <span class="platform-card"><i class="platform-icon platform-icon-android" aria-hidden="true"></i><span><b>Android</b><small>Private beta</small></span><em aria-hidden="true">✓</em></span>
+              </label>
+              <label class="platform-option">
+                <input type="radio" name="platform" value="ios" />
+                <span class="platform-card"><i class="platform-icon platform-icon-iphone" aria-hidden="true"></i><span><b>iPhone</b><small>Future updates</small></span><em aria-hidden="true">✓</em></span>
+              </label>
+            </fieldset>
             <label class="sr-only" for="waitlist-email">Email address</label>
             <div class="waitlist-field">
-              <input id="waitlist-email" name="email" type="email" placeholder="Signups reopening soon" disabled />
-              <button class="button button-plum" type="button" disabled><span>Waitlist paused</span><i aria-hidden="true">↘</i></button>
+              <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Email address" required />
+              <button class="button button-plum" type="submit"><span>Join Android waitlist</span><i aria-hidden="true">↘</i></button>
             </div>
-            <p class="waitlist-consent">No email is collected here while signups are paused. See our <a href="privacy/">privacy policy</a>.</p>
-          </div>
-          <p class="cta-meta"><span>Android 13+</span><span>Private beta</span><span>No spam</span></p>
+            <label class="waitlist-honey" aria-hidden="true">Leave this empty<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+            <p class="waitlist-consent">Confirm your email to subscribe. Unsubscribe anytime. The waitlist is separate from Blabb, which requires no account. See our <a href="privacy/">privacy policy</a>.</p>
+            <p class="waitlist-status" data-waitlist-status aria-live="polite"></p>
+          </form>
+          <p class="cta-meta"><span>Double opt-in</span><span>No spam</span><span>No Blabb account</span></p>
         </div>
       </section>
     </main>

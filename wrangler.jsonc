@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blabb-waitlist",
+  "main": "worker/waitlist.js",
+  "compatibility_date": "2026-08-22",
+  "routes": [
+    { "pattern": "blabb.co/api/waitlist", "zone_name": "blabb.co" },
+    { "pattern": "www.blabb.co/api/waitlist", "zone_name": "blabb.co" }
+  ],
+  "vars": {
+    "EMAILOCTOPUS_LIST_ID": "bd0d892a-9d96-11f1-8699-cfcba896278d",
+    "ALLOWED_ORIGINS": "https://blabb.co,https://www.blabb.co"
+  },
+  "ratelimits": [
+    {
+      "name": "WAITLIST_RATE_LIMITER",
+      "namespace_id": "22082601",
+      "simple": { "limit": 6, "period": 60 }
+    }
+  ],
+  "observability": { "enabled": false }
+}

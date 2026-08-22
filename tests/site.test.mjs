@@ -10,8 +10,10 @@ const bubbleDemo = readFileSync('scripts/bubble-demo.js', 'utf8');
 const transcriptDemo = readFileSync('scripts/transcript-demo.js', 'utf8');
 const useCases = readFileSync('scripts/use-cases.js', 'utf8');
 const waitlist = readFileSync('scripts/waitlist.js', 'utf8');
+const waitlistWorker = readFileSync('worker/waitlist.js', 'utf8');
 const privacyHtml = readFileSync('privacy/index.html', 'utf8');
 const termsHtml = readFileSync('terms/index.html', 'utf8');
+const waitlistReceivedHtml = readFileSync('waitlist-received/index.html', 'utf8');
 const notFoundHtml = readFileSync('404.html', 'utf8');
 const renderer = readFileSync('src/scene/renderer.js', 'utf8');
 const phoneScene = readFileSync('src/scene/phone-scene.js', 'utf8');
@@ -66,13 +68,16 @@ assert.match(readFileSync('robots.txt', 'utf8'), /Sitemap: https:\/\/blabb\.co\/
   'scripts/bubble-demo.js',
   'scripts/transcript-demo.js',
   'scripts/use-cases.js',
-  'scripts/waitlist.js'
+  'scripts/waitlist.js',
+  'worker/waitlist.js',
+  'wrangler.jsonc',
+  'waitlist-received/index.html'
 ].forEach((path) => assert.ok(existsSync(path), `Missing required site asset: ${path}`));
 assert.equal(existsSync('assets/blabb-glyph.svg'), false, 'The non-canonical redraw must not ship');
 assert.equal(existsSync('assets/favicon.svg'), false, 'The non-canonical favicon must not ship');
 
 // Every local HTML/CSS/module reference resolves in the static site tree.
-const htmlFiles = ['index.html', 'privacy/index.html', 'terms/index.html', '404.html'];
+const htmlFiles = ['index.html', 'privacy/index.html', 'terms/index.html', 'waitlist-received/index.html', '404.html'];
 for (const file of htmlFiles) {
   const source = readFileSync(file, 'utf8');
   for (const match of source.matchAll(/(?:href|src)="([^"]+)"/g)) {
@@ -133,11 +138,22 @@ assert.match(html, /without sending your voice to the cloud/i);
 assert.match(html, /Private beta/);
 assert.match(html, /Android 13\+/);
 assert.match(html, /No app account/);
-assert.match(html, /class="waitlist-form" data-state="paused"/);
-assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+disabled/);
-assert.match(html, /No email is collected here while signups are paused/);
-assert.match(privacyHtml, /Website waitlist[\s\S]*does not collect or submit email addresses/);
-assert.doesNotMatch([html, termsHtml, privacyHtml, notFoundHtml, scripts].join('\n'), /mailto:|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+assert.match(html, /<form class="waitlist-form" action="\/api\/waitlist" method="post" data-waitlist-form/);
+assert.match(html, /name="platform" value="android" checked/);
+assert.match(html, /name="platform" value="ios"/);
+assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+required/);
+assert.match(html, /name="website"[^>]+tabindex="-1"/);
+assert.match(entryScript, /initWaitlist\(\)/);
+assert.match(waitlist, /fetch\(form\.action/);
+assert.match(waitlistWorker, /source_blabb_waitlist: true/);
+assert.match(waitlistWorker, /platform_android/);
+assert.match(waitlistWorker, /platform_ios/);
+assert.match(waitlistWorker, /method: "PUT"/);
+assert.doesNotMatch(waitlistWorker, /status:\s*["'](?:subscribed|SUBSCRIBED)["']/);
+assert.match(privacyHtml, /Cloudflare[\s\S]*EmailOctopus/);
+assert.match(privacyHtml, /does not keep a separate waitlist database or log submitted email addresses/);
+assert.match(waitlistReceivedHtml, /Check your inbox/);
+assert.doesNotMatch([html, termsHtml, privacyHtml, waitlistReceivedHtml, notFoundHtml, scripts].join('\n'), /mailto:|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
 assert.doesNotMatch([html, termsHtml, privacyHtml, notFoundHtml].join('\n'), /github\.com\/JosephMinh\/Blabb(?:\/|\b)|Blabb-v\d[^\s"<]*\.apk/i);
 assert.doesNotMatch(html, /Download Blabb|Download for Android/i);
 assert.match(html, /<link rel="stylesheet" href="\/styles\.css"/);

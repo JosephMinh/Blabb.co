@@ -171,12 +171,27 @@ test("the snooze target follows the app's drag, capture, and release lifecycle",
   await expect(page.locator("#lab-status")).toContainText("SNOOZED");
 });
 
-test("paused waitlist exposes no submission endpoint", async ({ page }) => {
-  await expect(page.locator(".waitlist-form")).toHaveAttribute("data-state", "paused");
-  await expect(page.locator("#waitlist-email")).toBeDisabled();
-  await expect(page.locator(".waitlist-form button")).toBeDisabled();
-  await expect(page.locator(".waitlist-form")).toContainText("No email is collected");
-  await expect(page.locator("form[data-waitlist-form]")).toHaveCount(0);
+test("waitlist selects a platform and submits without exposing provider credentials", async ({ page }) => {
+  let submitted;
+  await page.route("**/api/waitlist", async (route) => {
+    submitted = route.request().postDataJSON();
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+  });
+
+  const form = page.locator("form[data-waitlist-form]");
+  await expect(form).toHaveAttribute("action", "/api/waitlist");
+  await expect(page.locator('input[name="platform"][value="android"]')).toBeChecked();
+  await expect(form.locator('button[type="submit"]')).toContainText("Join Android waitlist");
+
+  await page.locator('.platform-option:has(input[value="ios"])').click();
+  await expect(form.locator('button[type="submit"]')).toContainText("Join iPhone waitlist");
+  await page.locator("#waitlist-email").fill("reader@example.net");
+  await form.locator('button[type="submit"]').click();
+
+  await expect(form).toHaveAttribute("data-state", "success");
+  await expect(form.locator("[data-waitlist-status]")).toContainText("iPhone preference is saved");
+  expect(submitted).toEqual({ email: "reader@example.net", platform: "ios", website: "" });
+  await expect(page.locator("body")).not.toContainText("EMAILOCTOPUS_API_KEY");
 });
 
 test("mobile content remains fully styled when JavaScript is unavailable", async ({ browser }) => {

@@ -11,6 +11,7 @@ export default defineConfig({
         home: resolve(import.meta.dirname, "index.html"),
         privacy: resolve(import.meta.dirname, "privacy/index.html"),
         terms: resolve(import.meta.dirname, "terms/index.html"),
+        waitlistReceived: resolve(import.meta.dirname, "waitlist-received/index.html"),
         notFound: resolve(import.meta.dirname, "404.html")
       }
     }
