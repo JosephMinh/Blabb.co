@@ -471,37 +471,52 @@
         </div>
       </section>
 
-      <section class="final-cta" id="waitlist" data-header-theme="light" aria-labelledby="cta-title">
+      <section class="final-cta" id="waitlist" data-header-theme="light" data-waitlist-platform="android" aria-labelledby="cta-title">
         <div class="cta-art" aria-hidden="true">
-          <div class="cta-layer cta-layer-a">KEYBOARD</div><div class="cta-layer cta-layer-b">LOCAL ENGINE</div><div class="cta-phone"><span></span><i></i><b></b></div>
+          <div class="cta-orbit"></div>
+          <div class="cta-layer cta-layer-a"><span>01</span><strong>ANDROID</strong><small>PRIVATE BETA</small></div>
+          <div class="cta-layer cta-layer-b"><span>02</span><strong>IPHONE</strong><small>INTEREST LIST</small></div>
+          <div class="cta-phone"><span></span><i></i><b></b></div>
           <span class="cta-bubble"><img src="assets/blabb-mark.png" alt="" /></span>
+          <p class="cta-art-note"><span>YOUR PHONE</span><strong>Pick the path that fits.</strong></p>
         </div>
         <div class="cta-copy reveal">
-          <p class="section-kicker">EARLY ACCESS / YOUR PLATFORM</p>
-          <h2 id="cta-title">Your thumbs can<br /><em>thank you later.</em></h2>
-          <p>Choose your phone, then join the list for meaningful beta, availability, and launch updates.</p>
+          <p class="section-kicker">EARLY ACCESS <span>/</span> YOUR PLATFORM</p>
+          <h2 id="cta-title">Your phone.<br /><em>Your call.</em></h2>
+          <p class="cta-intro"><strong>Android is entering private beta.</strong> Interested in iPhone instead? Raise your hand now and help show us where Blabb should go next.</p>
           <form class="waitlist-form" action="/api/waitlist" method="post" data-waitlist-form data-state="idle">
             <fieldset class="waitlist-platform">
-              <legend>Choose your phone</legend>
+              <legend><span>01</span><b>Choose your path</b><small>We will only send updates for the platform you pick.</small></legend>
               <label class="platform-option">
                 <input type="radio" name="platform" value="android" checked />
-                <span class="platform-card"><i class="platform-icon platform-icon-android" aria-hidden="true"></i><span><b>Android</b><small>Private beta</small></span><em aria-hidden="true">✓</em></span>
+                <span class="platform-card">
+                  <i class="platform-icon platform-icon-android" aria-hidden="true"></i>
+                  <span><small>Testing first</small><b>Android early access</b><em>Get private beta and launch updates.</em></span>
+                  <strong aria-hidden="true">✓</strong>
+                </span>
               </label>
               <label class="platform-option">
                 <input type="radio" name="platform" value="ios" />
-                <span class="platform-card"><i class="platform-icon platform-icon-iphone" aria-hidden="true"></i><span><b>iPhone</b><small>Future updates</small></span><em aria-hidden="true">✓</em></span>
+                <span class="platform-card">
+                  <i class="platform-icon platform-icon-iphone" aria-hidden="true"></i>
+                  <span><small>Help set priority</small><b>iPhone interest list</b><em>Tell us you want Blabb on iPhone.</em></span>
+                  <strong aria-hidden="true">✓</strong>
+                </span>
               </label>
             </fieldset>
-            <label class="sr-only" for="waitlist-email">Email address</label>
-            <div class="waitlist-field">
-              <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Email address" required />
-              <button class="button button-plum" type="submit"><span>Join Android waitlist</span><i aria-hidden="true">↘</i></button>
+            <div class="waitlist-email-step">
+              <p class="waitlist-step"><span>02</span><b>Save your spot</b><small data-platform-promise>Android private beta updates</small></p>
+              <label class="sr-only" for="waitlist-email">Email address</label>
+              <div class="waitlist-field">
+                <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Email address" required />
+                <button class="button button-plum" type="submit"><span>Request Android access</span><i aria-hidden="true">↘</i></button>
+              </div>
             </div>
             <label class="waitlist-honey" aria-hidden="true">Leave this empty<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
-            <p class="waitlist-consent">Confirm your email to subscribe. Unsubscribe anytime. The waitlist is separate from Blabb, which requires no account. See our <a href="privacy/">privacy policy</a>.</p>
+            <p class="waitlist-consent">Confirm your email to subscribe. Unsubscribe anytime. This list is separate from the Blabb app, which requires no account. See our <a href="privacy/">privacy policy</a>.</p>
             <p class="waitlist-status" data-waitlist-status aria-live="polite"></p>
           </form>
-          <p class="cta-meta"><span>Double opt-in</span><span>No spam</span><span>No Blabb account</span></p>
+          <p class="cta-meta"><span>Double opt-in</span><span>Platform-specific</span><span>No Blabb account</span></p>
         </div>
       </section>
     </main>

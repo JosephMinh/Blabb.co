@@ -654,11 +654,12 @@ export async function createPhoneScene(webglScene, camera) {
     if (!active) return;
     state = "final";
     const compact = viewport.width <= 880;
+    const tablet = viewport.width <= 1180;
     const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
     const viewWidth = viewHeight * camera.aspect;
-    targetPosition.set(compact ? 0 : -viewWidth * 0.23, compact ? -2.8 : 0, 0);
+    targetPosition.set(compact ? 0 : -viewWidth * (tablet ? 0.29 : 0.23), compact ? -2.8 : 0, 0);
     targetRotation.set(-0.14, -0.45, -0.055);
-    targetScale.setScalar(compact ? 0.58 : 0.9);
+    targetScale.setScalar(compact ? 0.58 : tablet ? 0.78 : 0.9);
     targetBubbleScale = 1.34;
     updateScreen("final", 1);
     bubble.group.visible = true;

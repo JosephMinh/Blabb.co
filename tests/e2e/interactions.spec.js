@@ -179,12 +179,17 @@ test("waitlist selects a platform and submits without exposing provider credenti
   });
 
   const form = page.locator("form[data-waitlist-form]");
+  const section = page.locator("#waitlist");
   await expect(form).toHaveAttribute("action", "/api/waitlist");
   await expect(page.locator('input[name="platform"][value="android"]')).toBeChecked();
-  await expect(form.locator('button[type="submit"]')).toContainText("Join Android waitlist");
+  await expect(section).toHaveAttribute("data-waitlist-platform", "android");
+  await expect(form.locator('button[type="submit"]')).toContainText("Request Android access");
+  await expect(form.locator("[data-platform-promise]")).toContainText("Android private beta updates");
 
   await page.locator('.platform-option:has(input[value="ios"])').click();
-  await expect(form.locator('button[type="submit"]')).toContainText("Join iPhone waitlist");
+  await expect(section).toHaveAttribute("data-waitlist-platform", "ios");
+  await expect(form.locator('button[type="submit"]')).toContainText("Join the iPhone interest list");
+  await expect(form.locator("[data-platform-promise]")).toContainText("iPhone planning and availability updates");
   await page.locator("#waitlist-email").fill("reader@example.net");
   await form.locator('button[type="submit"]').click();
 

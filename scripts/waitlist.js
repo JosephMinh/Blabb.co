@@ -1,9 +1,17 @@
 const SUCCESS_MESSAGE = "Request received. Check your inbox if confirmation is needed.";
 const ERROR_MESSAGE = "That didn’t go through. Please try again in a moment.";
 
-const PLATFORM_LABELS = {
-  android: "Android",
-  ios: "iPhone"
+const PLATFORM_COPY = {
+  android: {
+    label: "Android",
+    button: "Request Android access",
+    promise: "Android private beta updates"
+  },
+  ios: {
+    label: "iPhone",
+    button: "Join the iPhone interest list",
+    promise: "iPhone planning and availability updates"
+  }
 };
 
 export function initWaitlist() {
@@ -12,6 +20,8 @@ export function initWaitlist() {
     const button = form.querySelector('button[type="submit"]');
     const buttonLabel = button?.querySelector("span");
     const emailInput = form.querySelector('input[name="email"]');
+    const section = form.closest(".final-cta");
+    const platformPromise = form.querySelector("[data-platform-promise]");
 
     function selectedPlatform() {
       return form.querySelector('input[name="platform"]:checked')?.value || "android";
@@ -19,10 +29,13 @@ export function initWaitlist() {
 
     function resetState() {
       if (form.dataset.state === "submitting") return;
-      const label = PLATFORM_LABELS[selectedPlatform()] || "Blabb";
+      const platform = selectedPlatform();
+      const copy = PLATFORM_COPY[platform] || PLATFORM_COPY.android;
       form.dataset.state = "idle";
+      if (section) section.dataset.waitlistPlatform = platform;
       if (button) button.disabled = false;
-      if (buttonLabel) buttonLabel.textContent = `Join ${label} waitlist`;
+      if (buttonLabel) buttonLabel.textContent = copy.button;
+      if (platformPromise) platformPromise.textContent = copy.promise;
       if (status) status.textContent = "";
     }
 
@@ -58,7 +71,7 @@ export function initWaitlist() {
           throw new Error(`Waitlist request failed (${response.status})`);
         }
         await response.json();
-        const label = PLATFORM_LABELS[payload.platform] || "Blabb";
+        const label = PLATFORM_COPY[payload.platform]?.label || "Blabb";
         form.dataset.state = "success";
         if (status) status.textContent = `${SUCCESS_MESSAGE} Your ${label} preference is saved.`;
         if (buttonLabel) buttonLabel.textContent = "Request received";
@@ -67,9 +80,11 @@ export function initWaitlist() {
         form.dataset.state = "error";
         if (status) status.textContent = ERROR_MESSAGE;
         button.disabled = false;
-        const label = PLATFORM_LABELS[selectedPlatform()] || "Blabb";
+        const label = PLATFORM_COPY[selectedPlatform()]?.label || "Blabb";
         if (buttonLabel) buttonLabel.textContent = `Try ${label} again`;
       }
     });
+
+    resetState();
   });
 }
