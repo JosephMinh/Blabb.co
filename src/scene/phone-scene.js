@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMaterials, palette } from "./materials.js";
 import { createScreenTexture } from "./screen-texture.js";
+import { continueStoryPhases, showsContinueInsertion } from "./story-phases.js";
 
 const chapters = [
   ["00", "INTERACTIVE MODEL", "hero"],
@@ -540,13 +541,24 @@ export async function createPhoneScene(webglScene, camera) {
     if (key === lastScreenKey) return;
     lastScreenKey = key;
     screen.update(textureState, localPhase);
-    if (stage) stage.dataset.screenState = textureState;
+    if (stage) {
+      stage.dataset.screenState = textureState;
+      stage.dataset.continueInsertion = nextState === "continue" && showsContinueInsertion(localPhase)
+        ? "visible"
+        : "hidden";
+    }
   }
 
-  function applyBubbleState(nextState, localPhase) {
-    const listening = nextState === "dictate" || (nextState === "continue" && localPhase > 0.18 && localPhase < 0.39);
-    const processing = nextState === "process" || (nextState === "continue" && localPhase >= 0.39 && localPhase < 0.56);
-    const success = ["insert", "continue"].includes(nextState) && !listening && !processing;
+  function applyBubbleState(nextState) {
+    const bubbleState = {
+      dictate: "listening",
+      process: "processing",
+      insert: "success",
+      continue: "success"
+    }[nextState] || "ready";
+    const listening = bubbleState === "listening";
+    const processing = bubbleState === "processing";
+    const success = bubbleState === "success";
     bubble.processingArc.visible = processing;
     bubble.stateRing.visible = listening || success;
     bubble.badge.visible = listening || processing || success;
@@ -558,6 +570,7 @@ export async function createPhoneScene(webglScene, camera) {
     bubble.check.visible = success;
     bubble.stop.visible = listening;
     bubble.dots.visible = processing;
+    if (stage) stage.dataset.bubbleState = bubbleState;
   }
 
   function setProgress(nextProgress) {
@@ -646,7 +659,7 @@ export async function createPhoneScene(webglScene, camera) {
       setSnoozeTargetCaptured(snoozeTarget, frame.captured);
     }
 
-    applyBubbleState(state, phase);
+    applyBubbleState(state);
   }
 
   function setFinal(active) {
@@ -668,7 +681,7 @@ export async function createPhoneScene(webglScene, camera) {
       compact ? -2.85 : bubbleRestPosition.y,
       bubbleRestPosition.z
     );
-    applyBubbleState("insert", 1);
+    applyBubbleState("insert");
   }
 
   function updateTouchRings(time) {
@@ -676,7 +689,7 @@ export async function createPhoneScene(webglScene, camera) {
       let pulse = -1;
       if (state === "dictate") pulse = (time * 0.72 + index * 0.5) % 1;
       if (state === "continue") {
-        const center = index === 0 ? 0.62 : 0.7;
+        const center = continueStoryPhases.undoTapCenters[index];
         const distance = Math.abs(phase - center);
         pulse = distance < 0.1 ? distance / 0.1 : -1;
       }

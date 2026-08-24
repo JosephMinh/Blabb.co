@@ -7,7 +7,7 @@ const stateCopy = {
   continue: ["05", "CONTINUE + EXACT UNDO", "Step 5. A second dictation is inserted, then only that latest insertion is removed."],
   snooze: ["06", "MOVE + SNOOZE", "Step 6. The bubble docks, snoozes for ten minutes, and returns automatically."]
 };
-const storyMarkerOffset = () => Math.min(120, Math.max(84, window.innerHeight * 0.1));
+const storyMarkerOffset = () => window.innerHeight * 0.36;
 
 export function initPhoneStory() {
   const phone = document.querySelector("#story-phone");
@@ -47,14 +47,12 @@ export function initPhoneStory() {
     setVisualState("success", "first");
     if (reduceMotion.matches) return;
 
-    later(() => setVisualState("listening", "listening"), 850);
-    later(() => setVisualState("processing", "processing"), 1650);
-    later(() => setVisualState("success", "inserted"), 2550);
-    later(() => setVisualState("success", "undo-highlight"), 3900);
-    later(() => setVisualState("success", "undone"), 4750);
+    later(() => setVisualState("success", "inserted"), 1400);
+    later(() => setVisualState("success", "undo-highlight"), 3200);
+    later(() => setVisualState("success", "undone"), 4000);
     later(() => {
       if (activeChapter === "continue") playContinueTimeline();
-    }, 6500);
+    }, 5600);
   }
 
   function playSnoozeTimeline() {
@@ -111,7 +109,7 @@ export function initPhoneStory() {
 
     targets.forEach((target) => {
       const rect = target.getBoundingClientRect();
-      if (rect.top <= marker && rect.bottom >= marker) {
+      if (rect.top <= marker && rect.bottom > marker) {
         current = target;
         shortestDistance = 0;
         return;

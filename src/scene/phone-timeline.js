@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger, CustomEase, Flip, SplitText);
 CustomEase.create("blabbEase", "M0,0 C0.16,1 0.3,1 1,1");
 
 const labels = ["hero", "focus", "dictate", "process", "insert", "undo", "snooze"];
-const storyMarkerOffset = () => Math.min(120, Math.max(84, window.innerHeight * 0.1));
+const storyMarkerOffset = () => window.innerHeight * 0.36;
 
 export function createPhoneTimeline(controller, stage) {
   const journey = document.querySelector(".journey");
@@ -49,9 +49,8 @@ export function createPhoneTimeline(controller, stage) {
     onLeaveBack: syncJourneyVisibility,
     onUpdate: () => {
       syncJourneyVisibility();
-      // The large chapter title occupies the lower half of each desktop panel.
-      // Read the active chapter just below the fixed header so that title,
-      // step number, and phone state leave and enter as one composition.
+      // Switch in the visual gap where the outgoing explanation clears and
+      // the incoming headline becomes the dominant copy in the viewport.
       const marker = window.scrollY + storyMarkerOffset();
       let activeIndex = storySections.length - 1;
       let localProgress = 1;
@@ -60,7 +59,7 @@ export function createPhoneTimeline(controller, stage) {
         const bounds = section.getBoundingClientRect();
         const top = bounds.top + window.scrollY;
         const bottom = top + bounds.height;
-        if (marker <= bottom) {
+        if (marker < bottom) {
           activeIndex = index;
           localProgress = gsap.utils.clamp(0, 0.999, (marker - top) / bounds.height);
           break;

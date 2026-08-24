@@ -1,6 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 const steps = ["01", "02", "03", "04", "05", "06"];
+const chapterStates = {
+  "01": ["focus", "ready"],
+  "02": ["dictate", "listening"],
+  "03": ["process", "processing"],
+  "04": ["insert", "success"],
+  "05": ["continue", "success"],
+  "06": ["snooze", "ready"]
+};
 
 test("desktop uses one persistent 3D phone through the six product states", async ({ page }) => {
   test.setTimeout(90_000);
@@ -33,15 +41,51 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
     const section = page.locator(`.story-chapter[data-step="${step}"]`);
     await section.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
-      // This is where the previous center-line trigger advanced to the next
-      // phone state while the current chapter's large title was still visible.
-      scrollTo(0, bounds.top + scrollY + bounds.height * 0.62);
+      scrollTo(0, bounds.top + scrollY + bounds.height * 0.16);
     });
-    await expect(section.locator("h2")).toBeVisible();
     await expect(page.locator("#active-step")).toHaveText(step);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-chapter", chapterStates[step][0]);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-bubble-state", chapterStates[step][1]);
+    const chapterOrder = await section.evaluate((element) => {
+      const title = element.querySelector(".chapter-left").getBoundingClientRect();
+      const supportingCopy = element.querySelector(".chapter-right").getBoundingClientRect();
+      return {
+        titleTop: title.top,
+        titleBottom: title.bottom,
+        supportingTop: supportingCopy.top,
+        supportingBottom: supportingCopy.bottom,
+        viewportHeight: innerHeight
+      };
+    });
+    expect(chapterOrder.titleTop).toBeGreaterThanOrEqual(0);
+    expect(chapterOrder.titleBottom).toBeLessThan(chapterOrder.supportingTop);
+    expect(chapterOrder.supportingBottom).toBeLessThanOrEqual(chapterOrder.viewportHeight);
+  }
+  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);
+
+  for (const step of steps.slice(1)) {
+    const incoming = page.locator(`.story-chapter[data-step="${step}"]`);
+    await incoming.evaluate((element) => {
+      scrollTo(0, element.offsetTop - innerHeight * 0.36 + 1);
+    });
+    await expect(page.locator("#active-step")).toHaveText(step);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-chapter", chapterStates[step][0]);
   }
 
-  await expect(page.locator("#artifact-stage")).toHaveAttribute("data-screen-state", /snooz(?:e|ed)/);
+  const continueSection = page.locator('.story-chapter[data-step="05"]');
+  for (const scene of [
+    { phase: 0.3, bubble: "success", insertion: "hidden" },
+    { phase: 0.58, bubble: "success", insertion: "visible" },
+    { phase: 0.84, bubble: "success", insertion: "hidden" }
+  ]) {
+    await continueSection.evaluate((element, phase) => {
+      const markerOffset = innerHeight * 0.36;
+      scrollTo(0, element.offsetTop + element.offsetHeight * phase - markerOffset);
+    }, scene.phase);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-bubble-state", scene.bubble);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-continue-insertion", scene.insertion);
+  }
+
   await page.locator("#artifact-stage").evaluate((element) => { element.dataset.renderPaused = "true"; });
 
   for (const viewport of [
@@ -66,6 +110,8 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
         const storyIndex = document.querySelector(".story-index").getBoundingClientRect();
         return {
           titleTop: title.top,
+          titleBottom: title.bottom,
+          supportingTop: supportingCopy.top,
           supportingBottom: supportingCopy.bottom,
           supportingRight: supportingCopy.right,
           storyIndexLeft: storyIndex.left,
@@ -74,7 +120,7 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
       });
       expect(layout.supportingRight).toBeLessThan(layout.artifactCenter);
       expect(layout.supportingRight).toBeLessThan(layout.storyIndexLeft);
-      expect(layout.supportingBottom).toBeLessThan(layout.titleTop);
+      expect(layout.titleBottom).toBeLessThan(layout.supportingTop);
     }
   }
 
@@ -87,6 +133,7 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
 });
 
 test("mobile loads the 3D hero and hands the same phone through the story", async ({ page }) => {
+  test.setTimeout(90_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/webgl-ready/, { timeout: 30_000 });
@@ -141,6 +188,25 @@ test("mobile loads the 3D hero and hands the same phone through the story", asyn
   expect(posterLayout.titleTop).toBeGreaterThanOrEqual(0);
   expect(posterLayout.panelTop).toBeGreaterThan(posterLayout.titleBottom);
   expect(posterLayout.panelBottom).toBeLessThanOrEqual(posterLayout.viewportHeight);
+
+  for (const step of steps) {
+    const section = page.locator(`.story-chapter[data-step="${step}"]`);
+    await section.evaluate((element) => {
+      scrollTo(0, element.offsetTop + element.offsetHeight * 0.14);
+    });
+    await expect(page.locator("#active-step")).toHaveText(step);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-chapter", chapterStates[step][0]);
+    await expect(page.locator("#artifact-stage")).toHaveAttribute("data-bubble-state", chapterStates[step][1]);
+    const chapterOrder = await section.evaluate((element) => {
+      const title = element.querySelector(".chapter-left").getBoundingClientRect();
+      const supportingCopy = element.querySelector(".chapter-right").getBoundingClientRect();
+      return {
+        titleBottom: title.bottom,
+        supportingTop: supportingCopy.top
+      };
+    });
+    expect(chapterOrder.titleBottom).toBeLessThan(chapterOrder.supportingTop);
+  }
 
   await page.locator('.story-chapter[data-step="06"]').evaluate((element) => {
     scrollTo(0, element.offsetTop);

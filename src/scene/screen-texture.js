@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { showsContinueInsertion } from "./story-phases.js";
 
 const colors = {
   ink: "#170a1c",
@@ -245,7 +246,7 @@ export function createScreenTexture(logoImage) {
     roundedRect(context, 50, 972, 562, 104, 52, colors.white, "#d4c9d6", 3);
 
     const showFirst = ["insert", "continue", "undo", "snooze", "snoozed", "final"].includes(state);
-    const showSecond = state === "continue" && phase < 0.68;
+    const showSecond = state === "continue" && showsContinueInsertion(phase);
     const composerX = 72;
     const baseLineY = showFirst ? 1003 : 1024;
     const insertionLineY = 1047;

@@ -83,8 +83,7 @@ export function initShell() {
     const hero = document.querySelector(".hero");
     if (!compact || !webglReady || !hero) return;
     event.preventDefault();
-    const storyMarkerOffset = Math.min(120, Math.max(84, window.innerHeight * 0.1));
-    const showcaseOffset = hero.offsetHeight * 0.56 - storyMarkerOffset;
+    const showcaseOffset = Math.min(560, Math.max(460, hero.offsetHeight * 0.35));
     window.scrollTo({
       top: hero.offsetTop + showcaseOffset,
       behavior: reduceMotion ? "auto" : "smooth"
