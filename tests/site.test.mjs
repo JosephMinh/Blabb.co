@@ -141,6 +141,7 @@ assert.match(html, /No app account/);
 assert.match(html, /<form class="waitlist-form" action="\/api\/waitlist" method="post" data-waitlist-form/);
 assert.match(html, /name="platform" value="android" checked/);
 assert.match(html, /name="platform" value="ios"/);
+assert.doesNotMatch(html, /join the Android waitlist/i);
 assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+required/);
 assert.match(html, /name="website"[^>]+tabindex="-1"/);
 assert.match(entryScript, /initWaitlist\(\)/);
