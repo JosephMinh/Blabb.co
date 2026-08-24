@@ -33,8 +33,11 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
     const section = page.locator(`.story-chapter[data-step="${step}"]`);
     await section.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
-      scrollTo(0, bounds.top + scrollY + bounds.height * 0.12);
+      // This is where the previous center-line trigger advanced to the next
+      // phone state while the current chapter's large title was still visible.
+      scrollTo(0, bounds.top + scrollY + bounds.height * 0.62);
     });
+    await expect(section.locator("h2")).toBeVisible();
     await expect(page.locator("#active-step")).toHaveText(step);
   }
 

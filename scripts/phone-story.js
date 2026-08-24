@@ -7,6 +7,7 @@ const stateCopy = {
   continue: ["05", "CONTINUE + EXACT UNDO", "Step 5. A second dictation is inserted, then only that latest insertion is removed."],
   snooze: ["06", "MOVE + SNOOZE", "Step 6. The bubble docks, snoozes for ten minutes, and returns automatically."]
 };
+const storyMarkerOffset = () => Math.min(120, Math.max(84, window.innerHeight * 0.1));
 
 export function initPhoneStory() {
   const phone = document.querySelector("#story-phone");
@@ -104,7 +105,7 @@ export function initPhoneStory() {
       activeChapter = "";
       return;
     }
-    const marker = window.innerHeight * 0.5;
+    const marker = storyMarkerOffset();
     let current = targets[0];
     let shortestDistance = Infinity;
 

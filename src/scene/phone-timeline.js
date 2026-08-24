@@ -9,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger, CustomEase, Flip, SplitText);
 CustomEase.create("blabbEase", "M0,0 C0.16,1 0.3,1 1,1");
 
 const labels = ["hero", "focus", "dictate", "process", "insert", "undo", "snooze"];
+const storyMarkerOffset = () => Math.min(120, Math.max(84, window.innerHeight * 0.1));
 
 export function createPhoneTimeline(controller, stage) {
   const journey = document.querySelector(".journey");
@@ -48,7 +49,10 @@ export function createPhoneTimeline(controller, stage) {
     onLeaveBack: syncJourneyVisibility,
     onUpdate: () => {
       syncJourneyVisibility();
-      const marker = window.scrollY + window.innerHeight * 0.5;
+      // The large chapter title occupies the lower half of each desktop panel.
+      // Read the active chapter just below the fixed header so that title,
+      // step number, and phone state leave and enter as one composition.
+      const marker = window.scrollY + storyMarkerOffset();
       let activeIndex = storySections.length - 1;
       let localProgress = 1;
       for (let index = 0; index < storySections.length; index += 1) {

@@ -269,7 +269,7 @@ assert.match(css, /\.js\.enhanced \.chapter-copy\.reveal\s*\{[^}]*opacity:\s*1[^
 assert.match(entryScript, /classList\.add\("enhanced"\)/);
 assert.match(readFileSync('scripts/main.js', 'utf8'), /motionSections[\s\S]*IntersectionObserver/);
 assert.match(html, /href="#story" data-mobile-showcase/);
-assert.match(readFileSync('scripts/main.js', 'utf8'), /mobileShowcaseLink[\s\S]*hero\.offsetHeight \* 0\.35/);
+assert.match(readFileSync('scripts/main.js', 'utf8'), /mobileShowcaseLink[\s\S]*hero\.offsetHeight \* 0\.56 - storyMarkerOffset/);
 assert.match(html, /<canvas id="artifact-webgl" data-device="android-phone"><\/canvas>/);
 assert.match(html, /artifact-drag-hint/);
 assert.match(html, /artifact-drag-icon/);
