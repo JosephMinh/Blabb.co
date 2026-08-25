@@ -143,6 +143,8 @@ assert.match(html, /<form class="waitlist-form" action="\/api\/waitlist" method=
 assert.match(html, /name="platform" value="android" checked/);
 assert.match(html, /name="platform" value="ios"/);
 assert.doesNotMatch(html, /join the Android waitlist/i);
+assert.match(html, /class="waitlist-icon"[^>]*>[\s\S]*M20 4H4/);
+assert.doesNotMatch(html, /M17\.6 9\.5 19 7\.1/);
 assert.match(html, /id="waitlist-email"[^>]+type="email"[^>]+required/);
 assert.match(html, /name="website"[^>]+tabindex="-1"/);
 assert.match(entryScript, /initWaitlist\(\)/);
