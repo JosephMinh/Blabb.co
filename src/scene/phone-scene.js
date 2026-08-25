@@ -536,16 +536,15 @@ export async function createPhoneScene(webglScene, camera) {
 
   function updateScreen(nextState, localPhase) {
     const textureState = nextState === "snooze" && snoozeStoryFrame(localPhase).snoozed ? "snoozed" : nextState;
+    const continueInsertion = nextState === "continue" && showsContinueInsertion(localPhase);
     const phaseBucket = nextState === "continue" ? Math.floor(localPhase * 20) : 0;
-    const key = `${textureState}-${phaseBucket}`;
+    const key = `${textureState}-${phaseBucket}-${continueInsertion ? 1 : 0}`;
     if (key === lastScreenKey) return;
     lastScreenKey = key;
     screen.update(textureState, localPhase);
     if (stage) {
       stage.dataset.screenState = textureState;
-      stage.dataset.continueInsertion = nextState === "continue" && showsContinueInsertion(localPhase)
-        ? "visible"
-        : "hidden";
+      stage.dataset.continueInsertion = continueInsertion ? "visible" : "hidden";
     }
   }
 

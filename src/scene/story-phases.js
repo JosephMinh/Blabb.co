@@ -1,5 +1,5 @@
 export const continueStoryPhases = Object.freeze({
-  resultStart: 0.44,
+  resultStart: 0.28,
   undoStart: 0.78,
   undoTapCenters: Object.freeze([0.7, 0.77])
 });

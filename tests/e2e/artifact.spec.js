@@ -74,8 +74,8 @@ test("desktop uses one persistent 3D phone through the six product states", asyn
 
   const continueSection = page.locator('.story-chapter[data-step="05"]');
   for (const scene of [
-    { phase: 0.3, bubble: "success", insertion: "hidden" },
-    { phase: 0.58, bubble: "success", insertion: "visible" },
+    { phase: 0.26, bubble: "success", insertion: "hidden" },
+    { phase: 0.3, bubble: "success", insertion: "visible" },
     { phase: 0.84, bubble: "success", insertion: "hidden" }
   ]) {
     await continueSection.evaluate((element, phase) => {
